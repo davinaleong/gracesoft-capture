@@ -18,6 +18,8 @@
         </include>
     </source>
     <php>
+        <env name="APP_KEY" value="base64:Q7D6x1QUQYo4pM4F6mJ7s3wDk9Y4tN2vA0eS6oD8Q2U="/>
+        <env name="APP_URL" value="http://localhost"/>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
@@ -29,6 +31,13 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <env name="HQ_API_V1_APP_NAME" value="Testing App"/>
+        <env name="HQ_API_V1_APP_ID" value="00000000-0000-0000-0000-000000000000"/>
+        <env name="HQ_API_V1_APP_KEY" value="test_key"/>
+        <env name="HQ_API_V1_APP_SECRET" value="test_secret"/>
+        <env name="HQ_API_V1_SIGNATURE_TOLERANCE_SECONDS" value="300"/>
+        <env name="FEEDBACK_HQ_SYNC_URL" value="http://localhost/api/v1/feedback"/>
+        <env name="ANALYTICS_HQ_SYNC_URL" value="http://localhost/api/v1/analytics"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
