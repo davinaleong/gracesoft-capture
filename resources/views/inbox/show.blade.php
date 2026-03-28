@@ -1,28 +1,48 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="card" style="margin-bottom: 1rem;">
-        <h1>{{ $enquiry->subject }}</h1>
-        <p><strong>Name:</strong> {{ $enquiry->name }}</p>
-        <p><strong>Email:</strong> {{ $enquiry->email }}</p>
-        <p><strong>Status:</strong> {{ $enquiry->status }}</p>
-        <p><strong>Form:</strong> {{ $enquiry->form?->name }}</p>
-        <p><strong>Received:</strong> {{ $enquiry->created_at?->format('Y-m-d H:i') }}</p>
-        <p><strong>Message:</strong></p>
-        <p>{{ $enquiry->message }}</p>
-    </div>
+    <x-ui.card class="mb-4 space-y-4">
+        <h1 class="text-2xl font-bold">{{ $enquiry->subject }}</h1>
 
-    <div class="card">
-        <h2>Update Status</h2>
-        <div class="actions">
+        <dl class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+                <dt class="text-sm font-semibold text-gs-black-700">Name</dt>
+                <dd>{{ $enquiry->name }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-semibold text-gs-black-700">Email</dt>
+                <dd>{{ $enquiry->email }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-semibold text-gs-black-700">Status</dt>
+                <dd>{{ ucfirst($enquiry->status) }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-semibold text-gs-black-700">Form</dt>
+                <dd>{{ $enquiry->form?->name }}</dd>
+            </div>
+            <div class="md:col-span-2">
+                <dt class="text-sm font-semibold text-gs-black-700">Received</dt>
+                <dd>{{ $enquiry->created_at?->format('Y-m-d H:i') }}</dd>
+            </div>
+            <div class="md:col-span-2">
+                <dt class="text-sm font-semibold text-gs-black-700">Message</dt>
+                <dd class="mt-1 rounded border border-gray-200 bg-gray-50 p-3">{{ $enquiry->message }}</dd>
+            </div>
+        </dl>
+    </x-ui.card>
+
+    <x-ui.card class="space-y-3">
+        <h2 class="text-xl font-bold">Update Status</h2>
+        <div class="flex flex-wrap items-center gap-2">
             @if ($enquiry->status === 'new')
                 <form method="post" action="{{ route('inbox.status.update', $enquiry) }}">
                     @csrf
                     <input type="hidden" name="status" value="contacted">
-                    <button type="submit" class="actions" style="align-items: center; gap: 0.35rem;">
+                    <x-ui.button type="submit" variant="secondary">
                         <x-icons.pencil size="16" />
                         <span>Mark Contacted</span>
-                    </button>
+                    </x-ui.button>
                 </form>
             @endif
 
@@ -30,53 +50,51 @@
                 <form method="post" action="{{ route('inbox.status.update', $enquiry) }}">
                     @csrf
                     <input type="hidden" name="status" value="closed">
-                    <button type="submit" class="actions" style="align-items: center; gap: 0.35rem;">
+                    <x-ui.button type="submit" variant="danger">
                         <x-icons.trash size="16" />
                         <span>Mark Closed</span>
-                    </button>
+                    </x-ui.button>
                 </form>
             @endif
 
-            <a href="{{ route('inbox.index') }}">Back to Inbox</a>
+            <x-ui.button tag="a" href="{{ route('inbox.index') }}" variant="secondary">Back to Inbox</x-ui.button>
         </div>
-    </div>
+    </x-ui.card>
 
-    <div class="card" style="margin-top: 1rem;">
-        <h2>Notes</h2>
+    <x-ui.card class="mt-4 space-y-4">
+        <h2 class="text-xl font-bold">Notes</h2>
 
         @if ($notesEnabled)
             <form method="post" action="{{ route('inbox.notes.store', $enquiry) }}">
                 @csrf
-                <div class="grid">
-                    <div class="full">
-                        <label for="user_id">User ID (HQ)</label>
-                        <input id="user_id" name="user_id" type="text" value="{{ old('user_id') }}" required>
-                    </div>
+                <div class="grid grid-cols-1 gap-4">
+                    <x-ui.field for="user_id" label="User ID (HQ)" required>
+                        <x-ui.input id="user_id" name="user_id" :value="old('user_id')" required />
+                    </x-ui.field>
 
-                    <div class="full">
-                        <label for="content">Note</label>
-                        <textarea id="content" name="content" rows="4" required>{{ old('content') }}</textarea>
-                    </div>
+                    <x-ui.field for="content" label="Note" required>
+                        <x-ui.textarea id="content" name="content" rows="4" required>{{ old('content') }}</x-ui.textarea>
+                    </x-ui.field>
                 </div>
 
-                <div style="margin-top: 1rem;" class="actions">
-                    <button type="submit">Add Note</button>
+                <div class="mt-4 flex items-center gap-2">
+                    <x-ui.button type="submit">Add Note</x-ui.button>
                 </div>
             </form>
         @else
-            <p>Notes are available on the Pro plan only.</p>
+            <x-ui.alert variant="info">Notes are available on the Pro plan only.</x-ui.alert>
         @endif
 
-        <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #dbe3ec;">
+        <hr class="border-gray-200">
 
         @forelse ($enquiry->notes as $note)
-            <article style="padding: 0.75rem; border: 1px solid #dbe3ec; border-radius: 8px; margin-bottom: 0.75rem;">
-                <p style="margin: 0 0 0.35rem;"><strong>User:</strong> {{ $note->user_id }}</p>
-                <p style="margin: 0 0 0.35rem;"><strong>Added:</strong> {{ $note->created_at?->format('Y-m-d H:i') }}</p>
-                <p style="margin: 0;">{{ $note->content }}</p>
+            <article class="rounded border border-gray-200 bg-white p-3">
+                <p class="mb-1"><strong>User:</strong> {{ $note->user_id }}</p>
+                <p class="mb-1"><strong>Added:</strong> {{ $note->created_at?->format('Y-m-d H:i') }}</p>
+                <p>{{ $note->content }}</p>
             </article>
         @empty
-            <p>No notes yet.</p>
+            <p class="text-gs-black-600">No notes yet.</p>
         @endforelse
-    </div>
+    </x-ui.card>
 @endsection

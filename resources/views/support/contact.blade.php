@@ -1,43 +1,38 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="card">
-        <h1>Contact Support</h1>
-        <p style="color: #475569; margin-top: 0;">Send your issue or question and we will forward it to HQ support.</p>
+    <x-ui.card class="space-y-4">
+        <h1 class="text-2xl font-bold">Contact Support</h1>
+        <p class="text-gs-black-700">Send your issue or question and we will forward it to HQ support.</p>
 
         <form method="post" action="{{ route('support.store') }}">
             @csrf
 
-            <div class="grid">
-                <div>
-                    <label for="name">Name</label>
-                    <input id="name" name="name" type="text" value="{{ old('name') }}" required>
-                </div>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <x-ui.field for="name" label="Name" required>
+                    <x-ui.input id="name" name="name" :value="old('name')" required />
+                </x-ui.field>
 
-                <div>
-                    <label for="email">Email</label>
-                    <input id="email" name="email" type="email" value="{{ old('email') }}" required>
-                </div>
+                <x-ui.field for="email" label="Email" required>
+                    <x-ui.input id="email" name="email" type="email" :value="old('email')" required />
+                </x-ui.field>
 
-                <div class="full">
-                    <label for="subject">Subject</label>
-                    <input id="subject" name="subject" type="text" value="{{ old('subject') }}" required>
-                </div>
+                <x-ui.field for="subject" label="Subject" required class="md:col-span-2">
+                    <x-ui.input id="subject" name="subject" :value="old('subject')" required />
+                </x-ui.field>
 
-                <div class="full">
-                    <label for="message">Message</label>
-                    <textarea id="message" name="message" rows="5" required>{{ old('message') }}</textarea>
-                </div>
+                <x-ui.field for="message" label="Message" required class="md:col-span-2">
+                    <x-ui.textarea id="message" name="message" rows="5" required>{{ old('message') }}</x-ui.textarea>
+                </x-ui.field>
 
-                <div class="full">
-                    <label for="account_id">Account ID (optional)</label>
-                    <input id="account_id" name="account_id" type="text" value="{{ old('account_id') }}">
-                </div>
+                <x-ui.field for="account_id" label="Account ID (optional)" class="md:col-span-2">
+                    <x-ui.input id="account_id" name="account_id" :value="old('account_id')" />
+                </x-ui.field>
             </div>
 
-            <div class="actions" style="margin-top: 1rem;">
-                <button type="submit">Send to Support</button>
+            <div class="mt-4 flex items-center gap-2">
+                <x-ui.button type="submit">Send to Support</x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 @endsection

@@ -1,38 +1,34 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="card">
-        <h1>Create Form</h1>
+    <x-ui.card class="space-y-4">
+        <h1 class="text-2xl font-bold">Create Form</h1>
 
         <form method="post" action="{{ route('manage.forms.store') }}">
             @csrf
 
-            <div class="grid">
-                <div class="full">
-                    <label for="name">Form Name</label>
-                    <input id="name" name="name" type="text" value="{{ old('name') }}" required>
-                </div>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <x-ui.field for="name" label="Form Name" required class="md:col-span-2">
+                    <x-ui.input id="name" name="name" :value="old('name')" required />
+                </x-ui.field>
 
-                <div>
-                    <label for="account_id">Account ID</label>
-                    <input id="account_id" name="account_id" type="text" value="{{ old('account_id') }}" required>
-                </div>
+                <x-ui.field for="account_id" label="Account ID" required>
+                    <x-ui.input id="account_id" name="account_id" :value="old('account_id')" required />
+                </x-ui.field>
 
-                <div>
-                    <label for="application_id">Application ID</label>
-                    <input id="application_id" name="application_id" type="text" value="{{ old('application_id') }}" required>
-                </div>
+                <x-ui.field for="application_id" label="Application ID" required>
+                    <x-ui.input id="application_id" name="application_id" :value="old('application_id')" required />
+                </x-ui.field>
 
-                <div class="full">
-                    <label for="notification_email">Notification Email</label>
-                    <input id="notification_email" name="notification_email" type="email" value="{{ old('notification_email') }}">
-                </div>
+                <x-ui.field for="notification_email" label="Notification Email" class="md:col-span-2">
+                    <x-ui.input id="notification_email" name="notification_email" type="email" :value="old('notification_email')" />
+                </x-ui.field>
             </div>
 
-            <div style="margin-top: 1rem;" class="actions">
-                <button type="submit">Create Form</button>
-                <a href="{{ route('manage.forms.index') }}">Cancel</a>
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+                <x-ui.button type="submit">Create Form</x-ui.button>
+                <x-ui.button tag="a" href="{{ route('manage.forms.index') }}" variant="secondary">Cancel</x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 @endsection
