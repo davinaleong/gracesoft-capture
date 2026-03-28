@@ -109,6 +109,33 @@
 			cursor: pointer;
 		}
 
+		.alert {
+			padding: 0.75rem 0.9rem;
+			border-radius: 10px;
+			margin-bottom: 1rem;
+			font-size: 0.9rem;
+		}
+
+		.alert.success {
+			background: #ecfdf5;
+			border: 1px solid #10b981;
+			color: #065f46;
+		}
+
+		.alert.error {
+			background: #fef2f2;
+			border: 1px solid #ef4444;
+			color: #991b1b;
+		}
+
+		.honeypot {
+			position: absolute;
+			left: -9999px;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+		}
+
 		@media (max-width: 640px) {
 			.grid {
 				grid-template-columns: 1fr;
@@ -118,31 +145,44 @@
 </head>
 <body>
 	<main class="form-shell">
-		<h1>Contact Us</h1>
+		<h1>{{ $form->name }}</h1>
 		<p>Fill out the form below and we will get back to you soon.</p>
 
-		<form action="#" method="post" novalidate>
+		@if (session('status'))
+			<div class="alert success">{{ session('status') }}</div>
+		@endif
+
+		@if ($errors->any())
+			<div class="alert error">Please check your input and try again.</div>
+		@endif
+
+		<form action="{{ route('forms.submit', $form->public_token) }}" method="post" novalidate>
 			@csrf
+
+			<div class="honeypot" aria-hidden="true">
+				<label for="website">Leave this field empty</label>
+				<input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+			</div>
 
 			<div class="grid">
 				<div class="field">
 					<label for="name">Full Name</label>
-					<input type="text" id="name" name="name" autocomplete="name" required>
+					<input type="text" id="name" name="name" autocomplete="name" value="{{ old('name') }}" required>
 				</div>
 
 				<div class="field">
 					<label for="email">Email Address</label>
-					<input type="email" id="email" name="email" autocomplete="email" required>
+					<input type="email" id="email" name="email" autocomplete="email" value="{{ old('email') }}" required>
 				</div>
 
 				<div class="field full">
 					<label for="subject">Subject</label>
-					<input type="text" id="subject" name="subject" required>
+					<input type="text" id="subject" name="subject" value="{{ old('subject') }}" required>
 				</div>
 
 				<div class="field full">
 					<label for="message">Message</label>
-					<textarea id="message" name="message" required></textarea>
+					<textarea id="message" name="message" required>{{ old('message') }}</textarea>
 				</div>
 
 				<div class="field full">
