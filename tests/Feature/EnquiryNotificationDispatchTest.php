@@ -1,6 +1,7 @@
 <?php
 
 use App\Jobs\SendEnquiryNotificationJob;
+use App\Jobs\SyncAnalyticsEventToHQJob;
 use App\Models\Form;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -28,5 +29,11 @@ test('submitting public form dispatches queued notification job', function () {
 
     Queue::assertPushed(SendEnquiryNotificationJob::class, function (SendEnquiryNotificationJob $job) {
         return $job->recipientEmail === 'notify@example.com';
+    });
+
+    Queue::assertPushed(SyncAnalyticsEventToHQJob::class, function (SyncAnalyticsEventToHQJob $job) use ($form) {
+        return data_get($job->eventPayload, 'event') === 'enquiry.created'
+            && data_get($job->eventPayload, 'account_id') === $form->account_id
+            && data_get($job->eventPayload, 'application_id') === $form->application_id;
     });
 });

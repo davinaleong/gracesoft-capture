@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendEnquiryNotificationJob;
+use App\Jobs\SyncAnalyticsEventToHQJob;
 use App\Models\Enquiry;
 use App\Models\Form;
 use Illuminate\Http\RedirectResponse;
@@ -58,6 +59,16 @@ class PublicFormController extends Controller
         if (is_string($recipient) && $recipient !== '') {
             SendEnquiryNotificationJob::dispatch($enquiry->id, $recipient);
         }
+
+        SyncAnalyticsEventToHQJob::dispatch([
+            'event' => 'enquiry.created',
+            'account_id' => $enquiry->account_id,
+            'application_id' => $enquiry->application_id,
+            'form_uuid' => $form->uuid,
+            'enquiry_uuid' => $enquiry->uuid,
+            'status' => $enquiry->status,
+            'occurred_at' => now()->toIso8601String(),
+        ]);
 
         if ($request->expectsJson()) {
             return response([
