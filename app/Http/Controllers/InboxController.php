@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Enquiry;
+use App\Support\PlanGate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -28,12 +29,13 @@ class InboxController extends Controller
         ]);
     }
 
-    public function show(Enquiry $enquiry): View
+    public function show(Enquiry $enquiry, PlanGate $planGate): View
     {
-        $enquiry->load('form');
+        $enquiry->load(['form', 'notes']);
 
         return view('inbox.show', [
             'enquiry' => $enquiry,
+            'notesEnabled' => $planGate->notesEnabled($enquiry->account_id),
         ]);
     }
 

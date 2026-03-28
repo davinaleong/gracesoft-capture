@@ -1,12 +1,17 @@
 <?php
 
 use App\Http\Controllers\FormManagementController;
+use App\Http\Controllers\EnquiryNoteController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\PublicFormController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('/components', function () {
+    return view('components');
 });
 
 Route::get('/form/{token}', [PublicFormController::class, 'show'])
@@ -29,4 +34,5 @@ Route::prefix('inbox')->name('inbox.')->group(function () {
     Route::get('/', [InboxController::class, 'index'])->name('index');
     Route::get('/{enquiry}', [InboxController::class, 'show'])->name('show');
     Route::post('/{enquiry}/status', [InboxController::class, 'updateStatus'])->name('status.update');
+    Route::post('/{enquiry}/notes', [EnquiryNoteController::class, 'store'])->name('notes.store');
 });
