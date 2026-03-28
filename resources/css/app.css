@@ -9,3 +9,124 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@theme {
+    /* GraceSoft purple scale */
+    --color-gs-purple-50: #f2f1fb;
+    --color-gs-purple-100: #e4e2f7;
+    --color-gs-purple-200: #c9c5ef;
+    --color-gs-purple-300: #a79fe4;
+    --color-gs-purple-400: #7c71d6;
+    --color-gs-purple-500: #5a4cc7;
+    --color-gs-purple-600: #372aac; /* Brand Color */
+    --color-gs-purple-700: #2e2392;
+    --color-gs-purple-800: #251c78;
+    --color-gs-purple-900: #1c155e;
+    --color-gs-purple-950: #120e3f;
+
+    /* GraceSoft neutral (black) scale */
+    --color-gs-black-50: #f5f5f5;
+    --color-gs-black-100: #e5e5e5;
+    --color-gs-black-200: #cccccc;
+    --color-gs-black-300: #b3b3b3;
+    --color-gs-black-400: #999999;
+    --color-gs-black-500: #808080;
+    --color-gs-black-600: #666666;
+    --color-gs-black-700: #4d4d4d;
+    --color-gs-black-800: #333333;
+    --color-gs-black-900: #1a1a1a;
+    --color-gs-black-950: #000000; /* Brand Color */
+    
+    --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: 'Playfair Display', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-mono: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+        'Courier New', monospace;
+}
+
+:root {
+    --gs-primary-50: var(--color-gs-purple-50);
+    --gs-primary-100: var(--color-gs-purple-100);
+    --gs-primary-200: var(--color-gs-purple-200);
+    --gs-primary-300: var(--color-gs-purple-300);
+    --gs-primary-400: var(--color-gs-purple-400);
+    --gs-primary-500: var(--color-gs-purple-500);
+    --gs-primary-600: var(--color-gs-purple-600);
+    --gs-primary-700: var(--color-gs-purple-700);
+    --gs-primary-800: var(--color-gs-purple-800);
+    --gs-primary-900: var(--color-gs-purple-900);
+    --gs-primary-950: var(--color-gs-purple-950);
+
+    --gs-neutral-50: var(--color-gs-black-50);
+    --gs-neutral-100: var(--color-gs-black-100);
+    --gs-neutral-200: var(--color-gs-black-200);
+    --gs-neutral-300: var(--color-gs-black-300);
+    --gs-neutral-400: var(--color-gs-black-400);
+    --gs-neutral-500: var(--color-gs-black-500);
+    --gs-neutral-600: var(--color-gs-black-600);
+    --gs-neutral-700: var(--color-gs-black-700);
+    --gs-neutral-800: var(--color-gs-black-800);
+    --gs-neutral-900: var(--color-gs-black-900);
+    --gs-neutral-950: var(--color-gs-black-950);
+
+    --gs-brand-primary: var(--gs-primary-600); /* #372aac */
+    --gs-brand-neutral: var(--gs-neutral-950); /* #000000 */
+
+    /* Semantic aliases */
+    --color-primary: var(--gs-primary-600);
+    --color-primary-strong: var(--gs-primary-700);
+    --color-bg: var(--gs-neutral-50);
+    --color-surface: #ffffff;
+    --color-text: var(--gs-neutral-900);
+    --color-text-muted: var(--gs-neutral-700);
+    --color-border: var(--gs-neutral-200);
+    --color-success: #15803d;
+    --color-warning: #b45309;
+    --color-danger: #b91c1c;
+    --color-info: #1d4ed8;
+
+    /* Legacy aliases used by existing styles */
+    --gs-ink-900: var(--gs-neutral-900);
+    --gs-background: var(--gs-neutral-50);
+    --gs-accent-500: var(--gs-primary-500);
+
+    /* Spacing scale */
+    --gs-space-1: 0.25rem;
+    --gs-space-2: 0.5rem;
+    --gs-space-3: 0.75rem;
+    --gs-space-4: 1rem;
+    --gs-space-5: 1.25rem;
+    --gs-space-6: 1.5rem;
+    --gs-space-8: 2rem;
+
+    /* Radius and borders */
+    --gs-radius-sm: 0.375rem;
+    --gs-radius-md: 0.5rem;
+    --gs-radius-lg: 0.75rem;
+    --gs-border-default: 1px solid var(--color-border);
+
+    /* Shadows */
+    --gs-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
+    --gs-shadow-md: 0 8px 18px rgba(46, 35, 146, 0.05);
+}
+
+@layer base {
+    body {
+        @apply m-0 font-sans;
+        color: var(--color-text);
+        background: var(--color-bg);
+    }
+
+    a {
+        @apply text-inherit;
+    }
+
+    button {
+        @apply cursor-pointer;
+    }
+
+    *:focus-visible {
+        outline: 3px solid color-mix(in srgb, var(--gs-accent-500), white 20%);
+        outline-offset: 2px;
+    }
+}

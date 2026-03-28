@@ -12,8 +12,12 @@
 </head>
 <body>
 	<main class="container mx-auto p-4 space-y-4">
-		<h1>Components</h1>
-		<p>All components used by the application are listed below.</p>
+		<section>
+			<header>
+				<h1 class="text-3xl font-bold">Components</h1>
+				<p>All components used by the application are listed below.</p>
+			</header>
+		</section>
 	</main>
 </body>
 </html>
