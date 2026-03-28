@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendEnquiryNotificationJob;
 use App\Models\Enquiry;
 use App\Models\Form;
 use Illuminate\Http\RedirectResponse;
@@ -37,7 +38,7 @@ class PublicFormController extends Controller
             'website' => ['nullable', 'max:0'],
         ]);
 
-        Enquiry::create([
+        $enquiry = Enquiry::create([
             'form_id' => $form->id,
             'account_id' => $form->account_id,
             'application_id' => $form->application_id,
@@ -51,6 +52,12 @@ class PublicFormController extends Controller
                 'user_agent' => (string) $request->userAgent(),
             ],
         ]);
+
+        $recipient = data_get($form->settings, 'notification_email') ?: config('mail.from.address');
+
+        if (is_string($recipient) && $recipient !== '') {
+            SendEnquiryNotificationJob::dispatch($enquiry->id, $recipient);
+        }
 
         if ($request->expectsJson()) {
             return response([
