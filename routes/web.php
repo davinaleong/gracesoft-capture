@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FormManagementController;
 use App\Http\Controllers\EnquiryNoteController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\PublicFormController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,9 @@ Route::get('/form/{token}', [PublicFormController::class, 'show'])
 Route::post('/form/{token}/submit', [PublicFormController::class, 'submit'])
     ->middleware('throttle:form-submissions')
     ->name('forms.submit');
+
+Route::get('/support', [FeedbackController::class, 'create'])->name('support.create');
+Route::post('/support', [FeedbackController::class, 'store'])->name('support.store');
 
 Route::prefix('manage/forms')->name('manage.forms.')->group(function () {
     Route::get('/', [FormManagementController::class, 'index'])->name('index');

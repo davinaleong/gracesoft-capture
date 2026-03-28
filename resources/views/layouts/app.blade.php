@@ -132,6 +132,7 @@
         <nav class="nav">
             <a href="{{ route('manage.forms.index') }}">Forms</a>
             <a href="{{ route('inbox.index') }}">Inbox</a>
+            <a href="{{ route('support.create') }}">Contact Support</a>
         </nav>
 
         @if (session('status'))
