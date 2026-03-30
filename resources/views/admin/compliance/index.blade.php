@@ -75,6 +75,46 @@
     </x-ui.card>
 
     <x-ui.card class="mb-4">
+        <h2 class="mb-3 text-lg font-semibold">Administrator Access Recertification</h2>
+        <p class="mb-3 text-sm text-gs-black-700">Active administrator access must be periodically recertified by a different compliance administrator.</p>
+        <x-ui.table>
+            <thead class="bg-gray-50 uppercase text-xs tracking-wide text-gs-black-700">
+                <tr>
+                    <th class="p-2">Administrator</th>
+                    <th class="p-2">Role</th>
+                    <th class="p-2">Last Recertified</th>
+                    <th class="p-2">Status</th>
+                    <th class="p-2">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($administratorRecertifications as $administrator)
+                    <tr class="border-b border-gray-200">
+                        <td class="p-2">{{ $administrator->display_name }}<br><span class="text-xs text-gs-black-600">{{ $administrator->email }}</span></td>
+                        <td class="p-2">{{ $administrator->roleName() }}</td>
+                        <td class="p-2">{{ $administrator->compliance_recertified_at?->format('Y-m-d H:i') ?? 'Never' }}</td>
+                        <td class="p-2">
+                            @if ($administrator->recertification_due)
+                                <span class="rounded bg-gs-red-100 px-2 py-1 text-xs text-gs-red-700">due</span>
+                            @else
+                                <span class="rounded bg-gs-green-100 px-2 py-1 text-xs text-gs-green-700">current</span>
+                            @endif
+                        </td>
+                        <td class="p-2">
+                            <form method="post" action="{{ route('admin.compliance.administrators.recertify', $administrator) }}">
+                                @csrf
+                                <x-ui.button type="submit" size="sm" variant="secondary">Recertify</x-ui.button>
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="5" class="p-4 text-center text-gs-black-600">No active administrators found.</td></tr>
+                @endforelse
+            </tbody>
+        </x-ui.table>
+    </x-ui.card>
+
+    <x-ui.card class="mb-4">
         <h2 class="mb-3 text-lg font-semibold">Break-Glass Controls</h2>
         <div class="grid gap-4 md:grid-cols-2">
             <form method="post" action="{{ route('admin.compliance.break-glass.request') }}" class="space-y-3">

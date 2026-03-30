@@ -14,6 +14,7 @@ Implemented modules and capabilities include:
 - Password reset and email verification for both users and administrators
 - Admin compliance dashboard with audit logs, data access logs, DSR workflows
 - Default-masked sensitive identifiers in compliance views with privileged reveal control
+- Administrator access recertification workflow with audit trail and anti-self-approval
 - Break-glass approvals, optional MFA gating, and admin idle-timeout hardening
 - Data retention cleanup command and scheduler
 - Verification-block telemetry counters with persisted daily snapshots
@@ -75,6 +76,7 @@ These toggles control security and compliance behavior:
 - `CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_COLLABORATOR_ACCEPTANCE`
 - `CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_SENSITIVE_ADMIN_OPERATIONS`
 - `CAPTURE_VERIFICATION_BLOCK_METRICS_ENABLED`
+- `CAPTURE_ADMIN_ACCESS_RECERTIFICATION_DAYS`
 
 HQ integration-related settings are configured in `config/hq.php` and use `HQ_*` env values.
 
@@ -104,8 +106,8 @@ php artisan test
 
 Current validation baseline:
 
-- 82 passing tests
-- 271 assertions
+- 86 passing tests
+- 280 assertions
 
 ## Internal Documentation
 

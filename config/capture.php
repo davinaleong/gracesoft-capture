@@ -20,6 +20,7 @@ return [
         'require_verified_email_for_collaborator_acceptance' => (bool) env('CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_COLLABORATOR_ACCEPTANCE', false),
         'require_verified_email_for_sensitive_admin_operations' => (bool) env('CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_SENSITIVE_ADMIN_OPERATIONS', false),
         'verification_block_metrics_enabled' => (bool) env('CAPTURE_VERIFICATION_BLOCK_METRICS_ENABLED', true),
+        'admin_access_recertification_days' => (int) env('CAPTURE_ADMIN_ACCESS_RECERTIFICATION_DAYS', 90),
     ],
     'admin_authorization' => [
         'default_role' => env('CAPTURE_DEFAULT_ADMIN_ROLE', 'compliance_admin'),
@@ -39,6 +40,7 @@ return [
                 'compliance.process_dsr',
                 'compliance.break_glass.request',
                 'compliance.break_glass.approve',
+                'compliance.recertify_admin_access',
             ],
         ],
     ],

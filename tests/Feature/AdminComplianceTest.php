@@ -509,3 +509,64 @@ test('compliance reader cannot reveal masked subject identifiers', function () {
         ->assertDontSee('private.subject@example.com')
         ->assertDontSee('Hide Sensitive Data');
 });
+
+test('compliance dashboard shows administrator recertification section', function () {
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+    ]);
+
+    Administrator::factory()->create([
+        'display_name' => 'Review Target',
+        'email' => 'review-target@example.com',
+        'compliance_recertified_at' => now()->subDays(120),
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->get(route('admin.compliance.index'))
+        ->assertOk()
+        ->assertSee('Administrator Access Recertification')
+        ->assertSee('review-target@example.com')
+        ->assertSee('due');
+});
+
+test('compliance admin can recertify another active administrator', function () {
+    $reviewer = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+    ]);
+
+    $target = Administrator::factory()->create([
+        'role' => 'compliance_operator',
+        'compliance_recertified_at' => now()->subDays(200),
+    ]);
+
+    $this->actingAs($reviewer, 'admin')
+        ->post(route('admin.compliance.administrators.recertify', $target))
+        ->assertSessionHas('status');
+
+    expect($target->fresh()->compliance_recertified_at)->not->toBeNull();
+    expect(AuditLog::query()->where('action', 'admin.access.recertified')->count())->toBeGreaterThan(0);
+});
+
+test('administrator cannot self recertify access', function () {
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->post(route('admin.compliance.administrators.recertify', $admin))
+        ->assertStatus(403);
+});
+
+test('compliance reader cannot recertify administrator access', function () {
+    $reader = Administrator::factory()->create([
+        'role' => 'compliance_reader',
+    ]);
+
+    $target = Administrator::factory()->create([
+        'role' => 'compliance_operator',
+    ]);
+
+    $this->actingAs($reader, 'admin')
+        ->post(route('admin.compliance.administrators.recertify', $target))
+        ->assertStatus(403);
+});

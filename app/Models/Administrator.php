@@ -20,6 +20,7 @@ class Administrator extends Authenticatable implements MustVerifyEmail
         'role',
         'mfa_enabled',
         'last_login_at',
+        'compliance_recertified_at',
     ];
 
     protected $hidden = [
@@ -42,6 +43,7 @@ class Administrator extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'mfa_enabled' => 'bool',
             'last_login_at' => 'datetime',
+            'compliance_recertified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

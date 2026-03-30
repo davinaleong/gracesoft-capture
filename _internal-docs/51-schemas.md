@@ -193,6 +193,7 @@ status (enum: active, suspended)
 mfa_enabled (boolean)
 
 last_login_at (timestamp, nullable)
+compliance_recertified_at (timestamp, nullable)
 
 created_at
 updated_at

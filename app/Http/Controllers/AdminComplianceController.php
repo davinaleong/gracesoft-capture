@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Administrator;
 use App\Models\AuditLog;
 use App\Models\BreakGlassApproval;
 use App\Models\DataAccessLog;
@@ -74,6 +75,23 @@ class AdminComplianceController extends Controller
             ->limit(20)
             ->get();
 
+        $recertificationDueBefore = now()->subDays((int) config('capture.features.admin_access_recertification_days', 90));
+
+        $administratorRecertifications = Administrator::query()
+            ->where('status', 'active')
+            ->latest('id')
+            ->limit(50)
+            ->get()
+            ->map(function (Administrator $administrator) use ($recertificationDueBefore): Administrator {
+                $administrator->setAttribute(
+                    'recertification_due',
+                    $administrator->compliance_recertified_at === null
+                    || $administrator->compliance_recertified_at->lt($recertificationDueBefore)
+                );
+
+                return $administrator;
+            });
+
         return view('admin.compliance.index', [
             'accountId' => $accountId,
             'auditLogs' => $auditLogs,
@@ -82,9 +100,42 @@ class AdminComplianceController extends Controller
             'breakGlassApprovals' => $breakGlassApprovals,
             'verificationBlockedSummary' => $verificationBlockedSummary,
             'recentSecuritySnapshots' => $recentSecuritySnapshots,
+            'administratorRecertifications' => $administratorRecertifications,
             'canViewSensitiveData' => $canViewSensitiveData,
             'showSensitiveData' => $showSensitiveData,
         ]);
+    }
+
+    public function recertifyAdministratorAccess(Request $request, Administrator $administrator, AuditLogger $auditLogger): RedirectResponse
+    {
+        $actor = $this->requireAdministrator('compliance.recertify_admin_access');
+
+        if ($administrator->status !== 'active') {
+            abort(422, 'Only active administrators can be recertified.');
+        }
+
+        if ($administrator->uuid === $actor->uuid) {
+            abort(403, 'Administrator access recertification must be performed by a different administrator.');
+        }
+
+        $administrator->update([
+            'compliance_recertified_at' => now(),
+        ]);
+
+        $auditLogger->log(
+            $request,
+            'admin.access.recertified',
+            'administrator',
+            (string) $administrator->id,
+            null,
+            [
+                'administrator_uuid' => $administrator->uuid,
+                'administrator_role' => $administrator->roleName(),
+                'reviewer_uuid' => $actor->uuid,
+            ]
+        );
+
+        return back()->with('status', 'Administrator access recertified.');
     }
 
     public function updateDsrStatus(

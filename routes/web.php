@@ -129,4 +129,7 @@ Route::prefix('admin/compliance')->middleware(['auth.any', 'access.context', 'ad
     Route::post('/dsr/{dataSubjectRequest}/process', [AdminComplianceController::class, 'processDsr'])
         ->middleware('verified.guard:admin,sensitive_admin_operation')
         ->name('dsr.process');
+    Route::post('/administrators/{administrator}/recertify', [AdminComplianceController::class, 'recertifyAdministratorAccess'])
+        ->middleware('verified.guard:admin,sensitive_admin_operation')
+        ->name('administrators.recertify');
 });

@@ -4,6 +4,20 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented administrator access recertification workflow for periodic access review:
+  - Added `administrators.compliance_recertified_at` tracking column.
+  - Added compliance dashboard recertification table with due/current status.
+  - Added recertification action endpoint with anti-self-approval rule.
+  - Added `compliance.recertify_admin_access` capability for `compliance_admin` role.
+  - Added `admin.access.recertified` audit event logging.
+- Added feature coverage for recertification behavior:
+  - section visibility and due-state rendering
+  - authorized recertification success
+  - self-recertification denial
+  - role-based denial for non-privileged administrators
+
+## Completed In Previous Continuation
+
 - Implemented default-sensitive-data masking in admin compliance dashboard:
   - DSR subject identifiers are masked by default in list views.
   - Added privileged reveal toggle (`show_sensitive`) for authorized admins only.
@@ -242,6 +256,6 @@ Last Updated: 2026-03-31 (latest pass)
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Current passing total: 82 tests.
-- Current assertion total: 271 assertions.
+- Current passing total: 86 tests.
+- Current assertion total: 280 assertions.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.

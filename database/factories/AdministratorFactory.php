@@ -25,6 +25,7 @@ class AdministratorFactory extends Factory
             'role' => 'compliance_admin',
             'mfa_enabled' => false,
             'last_login_at' => null,
+            'compliance_recertified_at' => null,
             'remember_token' => Str::random(10),
         ];
     }
