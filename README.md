@@ -1,58 +1,117 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# GraceSoft Capture
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+GraceSoft Capture is a Laravel-based multi-tenant enquiry capture platform with strong tenant isolation, separate administrator identity, and compliance-first operations.
 
-## About Laravel
+## Current Scope
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Implemented modules and capabilities include:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Public form rendering and submission (`/form/{token}`)
+- Enquiry storage, inbox listing/detail, and status transitions
+- Collaborator invitation lifecycle (invite, resend, revoke, accept)
+- Role-based access for `owner/member/viewer`
+- Separate user and administrator authentication guards/sessions
+- Password reset and email verification for both users and administrators
+- Admin compliance dashboard with audit logs, data access logs, DSR workflows
+- Break-glass approvals, optional MFA gating, and admin idle-timeout hardening
+- Data retention cleanup command and scheduler
+- Verification-block telemetry counters with persisted daily snapshots
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tech Stack
 
-## Learning Laravel
+- PHP / Laravel
+- Blade views
+- Pest / PHPUnit for tests
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Local Setup
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+1. Install dependencies:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+npm install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+2. Create environment file and generate app key:
 
-## Contributing
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. Configure database and run migrations:
 
-## Code of Conduct
+```bash
+php artisan migrate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. Build frontend assets (or run dev mode):
 
-## Security Vulnerabilities
+```bash
+npm run build
+# or
+npm run dev
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+5. Start app:
 
-## License
+```bash
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Important Environment Flags
+
+These toggles control security and compliance behavior:
+
+- `CAPTURE_ENFORCE_ACCESS_CONTEXT`
+- `CAPTURE_HARDEN_ADMIN_SESSIONS`
+- `CAPTURE_ADMIN_SESSION_IDLE_TIMEOUT_MINUTES`
+- `CAPTURE_REQUIRE_FORM_CONSENT`
+- `APP_DATA_RETENTION_DAYS`
+- `CAPTURE_ADMIN_COMPLIANCE_PLAN_GATE_ENABLED`
+- `CAPTURE_REQUIRE_ADMIN_MFA_FOR_COMPLIANCE`
+- `CAPTURE_REQUIRE_BREAK_GLASS_FOR_SENSITIVE_DSR`
+- `CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_COLLABORATOR_ACCEPTANCE`
+- `CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_SENSITIVE_ADMIN_OPERATIONS`
+- `CAPTURE_VERIFICATION_BLOCK_METRICS_ENABLED`
+
+HQ integration-related settings are configured in `config/hq.php` and use `HQ_*` env values.
+
+## Operations Commands
+
+Run ad-hoc operational and compliance tasks:
+
+```bash
+php artisan capture:retention:cleanup
+php artisan capture:retention:queue
+php artisan capture:security-metrics:snapshot
+php artisan capture:security-metrics:snapshot --date=2026-03-30
+```
+
+Scheduled tasks (configured in `routes/console.php`):
+
+- `capture:security-metrics:snapshot` daily at `00:20`
+- `capture:retention:cleanup` daily at `02:10`
+
+## Testing
+
+Run full test suite:
+
+```bash
+php artisan test
+```
+
+Current validation baseline:
+
+- 79 passing tests
+- 261 assertions
+
+## Internal Documentation
+
+Implementation and delivery docs live in:
+
+- `_internal-docs/50-todo-checklist.md`
+- `_internal-docs/51-schemas.md`
+- `_internal-docs/52-replies-module.md`
+- `_internal-docs/53-components-checklist.md`
+- `_internal-docs/54-implementation-progress.md`

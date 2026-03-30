@@ -2,6 +2,16 @@
 
 Last Updated: 2026-03-31 (latest pass)
 
+## Completed In Documentation Continuation
+
+- Synchronized delivery checklist with implemented features and test-backed behavior:
+  - Marked completed items for forms/enquiries/notes schema, collaborator acceptance, inbox/status logic, notes module, and public-form anti-abuse controls.
+  - Marked completed items for HQ service surface (analytics/feedback/subscription + plan cache).
+  - Added checklist coverage item for persisted daily verification-block telemetry snapshots.
+- Replaced boilerplate framework README with project-specific documentation:
+  - Setup, runtime commands, operational schedulers, feature flags, and internal docs map.
+  - Updated validation snapshot reference in README to current passing totals.
+
 ## Completed Previously
 
 - Access model groundwork implemented in code:

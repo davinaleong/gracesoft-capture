@@ -15,7 +15,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Project Setup
 
-* [ ] Create Capture app (Laravel)
+* [x] Create Capture app (Laravel)
 * [ ] Configure separate Capture DB
 * [ ] Setup env:
   * [ ] `HQ_API_URL`
@@ -29,15 +29,15 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Base Structure
 
 * [ ] Create modules:
-  * [ ] Forms
-  * [ ] Enquiries
-  * [ ] Inbox
-  * [ ] Notifications
-  * [ ] Collaborators
+  * [x] Forms
+  * [x] Enquiries
+  * [x] Inbox
+  * [x] Notifications
+  * [x] Collaborators
   * [ ] Insights
   * [ ] Integration
-  * [ ] Compliance
-  * [ ] Admin Monitoring
+  * [x] Compliance
+  * [x] Admin Monitoring
 
 ---
 
@@ -45,45 +45,45 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Forms
 
-* [ ] Create `forms` table
-  * [ ] id (BIGINT)
-  * [ ] uuid (UUID)
-  * [ ] account_id
-  * [ ] application_id
-  * [ ] public_token (`frm_xxx`)
-  * [ ] name
-  * [ ] settings (JSON)
-  * [ ] is_active
+* [x] Create `forms` table
+  * [x] id (BIGINT)
+  * [x] uuid (UUID)
+  * [x] account_id
+  * [x] application_id
+  * [x] public_token (`frm_xxx`)
+  * [x] name
+  * [x] settings (JSON)
+  * [x] is_active
 
 ---
 
 ## Enquiries
 
-* [ ] Create `enquiries` table
-  * [ ] id (BIGINT)
-  * [ ] uuid (UUID)
-  * [ ] form_id
-  * [ ] account_id
-  * [ ] application_id
-  * [ ] name
-  * [ ] email
-  * [ ] subject
-  * [ ] message
-  * [ ] status (`new/contacted/closed`)
-  * [ ] contacted_at (nullable)
-  * [ ] closed_at (nullable)
-  * [ ] metadata (JSON)
+* [x] Create `enquiries` table
+  * [x] id (BIGINT)
+  * [x] uuid (UUID)
+  * [x] form_id
+  * [x] account_id
+  * [x] application_id
+  * [x] name
+  * [x] email
+  * [x] subject
+  * [x] message
+  * [x] status (`new/contacted/closed`)
+  * [x] contacted_at (nullable)
+  * [x] closed_at (nullable)
+  * [x] metadata (JSON)
 
 ---
 
 ## Notes (Pro)
 
-* [ ] Create `notes` table
-  * [ ] id (BIGINT)
-  * [ ] uuid (UUID)
-  * [ ] enquiry_id
-  * [ ] user_id
-  * [ ] content
+* [x] Create `notes` table
+  * [x] id (BIGINT)
+  * [x] uuid (UUID)
+  * [x] enquiry_id
+  * [x] user_id
+  * [x] content
 
 ---
 
@@ -144,7 +144,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Identity Flows
 
 * [x] Support secure signup/login for users
-* [ ] Add invite acceptance flow for collaborators:
+* [x] Add invite acceptance flow for collaborators:
   * [x] invitation email
   * [x] token verification
   * [x] signup/login required before acceptance
@@ -179,7 +179,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## API Client Service
 
-* [ ] Create `HQService` class
+* [x] Create `HQService` class
 
 ---
 
@@ -187,11 +187,11 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 * [ ] Validate application
   * `POST /hq/api/validate-application`
-* [ ] Get subscription
+* [x] Get subscription
   * `GET /hq/api/subscription`
-* [ ] Send analytics
+* [x] Send analytics
   * `POST /hq/api/events`
-* [ ] Send feedback
+* [x] Send feedback
   * `POST /hq/api/feedback`
 
 ---
@@ -199,7 +199,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Caching
 
 * [ ] Cache application validation (short TTL)
-* [ ] Cache subscription plan
+* [x] Cache subscription plan
 
 ---
 
@@ -223,10 +223,10 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Public Form Route
 
-* [ ] `GET /form/{token}`
+* [x] `GET /form/{token}`
 * [ ] Validate:
-  * [ ] form exists
-  * [ ] is_active
+  * [x] form exists
+  * [x] is_active
 
 ---
 
@@ -253,28 +253,28 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Logic
 
 * [x] Validate input
-* [ ] Honeypot check
-* [ ] Rate limit (per token/IP)
+* [x] Honeypot check
+* [x] Rate limit (per token/IP)
 * [x] Record consent where policy requires
 
 ---
 
 ## Resolve Ownership
 
-* [ ] `form -> application_id -> account_id`
+* [x] `form -> application_id -> account_id`
 
 ---
 
 ## Store Enquiry
 
-* [ ] Insert into `enquiries`
+* [x] Insert into `enquiries`
 * [ ] Store minimal PII required for purpose (data minimization)
 
 ---
 
 ## Trigger Side Effects
 
-* [ ] Send notification email
+* [x] Send notification email
 * [ ] Send analytics event to HQ (exclude raw PII unless strictly required)
 
 ---
@@ -298,7 +298,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## List View
 
-* [ ] Route: `/inbox`
+* [x] Route: `/inbox`
 * [ ] Show:
   * [ ] name
   * [ ] email
@@ -311,16 +311,16 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Detail View
 
-* [ ] Full enquiry content
-* [ ] Status update buttons (`new -> contacted -> closed`)
+* [x] Full enquiry content
+* [x] Status update buttons (`new -> contacted -> closed`)
 * [x] Restrict visibility by role and account scope
 
 ---
 
 ## Status Logic
 
-* [ ] On `contacted`, set `contacted_at`
-* [ ] On `closed`, set `closed_at`
+* [x] On `contacted`, set `contacted_at`
+* [x] On `closed`, set `closed_at`
 
 ---
 
@@ -347,9 +347,9 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 # 📝 10. Notes Module (Pro)
 
-* [ ] Add note to enquiry
-* [ ] Display notes in detail view
-* [ ] Restrict access based on plan and collaborator role
+* [x] Add note to enquiry
+* [x] Display notes in detail view
+* [x] Restrict access based on plan and collaborator role
 
 ---
 
@@ -423,8 +423,8 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 # 🔐 13. Security Layer
 
 * [ ] Public token must be unguessable
-* [ ] Rate limiting (global + per form)
-* [ ] Honeypot validation
+* [x] Rate limiting (global + per form)
+* [x] Honeypot validation
 * [ ] CSRF, XSS, and output escaping checks
 * [ ] Encrypt sensitive fields at rest where applicable
 * [ ] Rotate secrets and integration keys on schedule
@@ -458,6 +458,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [x] Require access reason for sensitive drill-down views
 * [ ] Mask sensitive data by default in admin UI
 * [x] Log every admin read/write of customer data
+* [x] Persist daily verification-block telemetry snapshots for trend monitoring
 * [ ] Run periodic admin access review and recertification
 
 ---
@@ -496,8 +497,8 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 # 💬 16. Feedback Integration
 
-* [ ] Add Contact Support button
-* [ ] Send feedback to HQ `/api/feedback`
+* [x] Add Contact Support button
+* [x] Send feedback to HQ `/api/feedback`
 
 ---
 
@@ -526,9 +527,9 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Core Flow
 
-* [ ] Submit enquiry is stored
-* [ ] Notification is sent
-* [ ] Enquiry appears in inbox
+* [x] Submit enquiry is stored
+* [x] Notification is sent
+* [x] Enquiry appears in inbox
 
 ---
 
@@ -543,8 +544,8 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Security
 
-* [ ] Honeypot blocks spam
-* [ ] Rate limiting works
+* [x] Honeypot blocks spam
+* [x] Rate limiting works
 * [x] Signed invite token validation works
 * [x] Audit logs are written for sensitive actions
 
@@ -585,15 +586,15 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 * [x] Auth and account scoping
 * [x] Forms and public submission
-* [ ] Enquiry storage
+* [x] Enquiry storage
 * [x] Baseline audit logging
 
 ---
 
 ## Phase 2 (Core Product)
 
-* [ ] Inbox
-* [ ] Notifications
+* [x] Inbox
+* [x] Notifications
 * [x] Collaboration invites and membership controls
 
 ---
