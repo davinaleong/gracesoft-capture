@@ -23,6 +23,7 @@
 
             <div class="flex items-center gap-2">
                 <x-ui.button type="submit" variant="danger">Admin Sign In</x-ui.button>
+                <x-ui.button tag="a" href="{{ route('admin.password.request') }}" variant="secondary">Forgot Password</x-ui.button>
                 <x-ui.button tag="a" href="{{ route('login') }}" variant="secondary">User Login</x-ui.button>
             </div>
         </form>

@@ -159,6 +159,26 @@ Last Updated: 2026-03-31 (latest pass)
   - cross-guard session replacement
   - suspended admin login denial
 
+## Completed In Current Continuation
+
+- Implemented password reset flows for both identity types:
+  - User reset request/form/submit routes and controller flow (`users` broker).
+  - Administrator reset request/form/submit routes and controller flow (`administrators` broker).
+- Implemented email verification flows for both identity types:
+  - User verification notice/resend/verify routes and controller flow.
+  - Administrator verification notice/resend/verify routes and controller flow.
+- Enabled `MustVerifyEmail` contract on `User` and `Administrator` models.
+- Added registration-time verification notification dispatch for users.
+- Added auth recovery + verification UI pages:
+  - user/admin forgot-password
+  - user/admin reset-password
+  - user/admin verify-email notice
+- Added feature coverage for:
+  - user/admin password reset link requests
+  - user/admin password reset completion with broker tokens
+  - user verification from signed link
+  - admin verification from signed link
+
 ## Current Security Behavior
 
 - With `CAPTURE_ENFORCE_ACCESS_CONTEXT=true`:
@@ -170,10 +190,10 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Remaining High-Priority Work
 
-- Password reset and email-verification flows for users and administrators.
+- Enforce verified-email checks on selected protected actions (for example collaborator invite acceptance and sensitive admin operations) after rollout validation.
 
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Current passing total: 68 tests.
+- Current passing total: 74 tests.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.

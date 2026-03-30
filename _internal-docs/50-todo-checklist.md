@@ -149,7 +149,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
   * [x] token verification
   * [x] signup/login required before acceptance
   * [x] one-time token invalidation
-  * [ ] email verification required
+  * [x] email verification flows implemented (enforcement on invite acceptance pending rollout)
 
 ---
 

@@ -32,6 +32,8 @@ class UserSessionController extends Controller
             'password' => $data['password'],
         ]);
 
+        $user->sendEmailVerificationNotification();
+
         Auth::guard('web')->login($user);
         $request->session()->regenerate();
         $request->session()->put('auth.guard_context', 'web');
