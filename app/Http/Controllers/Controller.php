@@ -93,4 +93,11 @@ abstract class Controller
             abort(403, 'Your collaborator role is not allowed to perform this action.');
         }
     }
+
+    protected function requireAdministrator(): void
+    {
+        if (! Auth::guard('admin')->check()) {
+            abort(403, 'Administrator access required.');
+        }
+    }
 }

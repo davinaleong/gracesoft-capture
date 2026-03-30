@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\SendEnquiryNotificationJob;
 use App\Jobs\SyncAnalyticsEventToHQJob;
+use App\Models\Consent;
 use App\Models\Enquiry;
 use App\Models\Form;
 use Illuminate\Http\RedirectResponse;
@@ -31,12 +32,15 @@ class PublicFormController extends Controller
             ->where('is_active', true)
             ->firstOrFail();
 
+        $requireConsent = (bool) config('capture.features.require_form_consent', false);
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255'],
             'subject' => ['required', 'string', 'max:180'],
             'message' => ['required', 'string', 'max:5000'],
             'website' => ['nullable', 'max:0'],
+            'consent_accepted' => $requireConsent ? ['required', 'accepted'] : ['sometimes', 'accepted'],
         ]);
 
         $enquiry = Enquiry::create([
@@ -53,6 +57,18 @@ class PublicFormController extends Controller
                 'user_agent' => (string) $request->userAgent(),
             ],
         ]);
+
+        if (($data['consent_accepted'] ?? false) === '1' || ($data['consent_accepted'] ?? false) === true || ($data['consent_accepted'] ?? false) === 'on') {
+            Consent::query()->create([
+                'account_id' => $form->account_id,
+                'user_id' => null,
+                'policy_type' => 'public_form_submission',
+                'policy_version' => (string) config('capture.features.consent_policy_version', 'v1'),
+                'accepted_at' => now(),
+                'ip_address' => $request->ip(),
+                'user_agent' => (string) $request->userAgent(),
+            ]);
+        }
 
         $recipient = data_get($form->settings, 'notification_email') ?: config('mail.from.address');
 

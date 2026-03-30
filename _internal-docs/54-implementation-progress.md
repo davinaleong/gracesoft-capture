@@ -1,6 +1,6 @@
 # GraceSoft Capture Implementation Progress
 
-Last Updated: 2026-03-30
+Last Updated: 2026-03-30 (latest pass)
 
 ## Completed Previously
 
@@ -40,6 +40,22 @@ Last Updated: 2026-03-30
   - `viewer` is read-only.
 - Added tests for role authorization behavior under enforced mode.
 
+## Completed In Latest Continuation
+
+- Added admin compliance monitoring module:
+  - `GET /admin/compliance` dashboard for audit logs, data access logs, and DSR list.
+  - DSR status update action (`pending/in_progress/completed/rejected`).
+- Added administrator-only controller gate for compliance pages.
+- Fixed access-context middleware to allow authenticated admin sessions without requiring override mode.
+- Added public form consent UX and backend wiring:
+  - Optional consent checkbox in form UI.
+  - Consent recording in `consents` table on accepted submit.
+  - Configurable required consent mode (`CAPTURE_REQUIRE_FORM_CONSENT`).
+- Added new factories/tests:
+  - `AdministratorFactory`
+  - `AdminComplianceTest`
+  - Extended `PublicFormSubmissionTest` with consent tests.
+
 ## Current Security Behavior
 
 - With `CAPTURE_ENFORCE_ACCESS_CONTEXT=true`:
@@ -52,12 +68,12 @@ Last Updated: 2026-03-30
 ## Remaining High-Priority Work
 
 - Authentication flows for users/admins in UI (login/logout and admin session boundary UX).
-- DSR execution workflows (`data_subject_requests` processing and resolution actions).
-- Consent capture wiring in form submission endpoint.
-- Admin monitoring pages for audit/data access/DSR queue.
+- DSR execution workflows beyond status updates (export/delete/restrict processors and evidence artifacts).
 - Retention/anonymization jobs and schedules.
+- Plan-gated admin views and least-privilege admin role matrix.
 
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Added feature tests for collaborators and role-based authorization.
+- Current passing total: 47 tests.
+- Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.

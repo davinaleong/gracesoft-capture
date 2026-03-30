@@ -2,7 +2,7 @@
 
 ## 🧱 Layout and Structure
 
-* [ ] `layouts.app`
+* [x] `layouts.app`
 * [ ] `layouts.auth`
 * [ ] `layouts.embed` *(for iframe form — minimal)*
 * [ ] `components.layout.account-context-switcher` *(active workspace/account context)*
@@ -69,19 +69,19 @@
 
 ## 👥 Collaborators `/settings/collaborators`
 
-* [ ] `components.collaborators.members-table`
-* [ ] `components.collaborators.member-row`
-* [ ] `components.collaborators.invites-table`
-* [ ] `components.collaborators.invite-form`
+* [x] `components.collaborators.members-table`
+* [x] `components.collaborators.member-row`
+* [x] `components.collaborators.invites-table`
+* [x] `components.collaborators.invite-form`
 
   * email input
   * role select (`owner/member/viewer`)
   * invite button
 
-* [ ] `components.collaborators.role-badge`
-* [ ] `components.collaborators.invite-status-badge`
-* [ ] `components.collaborators.revoke-button`
-* [ ] `components.collaborators.resend-button`
+* [x] `components.collaborators.role-badge`
+* [x] `components.collaborators.invite-status-badge`
+* [x] `components.collaborators.revoke-button`
+* [x] `components.collaborators.resend-button`
 * [ ] `components.collaborators.owner-only-banner` *(owner permission hint)*
 
 ---
@@ -143,7 +143,7 @@
 * [ ] `components.form.button`
 * [ ] `components.form.success-state`
 * [ ] `components.form.error-state`
-* [ ] `components.form.consent-notice` *(GDPR/PDPA)*
+* [x] `components.form.consent-notice` *(GDPR/PDPA)*
 
 ---
 
@@ -227,11 +227,11 @@ This is your internal control system.
 
 ## ⚖️ Compliance Monitoring
 
-* [ ] `components.compliance.audit-log-table`
-* [ ] `components.compliance.data-access-log-table`
-* [ ] `components.compliance.access-reason-modal`
+* [x] `components.compliance.audit-log-table`
+* [x] `components.compliance.data-access-log-table`
+* [x] `components.compliance.access-reason-modal`
 * [ ] `components.compliance.pii-mask-toggle` *(permission-gated)*
-* [ ] `components.compliance.dsr-request-table`
+* [x] `components.compliance.dsr-request-table`
 * [ ] `components.compliance.retention-job-status`
 
 ---

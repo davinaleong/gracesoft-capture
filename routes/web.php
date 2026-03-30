@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CollaboratorController;
+use App\Http\Controllers\AdminComplianceController;
 use App\Http\Controllers\FormManagementController;
 use App\Http\Controllers\EnquiryNoteController;
 use App\Http\Controllers\FeedbackController;
@@ -53,3 +54,8 @@ Route::prefix('settings/collaborators')->middleware(['auth', 'access.context'])-
 Route::get('/collaborators/invitations/{invitation}/{token}/accept', [CollaboratorController::class, 'accept'])
     ->middleware('auth')
     ->name('collaborators.accept');
+
+Route::prefix('admin/compliance')->middleware(['auth.any', 'access.context'])->name('admin.compliance.')->group(function () {
+    Route::get('/', [AdminComplianceController::class, 'index'])->name('index');
+    Route::post('/dsr/{dataSubjectRequest}/status', [AdminComplianceController::class, 'updateDsrStatus'])->name('dsr.update');
+});

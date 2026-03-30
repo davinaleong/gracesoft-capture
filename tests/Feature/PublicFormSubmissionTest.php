@@ -87,3 +87,45 @@ test('submission endpoint is rate limited per token and ip', function () {
     $this->post(route('forms.submit', $form->public_token), $payload)
         ->assertStatus(429);
 });
+
+test('consent is recorded when consent checkbox is accepted', function () {
+    $form = Form::factory()->create([
+        'account_id' => 'f8bf1a18-9f92-4fce-ab53-16b4b66457a4',
+    ]);
+
+    $payload = [
+        'name' => 'Consent User',
+        'email' => 'consent@example.com',
+        'subject' => 'Consent test',
+        'message' => 'Testing consent capture.',
+        'website' => '',
+        'consent_accepted' => '1',
+    ];
+
+    $this->post(route('forms.submit', $form->public_token), $payload)
+        ->assertRedirect(route('forms.show', $form->public_token));
+
+    $this->assertDatabaseHas('consents', [
+        'account_id' => $form->account_id,
+        'policy_type' => 'public_form_submission',
+    ]);
+});
+
+test('consent can be required by configuration', function () {
+    config(['capture.features.require_form_consent' => true]);
+
+    $form = Form::factory()->create();
+
+    $payload = [
+        'name' => 'Consent Required',
+        'email' => 'required@example.com',
+        'subject' => 'Consent required',
+        'message' => 'Consent should be mandatory in this mode.',
+        'website' => '',
+    ];
+
+    $this->from(route('forms.show', $form->public_token))
+        ->post(route('forms.submit', $form->public_token), $payload)
+        ->assertRedirect(route('forms.show', $form->public_token))
+        ->assertSessionHasErrors('consent_accepted');
+});

@@ -246,16 +246,16 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Endpoint
 
-* [ ] `POST /form/{token}/submit`
+* [x] `POST /form/{token}/submit`
 
 ---
 
 ## Logic
 
-* [ ] Validate input
+* [x] Validate input
 * [ ] Honeypot check
 * [ ] Rate limit (per token/IP)
-* [ ] Record consent where policy requires
+* [x] Record consent where policy requires
 
 ---
 
@@ -281,7 +281,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Response
 
-* [ ] Success message (JSON / HTML)
+* [x] Success message (JSON / HTML)
 
 ---
 
@@ -437,7 +437,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Data Governance
 
 * [ ] Build data inventory and classify personal data fields
-* [ ] Define lawful basis and purpose for each collected field
+* [x] Define lawful basis and purpose for each collected field
 * [ ] Enforce data minimization in forms, analytics, and logs
 * [ ] Define and enforce retention and deletion schedules
 
@@ -448,16 +448,16 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [ ] Export personal data on verified request
 * [ ] Delete or anonymize personal data on valid request
 * [ ] Restrict processing where required
-* [ ] Track request lifecycle and completion evidence
+* [x] Track request lifecycle and completion evidence
 
 ---
 
 ## Administrator Monitoring (Compliant)
 
-* [ ] Provide admin monitoring pages with aggregate-first views
-* [ ] Require access reason for sensitive drill-down views
+* [x] Provide admin monitoring pages with aggregate-first views
+* [x] Require access reason for sensitive drill-down views
 * [ ] Mask sensitive data by default in admin UI
-* [ ] Log every admin read/write of customer data
+* [x] Log every admin read/write of customer data
 * [ ] Run periodic admin access review and recertification
 
 ---
@@ -508,7 +508,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [ ] Global metrics dashboard (without unnecessary raw personal data)
 * [ ] Tenant health monitoring
 * [ ] Abuse/spam detection queue
-* [ ] Compliance event dashboard (consent, DSR, deletions)
+* [x] Compliance event dashboard (consent, DSR, deletions)
 
 ---
 
@@ -517,7 +517,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [ ] Enforce least-privilege admin roles
 * [ ] Require MFA for admin accounts
 * [ ] Harden sessions and shorten idle timeout
-* [ ] Store admin identities only in `administrators` table (not in user/collaborator tables)
+* [x] Store admin identities only in `administrators` table (not in user/collaborator tables)
 * [ ] Define break-glass flow with enhanced logging and approval
 
 ---
@@ -534,10 +534,10 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Access Control and Collaboration
 
-* [ ] User cannot access another account data
-* [ ] Collaborator invite/accept/revoke flow works
-* [ ] Cross-tenant IDOR attempts are blocked
-* [ ] Role permissions enforced for every protected action
+* [x] User cannot access another account data
+* [x] Collaborator invite/accept/revoke flow works
+* [x] Cross-tenant IDOR attempts are blocked
+* [x] Role permissions enforced for every protected action
 
 ---
 
@@ -545,8 +545,8 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 * [ ] Honeypot blocks spam
 * [ ] Rate limiting works
-* [ ] Signed invite token validation works
-* [ ] Audit logs are written for sensitive actions
+* [x] Signed invite token validation works
+* [x] Audit logs are written for sensitive actions
 
 ---
 
@@ -555,7 +555,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [ ] Data export request flow works
 * [ ] Data deletion/anonymization flow works
 * [ ] Retention job removes expired data
-* [ ] Admin access logs include reason and actor
+* [x] Admin access logs include reason and actor
 
 ---
 
@@ -583,10 +583,10 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Phase 1 (Security Core)
 
-* [ ] Auth and account scoping
-* [ ] Forms and public submission
+* [x] Auth and account scoping
+* [x] Forms and public submission
 * [ ] Enquiry storage
-* [ ] Baseline audit logging
+* [x] Baseline audit logging
 
 ---
 
@@ -594,7 +594,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 * [ ] Inbox
 * [ ] Notifications
-* [ ] Collaboration invites and membership controls
+* [x] Collaboration invites and membership controls
 
 ---
 

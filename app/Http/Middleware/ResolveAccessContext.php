@@ -26,6 +26,12 @@ class ResolveAccessContext
             return $next($request);
         }
 
+        if ($isAdmin) {
+            $request->attributes->set('access.account_id', $this->extractAccountId($request));
+
+            return $next($request);
+        }
+
         $user = Auth::guard('web')->user();
 
         if (! $user) {
