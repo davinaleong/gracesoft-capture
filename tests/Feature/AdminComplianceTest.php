@@ -5,6 +5,7 @@ use App\Models\BreakGlassApproval;
 use App\Models\Enquiry;
 use App\Models\Form;
 use App\Models\DataSubjectRequest;
+use App\Models\SecurityEventSnapshot;
 use App\Models\AuditLog;
 use App\Support\SecurityEventMetrics;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -429,4 +430,21 @@ test('unverified admin cannot perform sensitive compliance actions when verifica
     expect($requestItem->fresh()->status)->toBe('pending');
     expect(AuditLog::query()->where('action', 'auth.verification.blocked')->count())->toBeGreaterThan(0);
     expect(data_get(app(SecurityEventMetrics::class)->verificationBlockedSummary(), 'breakdown.admin:sensitive_admin_operation'))->toBeGreaterThan(0);
+});
+
+test('admin compliance dashboard shows persisted telemetry snapshots', function () {
+    $admin = Administrator::factory()->create();
+
+    SecurityEventSnapshot::query()->create([
+        'snapshot_date' => '2026-03-30',
+        'metric_key' => 'verification_blocked:web:collaborator_acceptance',
+        'metric_value' => 7,
+        'metadata' => ['source' => 'test'],
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->get(route('admin.compliance.index'))
+        ->assertOk()
+        ->assertSee('Persisted Daily Snapshots')
+        ->assertSee('verification_blocked:web:collaborator_acceptance');
 });

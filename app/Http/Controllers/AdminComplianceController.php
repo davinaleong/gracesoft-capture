@@ -6,6 +6,7 @@ use App\Models\AuditLog;
 use App\Models\BreakGlassApproval;
 use App\Models\DataAccessLog;
 use App\Models\DataSubjectRequest;
+use App\Models\SecurityEventSnapshot;
 use App\Services\DataSubjectRequestProcessor;
 use App\Support\AuditLogger;
 use App\Support\PlanGate;
@@ -51,6 +52,12 @@ class AdminComplianceController extends Controller
             ->get();
 
         $verificationBlockedSummary = $securityEventMetrics->verificationBlockedSummary();
+        $recentSecuritySnapshots = SecurityEventSnapshot::query()
+            ->where('metric_key', 'like', 'verification_blocked:%')
+            ->latest('snapshot_date')
+            ->latest('id')
+            ->limit(20)
+            ->get();
 
         return view('admin.compliance.index', [
             'accountId' => $accountId,
@@ -59,6 +66,7 @@ class AdminComplianceController extends Controller
             'dsrRequests' => $dsrRequests,
             'breakGlassApprovals' => $breakGlassApprovals,
             'verificationBlockedSummary' => $verificationBlockedSummary,
+            'recentSecuritySnapshots' => $recentSecuritySnapshots,
         ]);
     }
 

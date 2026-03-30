@@ -197,6 +197,12 @@ Last Updated: 2026-03-31 (latest pass)
   - Added `auth.verification.blocked` audit logging for blocked actions.
   - Added verification-enforcement summary panel to admin compliance dashboard.
   - Added `CAPTURE_VERIFICATION_BLOCK_METRICS_ENABLED` feature flag.
+- Implemented persistent daily telemetry snapshots for verification-block events:
+  - Added `security_event_snapshots` table and `SecurityEventSnapshot` model.
+  - Added `persistVerificationBlockedSnapshot()` support to `SecurityEventMetrics`.
+  - Added scheduled command to persist daily snapshot rows.
+  - Extended admin compliance dashboard with persisted snapshot history.
+  - Added unit/feature coverage for snapshot persistence and dashboard rendering.
 - Added assertions proving telemetry side effects in collaborator and admin compliance feature tests.
 
 ## Current Security Behavior
@@ -215,6 +221,6 @@ Last Updated: 2026-03-31 (latest pass)
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Current passing total: 76 tests.
-- Current assertion total: 250 assertions.
+- Current passing total: 79 tests.
+- Current assertion total: 261 assertions.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.

@@ -41,6 +41,30 @@
     </x-ui.card>
 
     <x-ui.card class="mb-4">
+        <h2 class="mb-3 text-lg font-semibold">Persisted Daily Snapshots</h2>
+        <x-ui.table>
+            <thead class="bg-gray-50 uppercase text-xs tracking-wide text-gs-black-700">
+                <tr>
+                    <th class="p-2">Date</th>
+                    <th class="p-2">Metric</th>
+                    <th class="p-2">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($recentSecuritySnapshots as $snapshot)
+                    <tr class="border-b border-gray-200">
+                        <td class="p-2">{{ $snapshot->snapshot_date?->format('Y-m-d') }}</td>
+                        <td class="p-2">{{ $snapshot->metric_key }}</td>
+                        <td class="p-2">{{ $snapshot->metric_value }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="3" class="p-4 text-center text-gs-black-600">No persisted snapshots.</td></tr>
+                @endforelse
+            </tbody>
+        </x-ui.table>
+    </x-ui.card>
+
+    <x-ui.card class="mb-4">
         <h2 class="mb-3 text-lg font-semibold">Break-Glass Controls</h2>
         <div class="grid gap-4 md:grid-cols-2">
             <form method="post" action="{{ route('admin.compliance.break-glass.request') }}" class="space-y-3">
