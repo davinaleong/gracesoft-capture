@@ -67,6 +67,23 @@ Last Updated: 2026-03-30 (latest pass)
 - Extended admin compliance UI with per-request process action.
 - Added feature tests covering export/delete/restrict processing behavior and evidence persistence.
 
+## Completed In Next Continuation
+
+- Implemented retention automation in `DataRetentionService`:
+  - Deletes expired `audit_logs`, `data_access_logs`, and `consents` records.
+  - Deletes expired resolved `data_subject_requests` records.
+  - Anonymizes closed enquiries older than retention window with marker metadata.
+- Added queueable retention job:
+  - `RunDataRetentionCleanupJob`
+- Added retention commands and scheduler wiring in `routes/console.php`:
+  - `capture:retention:cleanup`
+  - `capture:retention:queue`
+  - Daily schedule at `02:10` with overlap protection.
+- Added retention config:
+  - `APP_DATA_RETENTION_DAYS` via `capture.features.data_retention_days`.
+- Added unit coverage:
+  - `DataRetentionServiceTest` validates expiry deletion and anonymization behavior.
+
 ## Current Security Behavior
 
 - With `CAPTURE_ENFORCE_ACCESS_CONTEXT=true`:
@@ -79,11 +96,10 @@ Last Updated: 2026-03-30 (latest pass)
 ## Remaining High-Priority Work
 
 - Authentication flows for users/admins in UI (login/logout and admin session boundary UX).
-- Retention/anonymization jobs and schedules.
 - Plan-gated admin views and least-privilege admin role matrix.
 
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Current passing total: 50 tests.
+- Current passing total: 51 tests.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.

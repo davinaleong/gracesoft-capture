@@ -439,7 +439,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [ ] Build data inventory and classify personal data fields
 * [x] Define lawful basis and purpose for each collected field
 * [ ] Enforce data minimization in forms, analytics, and logs
-* [ ] Define and enforce retention and deletion schedules
+* [x] Define and enforce retention and deletion schedules
 
 ---
 
@@ -554,7 +554,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 * [x] Data export request flow works
 * [x] Data deletion/anonymization flow works
-* [ ] Retention job removes expired data
+* [x] Retention job removes expired data
 * [x] Admin access logs include reason and actor
 
 ---
@@ -610,7 +610,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 * [ ] Insights
 * [ ] Notes
-* [ ] Admin monitoring and compliance workflows
+* [x] Admin monitoring and compliance workflows
 
 ---
 

@@ -9,5 +9,6 @@ return [
         'enforce_access_context' => (bool) env('CAPTURE_ENFORCE_ACCESS_CONTEXT', false),
         'require_form_consent' => (bool) env('CAPTURE_REQUIRE_FORM_CONSENT', false),
         'consent_policy_version' => env('CAPTURE_CONSENT_POLICY_VERSION', 'v1'),
+        'data_retention_days' => (int) env('APP_DATA_RETENTION_DAYS', 365),
     ],
 ];
