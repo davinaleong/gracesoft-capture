@@ -32,4 +32,17 @@ abstract class Controller
             abort(403, 'You are not allowed to access this account data.');
         }
     }
+
+    protected function requireAdminAccessReason(Request $request): void
+    {
+        if (! $this->isAdminOverride($request)) {
+            return;
+        }
+
+        $reason = trim((string) $request->input('access_reason', ''));
+
+        if ($reason === '') {
+            abort(422, 'access_reason is required for administrator override access.');
+        }
+    }
 }

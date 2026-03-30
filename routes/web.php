@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CollaboratorController;
 use App\Http\Controllers\FormManagementController;
 use App\Http\Controllers\EnquiryNoteController;
 use App\Http\Controllers\FeedbackController;
@@ -40,3 +41,15 @@ Route::prefix('inbox')->middleware(['auth.any', 'access.context'])->name('inbox.
     Route::post('/{enquiry}/status', [InboxController::class, 'updateStatus'])->name('status.update');
     Route::post('/{enquiry}/notes', [EnquiryNoteController::class, 'store'])->name('notes.store');
 });
+
+Route::prefix('settings/collaborators')->middleware(['auth', 'access.context'])->name('collaborators.')->group(function () {
+    Route::get('/', [CollaboratorController::class, 'index'])->name('index');
+    Route::post('/', [CollaboratorController::class, 'store'])->name('store');
+    Route::post('/{invitation}/resend', [CollaboratorController::class, 'resend'])->name('resend');
+    Route::post('/{invitation}/revoke', [CollaboratorController::class, 'revoke'])->name('revoke');
+    Route::post('/memberships/{membershipToRemove}/remove', [CollaboratorController::class, 'remove'])->name('remove');
+});
+
+Route::get('/collaborators/invitations/{invitation}/{token}/accept', [CollaboratorController::class, 'accept'])
+    ->middleware('auth')
+    ->name('collaborators.accept');

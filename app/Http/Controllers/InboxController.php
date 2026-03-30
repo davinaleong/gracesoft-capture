@@ -38,9 +38,21 @@ class InboxController extends Controller
         ]);
     }
 
-    public function show(Request $request, Enquiry $enquiry, PlanGate $planGate): View
+    public function show(Request $request, Enquiry $enquiry, PlanGate $planGate, AuditLogger $auditLogger): View
     {
         $this->authorizeAccountAccess($request, $enquiry->account_id);
+
+        if ($this->isAdminOverride($request)) {
+            $this->requireAdminAccessReason($request);
+
+            $auditLogger->logDataAccess(
+                $request,
+                'enquiry',
+                (string) $enquiry->uuid,
+                $enquiry->account_id,
+                ['source' => 'inbox.show']
+            );
+        }
 
         $enquiry->load(['form', 'notes']);
 

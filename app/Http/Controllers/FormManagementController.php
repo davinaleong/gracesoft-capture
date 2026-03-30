@@ -70,9 +70,21 @@ class FormManagementController extends Controller
             ->with('status', 'Form created successfully.');
     }
 
-    public function edit(Request $request, Form $form): View
+    public function edit(Request $request, Form $form, AuditLogger $auditLogger): View
     {
         $this->authorizeAccountAccess($request, $form->account_id);
+
+        if ($this->isAdminOverride($request)) {
+            $this->requireAdminAccessReason($request);
+
+            $auditLogger->logDataAccess(
+                $request,
+                'form',
+                (string) $form->uuid,
+                $form->account_id,
+                ['source' => 'manage.forms.edit']
+            );
+        }
 
         return view('forms.edit', [
             'form' => $form,
