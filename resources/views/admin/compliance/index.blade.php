@@ -103,6 +103,11 @@
                                     <x-ui.input name="reason" :value="$item->reason" placeholder="Optional reason" />
                                     <x-ui.button type="submit" size="sm">Update</x-ui.button>
                                 </form>
+                                <form method="post" action="{{ route('admin.compliance.dsr.process', $item) }}" class="mt-2 flex flex-wrap items-center gap-2">
+                                    @csrf
+                                    <x-ui.input name="reason" placeholder="Processing reason" />
+                                    <x-ui.button type="submit" size="sm" variant="success">Process {{ $item->request_type }}</x-ui.button>
+                                </form>
                             </td>
                         </tr>
                     @empty

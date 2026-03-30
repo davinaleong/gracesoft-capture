@@ -58,4 +58,5 @@ Route::get('/collaborators/invitations/{invitation}/{token}/accept', [Collaborat
 Route::prefix('admin/compliance')->middleware(['auth.any', 'access.context'])->name('admin.compliance.')->group(function () {
     Route::get('/', [AdminComplianceController::class, 'index'])->name('index');
     Route::post('/dsr/{dataSubjectRequest}/status', [AdminComplianceController::class, 'updateDsrStatus'])->name('dsr.update');
+    Route::post('/dsr/{dataSubjectRequest}/process', [AdminComplianceController::class, 'processDsr'])->name('dsr.process');
 });

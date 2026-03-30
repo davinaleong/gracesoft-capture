@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\DataAccessLog;
 use App\Models\DataSubjectRequest;
+use App\Services\DataSubjectRequestProcessor;
 use App\Support\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -75,5 +76,40 @@ class AdminComplianceController extends Controller
         );
 
         return back()->with('status', 'Data subject request status updated.');
+    }
+
+    public function processDsr(
+        Request $request,
+        DataSubjectRequest $dataSubjectRequest,
+        DataSubjectRequestProcessor $processor,
+        AuditLogger $auditLogger
+    ): RedirectResponse {
+        $this->requireAdministrator();
+
+        $data = $request->validate([
+            'reason' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $admin = Auth::guard('admin')->user();
+
+        $metadata = $processor->process(
+            $dataSubjectRequest,
+            (string) $admin?->uuid,
+            $data['reason'] ?? null,
+        );
+
+        $auditLogger->log(
+            $request,
+            sprintf('dsr.process.%s', $dataSubjectRequest->request_type),
+            'data_subject_request',
+            (string) $dataSubjectRequest->id,
+            $dataSubjectRequest->account_id,
+            [
+                'status' => $dataSubjectRequest->status,
+                'processed_operation' => data_get($metadata, 'processed_operation'),
+            ]
+        );
+
+        return back()->with('status', 'Data subject request processed.');
     }
 }

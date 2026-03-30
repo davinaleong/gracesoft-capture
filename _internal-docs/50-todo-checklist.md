@@ -445,9 +445,9 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Data Subject Rights
 
-* [ ] Export personal data on verified request
-* [ ] Delete or anonymize personal data on valid request
-* [ ] Restrict processing where required
+* [x] Export personal data on verified request
+* [x] Delete or anonymize personal data on valid request
+* [x] Restrict processing where required
 * [x] Track request lifecycle and completion evidence
 
 ---
@@ -552,8 +552,8 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Compliance
 
-* [ ] Data export request flow works
-* [ ] Data deletion/anonymization flow works
+* [x] Data export request flow works
+* [x] Data deletion/anonymization flow works
 * [ ] Retention job removes expired data
 * [x] Admin access logs include reason and actor
 

@@ -56,6 +56,17 @@ Last Updated: 2026-03-30 (latest pass)
   - `AdminComplianceTest`
   - Extended `PublicFormSubmissionTest` with consent tests.
 
+## Completed In Current Continuation
+
+- Implemented executable DSR processing workflows in `DataSubjectRequestProcessor`:
+  - `export`: builds auditable export evidence (matched count, status breakdown, sample enquiry UUIDs).
+  - `delete`: anonymizes matched enquiry PII fields and records processing markers.
+  - `restrict`: marks matched enquiries with restriction metadata for downstream enforcement.
+- Added admin processing endpoint and route:
+  - `POST /admin/compliance/dsr/{dataSubjectRequest}/process`
+- Extended admin compliance UI with per-request process action.
+- Added feature tests covering export/delete/restrict processing behavior and evidence persistence.
+
 ## Current Security Behavior
 
 - With `CAPTURE_ENFORCE_ACCESS_CONTEXT=true`:
@@ -68,12 +79,11 @@ Last Updated: 2026-03-30 (latest pass)
 ## Remaining High-Priority Work
 
 - Authentication flows for users/admins in UI (login/logout and admin session boundary UX).
-- DSR execution workflows beyond status updates (export/delete/restrict processors and evidence artifacts).
 - Retention/anonymization jobs and schedules.
 - Plan-gated admin views and least-privilege admin role matrix.
 
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Current passing total: 47 tests.
+- Current passing total: 50 tests.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.
