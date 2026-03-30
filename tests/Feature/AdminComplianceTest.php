@@ -5,6 +5,8 @@ use App\Models\BreakGlassApproval;
 use App\Models\Enquiry;
 use App\Models\Form;
 use App\Models\DataSubjectRequest;
+use App\Models\AuditLog;
+use App\Support\SecurityEventMetrics;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -425,4 +427,6 @@ test('unverified admin cannot perform sensitive compliance actions when verifica
         ->assertRedirect(route('admin.verification.notice'));
 
     expect($requestItem->fresh()->status)->toBe('pending');
+    expect(AuditLog::query()->where('action', 'auth.verification.blocked')->count())->toBeGreaterThan(0);
+    expect(data_get(app(SecurityEventMetrics::class)->verificationBlockedSummary(), 'breakdown.admin:sensitive_admin_operation'))->toBeGreaterThan(0);
 });

@@ -9,13 +9,14 @@ use App\Models\DataSubjectRequest;
 use App\Services\DataSubjectRequestProcessor;
 use App\Support\AuditLogger;
 use App\Support\PlanGate;
+use App\Support\SecurityEventMetrics;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class AdminComplianceController extends Controller
 {
-    public function index(Request $request, PlanGate $planGate): View
+    public function index(Request $request, PlanGate $planGate, SecurityEventMetrics $securityEventMetrics): View
     {
         $this->requireAdministrator('compliance.view');
 
@@ -49,12 +50,15 @@ class AdminComplianceController extends Controller
             ->limit(20)
             ->get();
 
+        $verificationBlockedSummary = $securityEventMetrics->verificationBlockedSummary();
+
         return view('admin.compliance.index', [
             'accountId' => $accountId,
             'auditLogs' => $auditLogs,
             'dataAccessLogs' => $dataAccessLogs,
             'dsrRequests' => $dsrRequests,
             'breakGlassApprovals' => $breakGlassApprovals,
+            'verificationBlockedSummary' => $verificationBlockedSummary,
         ]);
     }
 

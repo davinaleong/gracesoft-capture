@@ -248,7 +248,7 @@ This is your internal control system.
 
 * [ ] `components.diagnostics.log-table`
 * [ ] `components.diagnostics.error-view`
-* [ ] `components.diagnostics.security-events-table`
+* [x] `components.diagnostics.security-events-table`
 
 ---
 

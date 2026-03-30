@@ -3,6 +3,8 @@
 use App\Jobs\SendCollaboratorInvitationJob;
 use App\Models\AccountInvitation;
 use App\Models\AccountMembership;
+use App\Models\AuditLog;
+use App\Support\SecurityEventMetrics;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -196,4 +198,6 @@ test('unverified invited user cannot accept invitation when verification enforce
         ->assertRedirect(route('verification.notice'));
 
     expect($invitation->fresh()->accepted_at)->toBeNull();
+    expect(AuditLog::query()->where('action', 'auth.verification.blocked')->count())->toBeGreaterThan(0);
+    expect(data_get(app(SecurityEventMetrics::class)->verificationBlockedSummary(), 'breakdown.web:collaborator_acceptance'))->toBeGreaterThan(0);
 });

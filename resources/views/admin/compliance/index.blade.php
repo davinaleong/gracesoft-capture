@@ -18,6 +18,29 @@
     </x-ui.card>
 
     <x-ui.card class="mb-4">
+        <h2 class="mb-3 text-lg font-semibold">Verification Enforcement Telemetry (Today)</h2>
+        <div class="mb-3 text-sm text-gs-black-700">
+            Total blocked actions: <strong>{{ data_get($verificationBlockedSummary, 'total', 0) }}</strong>
+        </div>
+        <x-ui.table>
+            <thead class="bg-gray-50 uppercase text-xs tracking-wide text-gs-black-700">
+                <tr>
+                    <th class="p-2">Scope</th>
+                    <th class="p-2">Blocked Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (data_get($verificationBlockedSummary, 'breakdown', []) as $scope => $count)
+                    <tr class="border-b border-gray-200">
+                        <td class="p-2">{{ $scope }}</td>
+                        <td class="p-2">{{ $count }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </x-ui.table>
+    </x-ui.card>
+
+    <x-ui.card class="mb-4">
         <h2 class="mb-3 text-lg font-semibold">Break-Glass Controls</h2>
         <div class="grid gap-4 md:grid-cols-2">
             <form method="post" action="{{ route('admin.compliance.break-glass.request') }}" class="space-y-3">

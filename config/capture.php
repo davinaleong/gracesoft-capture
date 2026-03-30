@@ -19,6 +19,7 @@ return [
         'break_glass_default_expiry_minutes' => (int) env('CAPTURE_BREAK_GLASS_DEFAULT_EXPIRY_MINUTES', 30),
         'require_verified_email_for_collaborator_acceptance' => (bool) env('CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_COLLABORATOR_ACCEPTANCE', false),
         'require_verified_email_for_sensitive_admin_operations' => (bool) env('CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_SENSITIVE_ADMIN_OPERATIONS', false),
+        'verification_block_metrics_enabled' => (bool) env('CAPTURE_VERIFICATION_BLOCK_METRICS_ENABLED', true),
     ],
     'admin_authorization' => [
         'default_role' => env('CAPTURE_DEFAULT_ADMIN_ROLE', 'compliance_admin'),

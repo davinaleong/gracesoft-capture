@@ -190,6 +190,15 @@ Last Updated: 2026-03-31 (latest pass)
   - unverified invited user is redirected to verification notice
   - unverified admin is blocked from sensitive compliance updates
 
+## Completed In Current Continuation
+
+- Implemented lightweight verification-enforcement telemetry:
+  - Added `SecurityEventMetrics` cache-based counters.
+  - Added `auth.verification.blocked` audit logging for blocked actions.
+  - Added verification-enforcement summary panel to admin compliance dashboard.
+  - Added `CAPTURE_VERIFICATION_BLOCK_METRICS_ENABLED` feature flag.
+- Added assertions proving telemetry side effects in collaborator and admin compliance feature tests.
+
 ## Current Security Behavior
 
 - With `CAPTURE_ENFORCE_ACCESS_CONTEXT=true`:
@@ -207,4 +216,5 @@ Last Updated: 2026-03-31 (latest pass)
 
 - Current status: tests passing (`php artisan test`).
 - Current passing total: 76 tests.
+- Current assertion total: 250 assertions.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.
