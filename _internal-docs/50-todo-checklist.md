@@ -464,8 +464,8 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 # 💳 15. Plan Enforcement (via HQ)
 
-* [ ] Fetch subscription from HQ
-* [ ] Cache plan
+* [x] Fetch subscription from HQ
+* [x] Cache plan
 
 ---
 
@@ -488,9 +488,9 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ### Pro
 
-* [ ] Enable notes
+* [x] Enable notes
 * [ ] Enable insights
-* [ ] Enable advanced audit and compliance views
+* [x] Enable advanced audit and compliance views
 
 ---
 
@@ -514,8 +514,8 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Admin Safeguards
 
-* [ ] Enforce least-privilege admin roles
-* [ ] Require MFA for admin accounts
+* [x] Enforce least-privilege admin roles
+* [x] Require MFA for admin accounts
 * [ ] Harden sessions and shorten idle timeout
 * [x] Store admin identities only in `administrators` table (not in user/collaborator tables)
 * [ ] Define break-glass flow with enhanced logging and approval

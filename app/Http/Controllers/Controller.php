@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccountMembership;
+use App\Models\Administrator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -94,10 +95,31 @@ abstract class Controller
         }
     }
 
-    protected function requireAdministrator(): void
+    protected function requireAdministrator(?string $requiredCapability = null): Administrator
     {
-        if (! Auth::guard('admin')->check()) {
+        $administrator = Auth::guard('admin')->user();
+
+        if (! $administrator instanceof Administrator) {
             abort(403, 'Administrator access required.');
         }
+
+        if ($administrator->status !== 'active') {
+            abort(403, 'Administrator account is not active.');
+        }
+
+        if (
+            (bool) config('capture.features.require_admin_mfa_for_compliance', false)
+            && is_string($requiredCapability)
+            && str_starts_with($requiredCapability, 'compliance.')
+            && ! $administrator->mfa_enabled
+        ) {
+            abort(403, 'Administrator MFA is required for compliance actions.');
+        }
+
+        if (is_string($requiredCapability) && $requiredCapability !== '' && ! $administrator->hasCapability($requiredCapability)) {
+            abort(403, 'Administrator role does not allow this action.');
+        }
+
+        return $administrator;
     }
 }

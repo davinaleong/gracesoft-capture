@@ -77,3 +77,26 @@ test('force enabled notes bypasses HQ', function () {
 
     Http::assertNothingSent();
 });
+
+test('compliance views are enabled when plan gating is disabled', function () {
+    config()->set('capture.features.admin_compliance_plan_gate_enabled', false);
+
+    $gate = app(PlanGate::class);
+
+    expect($gate->complianceViewsEnabled('b5a8a06a-b355-4b80-a7dd-b87d67eb85f8'))->toBeTrue();
+});
+
+test('compliance views are disabled for non allowed plans when gating is enabled', function () {
+    config()->set('capture.features.admin_compliance_plan_gate_enabled', true);
+    config()->set('capture.features.admin_compliance_allowed_plans', ['pro']);
+
+    Http::fake([
+        'http://hq.test/api/v1/subscription*' => Http::response([
+            'plan' => 'growth',
+        ], 200),
+    ]);
+
+    $gate = app(PlanGate::class);
+
+    expect($gate->complianceViewsEnabled('b5a8a06a-b355-4b80-a7dd-b87d67eb85f8'))->toBeFalse();
+});

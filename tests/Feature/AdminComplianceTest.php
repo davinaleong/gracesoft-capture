@@ -22,6 +22,56 @@ test('non admin cannot view compliance dashboard', function () {
         ->assertStatus(403);
 });
 
+test('compliance reader can view dashboard but cannot update dsr status', function () {
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_reader',
+    ]);
+
+    $requestItem = DataSubjectRequest::query()->create([
+        'account_id' => 'f0f6efe8-c9d3-4792-a2d8-2fae22cbf152',
+        'subject_email' => 'reader-test@example.com',
+        'request_type' => 'export',
+        'status' => 'pending',
+        'requested_at' => now(),
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->get(route('admin.compliance.index'))
+        ->assertOk();
+
+    $this->actingAs($admin, 'admin')
+        ->post(route('admin.compliance.dsr.update', $requestItem), [
+            'status' => 'in_progress',
+        ])
+        ->assertStatus(403);
+});
+
+test('compliance operator can update status but cannot process dsr', function () {
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_operator',
+    ]);
+
+    $requestItem = DataSubjectRequest::query()->create([
+        'account_id' => '548f5cd0-8ea7-43f9-9f20-5493fdf22a92',
+        'subject_email' => 'operator-test@example.com',
+        'request_type' => 'delete',
+        'status' => 'pending',
+        'requested_at' => now(),
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->post(route('admin.compliance.dsr.update', $requestItem), [
+            'status' => 'in_progress',
+        ])
+        ->assertSessionHas('status');
+
+    $this->actingAs($admin, 'admin')
+        ->post(route('admin.compliance.dsr.process', $requestItem), [
+            'reason' => 'Operator cannot process',
+        ])
+        ->assertStatus(403);
+});
+
 test('admin can update data subject request status', function () {
     $admin = Administrator::factory()->create();
 
@@ -164,4 +214,65 @@ test('admin can process restrict data subject request', function () {
     expect($fresh->status)->toBe('completed');
     expect(data_get($fresh->resolution_metadata, 'processed_operation'))->toBe('restrict');
     expect(data_get($enquiry->fresh()->metadata, 'dsr.restricted'))->toBeTrue();
+});
+
+test('suspended administrator cannot access compliance dashboard', function () {
+    $admin = Administrator::factory()->create([
+        'status' => 'suspended',
+        'role' => 'compliance_admin',
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->get(route('admin.compliance.index'))
+        ->assertStatus(403);
+});
+
+test('admin compliance processing is blocked for non-pro account when plan gate is enabled', function () {
+    config([
+        'capture.features.admin_compliance_plan_gate_enabled' => true,
+        'capture.features.default_plan' => 'growth',
+        'hq.enabled' => false,
+    ]);
+
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+    ]);
+
+    $requestItem = DataSubjectRequest::query()->create([
+        'account_id' => '2d6431d1-cc57-4260-a506-5c5d301e1914',
+        'subject_email' => 'blocked@example.com',
+        'request_type' => 'export',
+        'status' => 'pending',
+        'requested_at' => now(),
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->post(route('admin.compliance.dsr.process', $requestItem), [
+            'reason' => 'Should be blocked by plan gate',
+        ])
+        ->assertStatus(403);
+});
+
+test('admin compliance access requires mfa when configured', function () {
+    config([
+        'capture.features.require_admin_mfa_for_compliance' => true,
+    ]);
+
+    $adminWithoutMfa = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+        'mfa_enabled' => false,
+    ]);
+
+    $this->actingAs($adminWithoutMfa, 'admin')
+        ->get(route('admin.compliance.index'))
+        ->assertStatus(403);
+
+    $adminWithMfa = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+        'mfa_enabled' => true,
+    ]);
+
+    $this->actingAs($adminWithMfa, 'admin')
+        ->get(route('admin.compliance.index'))
+        ->assertOk();
 });

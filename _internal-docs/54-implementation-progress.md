@@ -84,6 +84,46 @@ Last Updated: 2026-03-30 (latest pass)
 - Added unit coverage:
   - `DataRetentionServiceTest` validates expiry deletion and anonymization behavior.
 
+## Completed In Latest Continuation
+
+- Implemented least-privilege admin role matrix with capability gating:
+  - Added `administrators.role` field (default `compliance_admin`).
+  - Added role/capability mapping in `config/capture.php`.
+  - Added capability helper methods on `Administrator` model.
+- Enforced administrator status and capability checks in base controller gate:
+  - Suspended admins are denied.
+  - Compliance actions now require explicit capability keys.
+- Applied capability boundaries in compliance module:
+  - `compliance.view` for dashboard access.
+  - `compliance.manage_dsr_status` for status updates.
+  - `compliance.process_dsr` for DSR execution.
+- Added feature tests for role matrix behavior:
+  - reader can view but cannot update.
+  - operator can update status but cannot process.
+  - suspended admin is denied access.
+
+## Completed In Current Continuation
+
+- Implemented plan-gated admin compliance access using `PlanGate`:
+  - Added `complianceViewsEnabled()` with feature-flag support.
+  - Added reusable plan resolver for account-scoped gates.
+- Added admin compliance plan-gate config:
+  - `CAPTURE_ADMIN_COMPLIANCE_PLAN_GATE_ENABLED`
+  - allowed plans list (default `pro`).
+- Enforced Pro-plan gate in admin compliance controller:
+  - Dashboard filtered by account can be blocked for non-allowed plans.
+  - DSR status/process actions are blocked for non-allowed plans.
+- Added tests for plan-gated compliance behavior:
+  - Unit coverage for `PlanGate::complianceViewsEnabled()`.
+  - Feature coverage for blocked DSR processing on non-Pro account when gate is enabled.
+
+## Completed In Latest Continuation
+
+- Added optional MFA enforcement for admin compliance actions:
+  - `CAPTURE_REQUIRE_ADMIN_MFA_FOR_COMPLIANCE`
+  - When enabled, compliance capabilities require `administrators.mfa_enabled=true`.
+- Added feature coverage for MFA-gated compliance access.
+
 ## Current Security Behavior
 
 - With `CAPTURE_ENFORCE_ACCESS_CONTEXT=true`:
@@ -96,10 +136,9 @@ Last Updated: 2026-03-30 (latest pass)
 ## Remaining High-Priority Work
 
 - Authentication flows for users/admins in UI (login/logout and admin session boundary UX).
-- Plan-gated admin views and least-privilege admin role matrix.
 
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Current passing total: 51 tests.
+- Current passing total: 58 tests.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.

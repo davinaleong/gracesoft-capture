@@ -7,18 +7,22 @@ use App\Models\DataAccessLog;
 use App\Models\DataSubjectRequest;
 use App\Services\DataSubjectRequestProcessor;
 use App\Support\AuditLogger;
+use App\Support\PlanGate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class AdminComplianceController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, PlanGate $planGate): View
     {
-        $this->requireAdministrator();
+        $this->requireAdministrator('compliance.view');
 
         $accountId = $request->string('account_id')->toString();
+
+        if (! $planGate->complianceViewsEnabled($accountId)) {
+            abort(403, 'Advanced compliance views are available on Pro plan accounts only.');
+        }
 
         $auditLogs = AuditLog::query()
             ->when($accountId !== '', fn ($query) => $query->where('account_id', $accountId))
@@ -46,16 +50,23 @@ class AdminComplianceController extends Controller
         ]);
     }
 
-    public function updateDsrStatus(Request $request, DataSubjectRequest $dataSubjectRequest, AuditLogger $auditLogger): RedirectResponse
+    public function updateDsrStatus(
+        Request $request,
+        DataSubjectRequest $dataSubjectRequest,
+        AuditLogger $auditLogger,
+        PlanGate $planGate
+    ): RedirectResponse
     {
-        $this->requireAdministrator();
+        $admin = $this->requireAdministrator('compliance.manage_dsr_status');
+
+        if (! $planGate->complianceViewsEnabled($dataSubjectRequest->account_id)) {
+            abort(403, 'Advanced compliance views are available on Pro plan accounts only.');
+        }
 
         $data = $request->validate([
             'status' => ['required', 'in:pending,in_progress,completed,rejected'],
             'reason' => ['nullable', 'string', 'max:1000'],
         ]);
-
-        $admin = Auth::guard('admin')->user();
 
         $dataSubjectRequest->update([
             'status' => $data['status'],
@@ -82,15 +93,18 @@ class AdminComplianceController extends Controller
         Request $request,
         DataSubjectRequest $dataSubjectRequest,
         DataSubjectRequestProcessor $processor,
-        AuditLogger $auditLogger
+        AuditLogger $auditLogger,
+        PlanGate $planGate
     ): RedirectResponse {
-        $this->requireAdministrator();
+        $admin = $this->requireAdministrator('compliance.process_dsr');
+
+        if (! $planGate->complianceViewsEnabled($dataSubjectRequest->account_id)) {
+            abort(403, 'Advanced compliance views are available on Pro plan accounts only.');
+        }
 
         $data = $request->validate([
             'reason' => ['nullable', 'string', 'max:1000'],
         ]);
-
-        $admin = Auth::guard('admin')->user();
 
         $metadata = $processor->process(
             $dataSubjectRequest,

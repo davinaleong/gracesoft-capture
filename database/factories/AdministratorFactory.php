@@ -22,6 +22,7 @@ class AdministratorFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'status' => 'active',
+            'role' => 'compliance_admin',
             'mfa_enabled' => false,
             'last_login_at' => null,
             'remember_token' => Str::random(10),

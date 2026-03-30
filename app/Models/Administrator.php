@@ -16,6 +16,7 @@ class Administrator extends Authenticatable
         'email',
         'password',
         'status',
+        'role',
         'mfa_enabled',
         'last_login_at',
     ];
@@ -42,5 +43,24 @@ class Administrator extends Authenticatable
             'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function roleName(): string
+    {
+        $defaultRole = (string) config('capture.admin_authorization.default_role', 'compliance_admin');
+
+        return is_string($this->role) && $this->role !== '' ? $this->role : $defaultRole;
+    }
+
+    public function hasCapability(string $capability): bool
+    {
+        $roleCapabilities = (array) config('capture.admin_authorization.role_capabilities', []);
+        $capabilities = $roleCapabilities[$this->roleName()] ?? [];
+
+        if (! is_array($capabilities)) {
+            return false;
+        }
+
+        return in_array($capability, $capabilities, true);
     }
 }
