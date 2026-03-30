@@ -1,26 +1,41 @@
 # 🟩 1. Foundation Setup
 
-## ✅ Project Setup
+## Access Model and Trust Boundaries
 
-* [ ] Create Capture app (Laravel)
-* [ ] Configure separate **Capture DB**
-* [ ] Setup env:
-
-  * [ ] `HQ_API_URL`
-  * [ ] `HQ_API_KEY` (internal service auth)
+* [ ] Define actor types and permissions:
+  * [ ] `user`: only access data inside their own account/workspace
+  * [ ] `collaborator`: invited user with scoped access to the same account/workspace data
+  * [ ] `administrator`: platform operator stored in a dedicated `administrators` table
+* [ ] Enforce tenant boundary by default (`account_id` required on all business queries)
+* [ ] Document security model (auth, authorization, audit, retention, lawful access)
 
 ---
 
-## ✅ Base Structure
+## Project Setup
+
+* [ ] Create Capture app (Laravel)
+* [ ] Configure separate Capture DB
+* [ ] Setup env:
+  * [ ] `HQ_API_URL`
+  * [ ] `HQ_API_KEY`
+  * [ ] `APP_DATA_RETENTION_DAYS`
+  * [ ] `INVITE_TOKEN_TTL_HOURS`
+  * [ ] `ADMIN_AUDIT_LOG_ENABLED=true`
+
+---
+
+## Base Structure
 
 * [ ] Create modules:
-
   * [ ] Forms
   * [ ] Enquiries
   * [ ] Inbox
   * [ ] Notifications
+  * [ ] Collaborators
   * [ ] Insights
   * [ ] Integration
+  * [ ] Compliance
+  * [ ] Admin Monitoring
 
 ---
 
@@ -29,8 +44,8 @@
 ## Forms
 
 * [ ] Create `forms` table
-
-  * [ ] id (UUID)
+  * [ ] id (BIGINT)
+  * [ ] uuid (UUID)
   * [ ] account_id
   * [ ] application_id
   * [ ] public_token (`frm_xxx`)
@@ -43,8 +58,8 @@
 ## Enquiries
 
 * [ ] Create `enquiries` table
-
-  * [ ] id (UUID)
+  * [ ] id (BIGINT)
+  * [ ] uuid (UUID)
   * [ ] form_id
   * [ ] account_id
   * [ ] application_id
@@ -62,16 +77,103 @@
 ## Notes (Pro)
 
 * [ ] Create `notes` table
-
+  * [ ] id (BIGINT)
+  * [ ] uuid (UUID)
   * [ ] enquiry_id
   * [ ] user_id
   * [ ] content
 
 ---
 
+## Collaborators and Access Control
+
+* [ ] Create `account_memberships` table
+  * [ ] id
+  * [ ] account_id
+  * [ ] user_id
+  * [ ] role (`owner/member/viewer`)
+  * [ ] invited_by_user_id
+  * [ ] joined_at
+  * [ ] removed_at
+* [ ] Create `account_invitations` table
+  * [ ] id
+  * [ ] account_id
+  * [ ] email
+  * [ ] role
+  * [ ] invite_token (hashed)
+  * [ ] expires_at
+  * [ ] accepted_at
+  * [ ] revoked_at
+
+* [ ] Create `administrators` table (platform operators)
+  * [ ] id (BIGINT)
+  * [ ] uuid (UUID)
+  * [ ] email (unique)
+  * [ ] display_name
+  * [ ] status (`active/suspended`)
+  * [ ] mfa_enabled
+  * [ ] last_login_at
+
 ---
 
-# 🔐 3. HQ Integration Layer
+## Compliance and Monitoring
+
+* [ ] Create `audit_logs` table
+  * [ ] actor_type (`user/administrator/system`)
+  * [ ] actor_id
+  * [ ] actor_source_table (`users/administrators/system`)
+  * [ ] account_id (nullable for global admin actions)
+  * [ ] action
+  * [ ] target_type
+  * [ ] target_id
+  * [ ] access_reason (nullable)
+  * [ ] ip_address
+  * [ ] user_agent
+  * [ ] metadata (JSON, redacted)
+  * [ ] created_at
+* [ ] Create `data_access_logs` table for sensitive read operations
+* [ ] Create `consents` table (policy_version + accepted_at)
+* [ ] Create `data_subject_requests` table (export/delete/restrict)
+
+---
+
+# 🔐 3. Authentication and Authorization
+
+## Identity Flows
+
+* [ ] Support secure signup/login for users
+* [ ] Add invite acceptance flow for collaborators:
+  * [ ] invitation email
+  * [ ] token verification
+  * [ ] signup/login required before acceptance
+  * [ ] one-time token invalidation
+  * [ ] email verification required
+
+---
+
+## Authorization Rules
+
+* [ ] Implement Laravel Policies for Forms, Enquiries, Notes, Replies, Insights
+* [ ] Enforce account-scoped access in query layer (global scope or repository layer)
+* [ ] Deny-by-default for all protected routes
+* [ ] Add gate checks for account-scoped data access
+* [ ] Add role checks for collaborator capabilities
+* [ ] Add dedicated admin guard/provider backed by `administrators` table
+* [ ] Keep admin auth/session separate from user auth/session
+
+---
+
+## Security-First Collaboration
+
+* [ ] Limit who can invite collaborators (`owner` only by default)
+* [ ] Prevent privilege escalation (member cannot grant owner role)
+* [ ] Require expiration and revocation support for invitations
+* [ ] Notify owner when invites are accepted/revoked
+* [ ] Detect and block cross-account access attempts
+
+---
+
+# 🔗 4. HQ Integration Layer
 
 ## API Client Service
 
@@ -82,50 +184,38 @@
 ## Endpoints to implement
 
 * [ ] Validate application
-
   * `POST /hq/api/validate-application`
-
 * [ ] Get subscription
-
   * `GET /hq/api/subscription`
-
 * [ ] Send analytics
-
   * `POST /hq/api/events`
-
 * [ ] Send feedback
-
   * `POST /hq/api/feedback`
 
 ---
 
-## Caching (important)
+## Caching
 
-* [ ] Cache:
-
-  * [ ] application validation (short TTL)
-  * [ ] subscription plan
+* [ ] Cache application validation (short TTL)
+* [ ] Cache subscription plan
 
 ---
 
----
-
-# 🔌 4. Forms Module (Embed System)
+# 🔌 5. Forms Module (Embed System)
 
 ## Create Form
 
-* [ ] UI: “Create Form”
-* [ ] Call HQ → create application
-* [ ] Store:
-
-  * application_id
-  * account_id
+* [ ] UI: Create Form
+* [ ] Call HQ to create application
+* [ ] Store `application_id` and `account_id`
+* [ ] Restrict create/edit/delete form actions by membership role
 
 ---
 
 ## Token Generation
 
-* [ ] Generate secure `public_token` (`frm_xxx`)
+* [ ] Generate secure public token (`frm_xxx`)
+* [ ] Ensure tokens are unguessable and non-sequential
 
 ---
 
@@ -133,27 +223,24 @@
 
 * [ ] `GET /form/{token}`
 * [ ] Validate:
-
-  * form exists
-  * is_active
+  * [ ] form exists
+  * [ ] is_active
 
 ---
 
 ## Form UI (iframe)
 
 * [ ] Fields:
-
   * [ ] name
   * [ ] email
   * [ ] subject
   * [ ] message
 * [ ] Add honeypot field
+* [ ] Add privacy notice and consent checkbox (where required)
 
 ---
 
----
-
-# 📨 5. Submission Handling (Critical)
+# 📨 6. Submission Handling (Critical)
 
 ## Endpoint
 
@@ -166,25 +253,27 @@
 * [ ] Validate input
 * [ ] Honeypot check
 * [ ] Rate limit (per token/IP)
+* [ ] Record consent where policy requires
 
 ---
 
 ## Resolve Ownership
 
-* [ ] form → application_id → account_id
+* [ ] `form -> application_id -> account_id`
 
 ---
 
 ## Store Enquiry
 
 * [ ] Insert into `enquiries`
+* [ ] Store minimal PII required for purpose (data minimization)
 
 ---
 
 ## Trigger Side Effects
 
-* [ ] Send notification (email)
-* [ ] Send analytics event → HQ
+* [ ] Send notification email
+* [ ] Send analytics event to HQ (exclude raw PII unless strictly required)
 
 ---
 
@@ -194,73 +283,75 @@
 
 ---
 
----
-
-# 🔔 6. Notifications
+# 🔔 7. Notifications
 
 * [ ] Setup email service (Postmark/SMTP)
-* [ ] Create notification job:
-
-  * [ ] On new enquiry
-* [ ] Email content:
-
-  * name
-  * email
-  * subject
-  * message
+* [ ] Create notification job for new enquiry
+* [ ] Create invitation email job for collaborator invites
+* [ ] Email templates contain least-sensitive data necessary
 
 ---
 
----
-
-# 📬 7. Inbox Module (Dashboard)
+# 📬 8. Inbox Module (Dashboard)
 
 ## List View
 
 * [ ] Route: `/inbox`
 * [ ] Show:
-
-  * name
-  * email
-  * subject
-  * status
-  * date
+  * [ ] name
+  * [ ] email
+  * [ ] subject
+  * [ ] status
+  * [ ] date
+* [ ] Restrict rows to active account context
 
 ---
 
 ## Detail View
 
 * [ ] Full enquiry content
-* [ ] Status update buttons:
-
-  * new → contacted → closed
+* [ ] Status update buttons (`new -> contacted -> closed`)
+* [ ] Restrict visibility by role and account scope
 
 ---
 
 ## Status Logic
 
-* [ ] On “contacted”:
-
-  * set `contacted_at`
-* [ ] On “closed”:
-
-  * set `closed_at`
+* [ ] On `contacted`, set `contacted_at`
+* [ ] On `closed`, set `closed_at`
 
 ---
 
+# 👥 9. Collaborators Module
+
+## Manage Collaborators
+
+* [ ] Route: `/settings/collaborators`
+* [ ] List active members and pending invites
+* [ ] Invite collaborator by email and role
+* [ ] Resend/revoke invitation
+* [ ] Remove collaborator from account
+
 ---
 
-# 📝 8. Notes Module (Pro)
+## Security Controls
+
+* [ ] Invite links are signed, expiring, and single-use
+* [ ] Invitation tokens are hashed at rest
+* [ ] Audit all collaborator lifecycle actions
+* [ ] Alert on repeated invalid token or cross-tenant access attempts
+
+---
+
+# 📝 10. Notes Module (Pro)
 
 * [ ] Add note to enquiry
 * [ ] Display notes in detail view
-* [ ] Restrict access based on plan
+* [ ] Restrict access based on plan and collaborator role
 
 ---
 
----
-
-# 📊 9. Insights Module (Capture-Owned)
+# 📊 11. Insights Module (Capture-Owned)
 
 ## Queries
 
@@ -280,16 +371,16 @@
 ## API / Controller
 
 * [ ] `GET /insights`
+* [ ] Enforce account-level isolation for all metrics
 
 ---
 
 ## UI
 
 * [ ] Charts:
-
-  * volume over time
-  * funnel
-  * response time
+  * [ ] volume over time
+  * [ ] funnel
+  * [ ] response time
 
 ---
 
@@ -299,25 +390,22 @@
 
 ---
 
----
-
-# 🔌 10. Integration Page (Install UX)
+# 🔌 12. Integration Page (Install UX)
 
 * [ ] Route: `/integrations`
 * [ ] Show:
-
-  * form name
-  * domain
-  * embed code
+  * [ ] form name
+  * [ ] domain
+  * [ ] embed code
 
 ---
 
 ## Embed Code
 
 ```html
-<iframe 
+<iframe
   src="https://capture.gracesoft.dev/form/frm_xxx"
-  width="100%" 
+  width="100%"
   height="500">
 </iframe>
 ```
@@ -326,26 +414,53 @@
 
 ## Test Feature
 
-* [ ] “Send test enquiry” button
+* [ ] Send test enquiry button
 
 ---
 
----
-
-# 🔐 11. Security Layer
+# 🔐 13. Security Layer
 
 * [ ] Public token must be unguessable
 * [ ] Rate limiting (global + per form)
 * [ ] Honeypot validation
-* [ ] Optional:
-
-  * [ ] domain validation via headers
+* [ ] CSRF, XSS, and output escaping checks
+* [ ] Encrypt sensitive fields at rest where applicable
+* [ ] Rotate secrets and integration keys on schedule
+* [ ] Optional domain validation via headers
 
 ---
 
+# ⚖️ 14. GDPR and PDPA Compliance
+
+## Data Governance
+
+* [ ] Build data inventory and classify personal data fields
+* [ ] Define lawful basis and purpose for each collected field
+* [ ] Enforce data minimization in forms, analytics, and logs
+* [ ] Define and enforce retention and deletion schedules
+
 ---
 
-# 💳 12. Plan Enforcement (via HQ)
+## Data Subject Rights
+
+* [ ] Export personal data on verified request
+* [ ] Delete or anonymize personal data on valid request
+* [ ] Restrict processing where required
+* [ ] Track request lifecycle and completion evidence
+
+---
+
+## Administrator Monitoring (Compliant)
+
+* [ ] Provide admin monitoring pages with aggregate-first views
+* [ ] Require access reason for sensitive drill-down views
+* [ ] Mask sensitive data by default in admin UI
+* [ ] Log every admin read/write of customer data
+* [ ] Run periodic admin access review and recertification
+
+---
+
+# 💳 15. Plan Enforcement (via HQ)
 
 * [ ] Fetch subscription from HQ
 * [ ] Cache plan
@@ -365,36 +480,62 @@
 ### Growth
 
 * [ ] Enable core features
+* [ ] Enable collaborator invites with role limits
 
 ---
 
 ### Pro
 
-* [ ] Enable:
-
-  * notes
-  * insights
-
----
+* [ ] Enable notes
+* [ ] Enable insights
+* [ ] Enable advanced audit and compliance views
 
 ---
 
-# 💬 13. Feedback Integration
+# 💬 16. Feedback Integration
 
-* [ ] Add “Contact Support” button
-* [ ] Form → send to HQ `/api/feedback`
-
----
+* [ ] Add Contact Support button
+* [ ] Send feedback to HQ `/api/feedback`
 
 ---
 
-# 🧪 14. Testing Checklist
+# 🛡️ 17. Admin Module (Platform)
+
+## Admin Capabilities
+
+* [ ] Global metrics dashboard (without unnecessary raw personal data)
+* [ ] Tenant health monitoring
+* [ ] Abuse/spam detection queue
+* [ ] Compliance event dashboard (consent, DSR, deletions)
+
+---
+
+## Admin Safeguards
+
+* [ ] Enforce least-privilege admin roles
+* [ ] Require MFA for admin accounts
+* [ ] Harden sessions and shorten idle timeout
+* [ ] Store admin identities only in `administrators` table (not in user/collaborator tables)
+* [ ] Define break-glass flow with enhanced logging and approval
+
+---
+
+# 🧪 18. Testing Checklist
 
 ## Core Flow
 
-* [ ] Submit enquiry → stored
-* [ ] Notification sent
-* [ ] Appears in inbox
+* [ ] Submit enquiry is stored
+* [ ] Notification is sent
+* [ ] Enquiry appears in inbox
+
+---
+
+## Access Control and Collaboration
+
+* [ ] User cannot access another account data
+* [ ] Collaborator invite/accept/revoke flow works
+* [ ] Cross-tenant IDOR attempts are blocked
+* [ ] Role permissions enforced for every protected action
 
 ---
 
@@ -402,68 +543,72 @@
 
 * [ ] Honeypot blocks spam
 * [ ] Rate limiting works
+* [ ] Signed invite token validation works
+* [ ] Audit logs are written for sensitive actions
 
 ---
 
-## HQ Sync
+## Compliance
+
+* [ ] Data export request flow works
+* [ ] Data deletion/anonymization flow works
+* [ ] Retention job removes expired data
+* [ ] Admin access logs include reason and actor
+
+---
+
+## HQ Sync and Plans
 
 * [ ] Analytics event sent
 * [ ] Subscription fetched
-
----
-
-## Plans
-
 * [ ] Starter restrictions enforced
 * [ ] Pro features unlocked
 
 ---
 
----
-
-# 🚀 15. Nice-to-Have (Post-MVP)
+# 🚀 19. Nice-to-Have (Post-MVP)
 
 * [ ] Redirect after submit
 * [ ] Custom themes
 * [ ] Custom fields
 * [ ] File uploads
 * [ ] Webhooks
+* [ ] SCIM or SSO for larger teams
 
 ---
 
----
+# 🧭 Final Build Order (Updated)
 
-# 🧭 Final Build Order (Simplified)
+## Phase 1 (Security Core)
 
-## Phase 1 (Core)
-
-* Forms
-* Public form
-* Submission
-* Enquiry storage
+* [ ] Auth and account scoping
+* [ ] Forms and public submission
+* [ ] Enquiry storage
+* [ ] Baseline audit logging
 
 ---
 
-## Phase 2
+## Phase 2 (Core Product)
 
-* Inbox
-* Notifications
-
----
-
-## Phase 3
-
-* HQ integration
-* Analytics events
+* [ ] Inbox
+* [ ] Notifications
+* [ ] Collaboration invites and membership controls
 
 ---
 
-## Phase 4
+## Phase 3 (Platform Integration)
 
-* Insights
-* Notes
+* [ ] HQ integration
+* [ ] Analytics events
+* [ ] Plan enforcement
 
 ---
+
+## Phase 4 (Advanced)
+
+* [ ] Insights
+* [ ] Notes
+* [ ] Admin monitoring and compliance workflows
 
 ---
 
@@ -474,22 +619,11 @@ Form (iframe)
    ↓
 Capture
    ↓
-Store enquiry
+Store enquiry under strict account boundary
    ↓
-Notify user
+Allow only authorized users/collaborators
    ↓
-Compute insights
+Monitor with compliant administrator controls
    ↓
-Send lightweight events → HQ
+Send lightweight events to HQ
 ```
-
----
-
-# 💬 My Honest Take
-
-This is now:
-
-* **Clean**
-* **Secure**
-* **Buildable solo**
-* **Launch-ready**

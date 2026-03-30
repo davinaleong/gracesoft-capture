@@ -119,6 +119,129 @@ updated_at
 
 ---
 
+## 👥 `account_memberships`
+
+**Purpose:** Tenant-scoped access control for account owners and collaborators
+
+```sql
+id (BIGINT, PK)
+
+account_id (UUID, indexed)
+user_id (UUID, indexed)
+
+role (enum: owner, member, viewer)
+
+invited_by_user_id (UUID, nullable)
+joined_at (timestamp, nullable)
+removed_at (timestamp, nullable)
+
+created_at
+updated_at
+```
+
+### Notes
+
+* Enforces that users can access only their account data
+* Unique key recommended: `(account_id, user_id)`
+
+---
+
+---
+
+## ✉️ `account_invitations`
+
+**Purpose:** Security-first collaborator invitation flow
+
+```sql
+id (BIGINT, PK)
+
+account_id (UUID, indexed)
+email (string, indexed)
+
+role (enum: owner, member, viewer)
+invite_token (string, unique)   -- store hash only
+
+expires_at (timestamp)
+accepted_at (timestamp, nullable)
+revoked_at (timestamp, nullable)
+
+created_at
+updated_at
+```
+
+### Notes
+
+* Invite tokens must be signed, expiring, and single-use
+* Only `owner` should invite by default (policy-level control)
+
+---
+
+---
+
+## 🛡️ `administrators`
+
+**Purpose:** Platform operators for monitoring/support, stored separately from user/collaborator identities
+
+```sql
+id (BIGINT, PK)
+uuid (UUID, unique)
+
+email (string, unique)
+display_name (string)
+
+status (enum: active, suspended)
+mfa_enabled (boolean)
+
+last_login_at (timestamp, nullable)
+
+created_at
+updated_at
+```
+
+### Notes
+
+* This table is separate from account users/collaborators
+* Admin access must be audited with reason capture for sensitive reads
+
+---
+
+---
+
+## 🧾 `audit_logs`
+
+**Purpose:** Immutable-style audit trail for security and compliance (GDPR/PDPA)
+
+```sql
+id (BIGINT, PK)
+
+actor_type (enum: user, administrator, system)
+actor_id (UUID, nullable)
+actor_source_table (enum: users, administrators, system)
+
+account_id (UUID, nullable)
+
+action (string)
+target_type (string)
+target_id (string)
+
+access_reason (string, nullable)
+metadata (json, nullable)   -- redacted
+
+ip_address (string, nullable)
+user_agent (string, nullable)
+
+created_at
+```
+
+### Notes
+
+* Required for admin monitoring and access recertification
+* Sensitive read access should include `access_reason`
+
+---
+
+---
+
 ## 🧪 `form_submissions` (Optional)
 
 **Purpose:** Track submission attempts / debugging
@@ -146,6 +269,9 @@ created_at
 ```plaintext
 forms.id        → enquiries.form_id
 enquiries.id    → notes.enquiry_id
+accounts/users  → account_memberships
+account_memberships.account_id → forms/enquiries/account_id
+administrators  → audit_logs (when actor_type = administrator)
 ```
 
 ---
@@ -187,6 +313,39 @@ enquiries.id    → notes.enquiry_id
 
 ---
 
+## account_memberships
+
+* `account_id`
+* `user_id`
+* unique (`account_id`, `user_id`)
+
+---
+
+## account_invitations
+
+* `account_id`
+* `email`
+* `invite_token` (unique)
+* `expires_at`
+
+---
+
+## administrators
+
+* `uuid` (unique)
+* `email` (unique)
+
+---
+
+## audit_logs
+
+* `actor_type`
+* `actor_id`
+* `account_id`
+* `created_at`
+
+---
+
 # 🧠 Key Rules
 
 * ❌ Never expose `id` externally
@@ -194,9 +353,11 @@ enquiries.id    → notes.enquiry_id
 * ✅ Always filter by `account_id`
 * ❌ Do NOT store:
 
-  * users
+  * account user credentials/profiles
+  * collaborator credentials/profiles
   * subscriptions
   * API keys
+* ✅ Store platform administrators in a dedicated `administrators` table
 
 ---
 

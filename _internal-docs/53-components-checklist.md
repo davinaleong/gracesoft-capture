@@ -1,10 +1,11 @@
 # 🧭 1. 🟩 Capture — Blade UI Components Checklist
 
-## 🧱 Layout & Structure
+## 🧱 Layout and Structure
 
 * [ ] `layouts.app`
 * [ ] `layouts.auth`
 * [ ] `layouts.embed` *(for iframe form — minimal)*
+* [ ] `components.layout.account-context-switcher` *(active workspace/account context)*
 
 ---
 
@@ -18,7 +19,10 @@
 
   * status filter
   * search input
+
 * [ ] `components.inbox.status-badge`
+* [ ] `components.inbox.account-context-badge`
+* [ ] `components.inbox.empty-state`
 
 ---
 
@@ -31,21 +35,27 @@
   * subject
   * status
 
-* [ ] `components.enquiry.timeline` ⭐ (important)
-
+* [ ] `components.enquiry.timeline` ⭐
 * [ ] `components.enquiry.message-card`
+* [ ] `components.enquiry.access-denied-state` *(for non-member/non-owner)*
 
 ---
 
 ## 💬 Replies (Growth)
 
 * [ ] `components.replies.list`
-
 * [ ] `components.replies.item`
 
   * sender
   * timestamp
   * content
+
+* [ ] `components.replies.sender-badge`
+
+  * user
+  * collaborator
+  * administrator
+  * system
 
 * [ ] `components.replies.form`
 
@@ -57,10 +67,28 @@
 
 ---
 
+## 👥 Collaborators `/settings/collaborators`
+
+* [ ] `components.collaborators.members-table`
+* [ ] `components.collaborators.member-row`
+* [ ] `components.collaborators.invites-table`
+* [ ] `components.collaborators.invite-form`
+
+  * email input
+  * role select (`owner/member/viewer`)
+  * invite button
+
+* [ ] `components.collaborators.role-badge`
+* [ ] `components.collaborators.invite-status-badge`
+* [ ] `components.collaborators.revoke-button`
+* [ ] `components.collaborators.resend-button`
+* [ ] `components.collaborators.owner-only-banner` *(owner permission hint)*
+
+---
+
 ## 🧠 Notes (Pro)
 
 * [ ] `components.notes.list`
-
 * [ ] `components.notes.item`
 
   * author
@@ -74,8 +102,12 @@
   * tag input
   * reminder date
 
-* [ ] `components.notes.pinned-section`
+* [ ] `components.notes.visibility-badge`
 
+  * internal
+  * external
+
+* [ ] `components.notes.pinned-section`
 * [ ] `components.notes.upgrade-banner` 🔒
 
 ---
@@ -83,16 +115,13 @@
 ## 📊 Insights (Pro)
 
 * [ ] `components.insights.card`
-
 * [ ] `components.insights.metric`
 
   * total enquiries
   * conversion rate
 
 * [ ] `components.insights.chart-line`
-
 * [ ] `components.insights.chart-funnel`
-
 * [ ] `components.insights.upgrade-banner`
 
 ---
@@ -114,6 +143,7 @@
 * [ ] `components.form.button`
 * [ ] `components.form.success-state`
 * [ ] `components.form.error-state`
+* [ ] `components.form.consent-notice` *(GDPR/PDPA)*
 
 ---
 
@@ -125,19 +155,19 @@
 
 ---
 
-## 🔒 Plan Gating
+## 🔒 Plan Gating and Security States
 
 * [ ] `components.upgrade.banner`
 * [ ] `components.upgrade.modal`
 * [ ] `components.upgrade.badge`
-
----
+* [ ] `components.security.access-denied`
+* [ ] `components.security.cross-tenant-warning`
 
 ---
 
 # 🟦 2. HQ Admin Panel — Blade UI Components
 
-This is your **internal control system**
+This is your internal control system.
 
 ---
 
@@ -146,6 +176,17 @@ This is your **internal control system**
 * [ ] `layouts.admin`
 * [ ] `components.admin.sidebar`
 * [ ] `components.admin.navbar`
+* [ ] `components.admin.session-badge` *(shows administrator session)*
+
+---
+
+## 🛡️ Administrators (Separate Identity Table)
+
+* [ ] `components.administrators.table`
+* [ ] `components.administrators.detail`
+* [ ] `components.administrators.status-badge`
+* [ ] `components.administrators.mfa-badge`
+* [ ] `components.administrators.break-glass-alert`
 
 ---
 
@@ -180,6 +221,18 @@ This is your **internal control system**
 
 * [ ] `components.analytics.metric`
 * [ ] `components.analytics.event-table`
+* [ ] `components.analytics.account-scope-pill`
+
+---
+
+## ⚖️ Compliance Monitoring
+
+* [ ] `components.compliance.audit-log-table`
+* [ ] `components.compliance.data-access-log-table`
+* [ ] `components.compliance.access-reason-modal`
+* [ ] `components.compliance.pii-mask-toggle` *(permission-gated)*
+* [ ] `components.compliance.dsr-request-table`
+* [ ] `components.compliance.retention-job-status`
 
 ---
 
@@ -195,16 +248,11 @@ This is your **internal control system**
 
 * [ ] `components.diagnostics.log-table`
 * [ ] `components.diagnostics.error-view`
-
----
+* [ ] `components.diagnostics.security-events-table`
 
 ---
 
 # 🧩 3. Shared Components (Reusable Everywhere)
-
-These save you a TON of time.
-
----
 
 ## 🧱 UI Basics
 
@@ -219,19 +267,22 @@ These save you a TON of time.
 
 ---
 
-## 🧾 Feedback / States
+## 🧾 Feedback and States
 
 * [ ] `components.ui.empty-state`
 * [ ] `components.ui.loading`
 * [ ] `components.ui.toast`
 * [ ] `components.ui.alert`
+* [ ] `components.ui.access-denied`
 
 ---
 
-## 🏷️ Status & Labels
+## 🏷️ Status and Labels
 
 * [ ] `components.ui.status-badge`
 * [ ] `components.ui.tag`
+* [ ] `components.ui.role-badge`
+* [ ] `components.ui.consent-badge`
 
 ---
 
@@ -240,8 +291,7 @@ These save you a TON of time.
 * [ ] `components.ui.copy-to-clipboard`
 * [ ] `components.ui.date-time`
 * [ ] `components.ui.avatar`
-
----
+* [ ] `components.ui.pii-mask`
 
 ---
 
@@ -259,6 +309,8 @@ Replies (Growth)
 Notes (Pro)
 ↓
 Timeline (merged view)
+↓
+Active Account Scope Indicator
 ```
 
 ---
@@ -271,6 +323,36 @@ Filters
 Table
 ↓
 Pagination
+↓
+Tenant Boundary Preserved
+```
+
+---
+
+## Collaborators Page
+
+```plaintext
+Members
+↓
+Pending Invites
+↓
+Invite Collaborator
+↓
+Revoke / Resend Actions
+```
+
+---
+
+## Admin Monitoring Page
+
+```plaintext
+Aggregate Metrics
+↓
+Audit and Data Access Logs
+↓
+Reason Capture for Sensitive Drill-Down
+↓
+Masked PII by Default
 ```
 
 ---
@@ -282,6 +364,8 @@ Card
 ↓
 Fields
 ↓
+Consent Notice
+↓
 Submit Button
 ↓
 Success / Error
@@ -289,16 +373,15 @@ Success / Error
 
 ---
 
----
+# 🔥 5. Priority Build Order (Updated)
 
-# 🔥 5. Priority Build Order (Important)
-
-## Phase 1 (MVP UI)
+## Phase 1 (MVP UI + Security Baseline)
 
 * [ ] Form components
 * [ ] Inbox table
 * [ ] Enquiry detail
 * [ ] Reply form
+* [ ] Access denied and account scope indicators
 
 ---
 
@@ -306,6 +389,7 @@ Success / Error
 
 * [ ] Integration page
 * [ ] Notifications UI
+* [ ] Collaborators UI (invite, revoke, role badges)
 
 ---
 
@@ -313,36 +397,24 @@ Success / Error
 
 * [ ] Notes
 * [ ] Insights
+* [ ] Consent and data request status components
 
 ---
 
 ## Phase 4
 
 * [ ] Admin panel
-
----
+* [ ] Administrators management UI
+* [ ] Compliance monitoring UI
 
 ---
 
 # ✨ Final Insight
 
-If you build components this way:
+If you build components this way, you get:
 
-You get:
-
-* Reusable system
-* Clean separation (Capture vs HQ)
-* Faster iteration
-* Consistent UX
-
----
-
-# 💬 My Honest Take
-
-You’re now thinking in:
-
-> **design system + product architecture**
-
-Which is exactly what makes a SaaS feel:
-
-> polished, scalable, and “real”
+* User-scoped data UX by default
+* Secure collaboration flows
+* Clear separation of user vs administrator identities
+* GDPR/PDPA-friendly monitoring patterns
+* Reusable and consistent UI system

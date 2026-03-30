@@ -17,8 +17,8 @@ replies
 
 - account_id (UUID, indexed)
 
-- sender_type (enum: user, system, external)
-- sender_id (UUID, nullable)   -- HQ user_id (if internal)
+- sender_type (enum: user, administrator, system, external)
+- sender_id (UUID, nullable)   -- user UUID or administrator UUID (based on sender_type)
 
 - email (string, nullable)     -- for external sender
 
@@ -47,7 +47,8 @@ replies
 
 | Type       | Meaning                     |
 | ---------- | --------------------------- |
-| `user`     | Logged-in user (from HQ)    |
+| `user`     | Logged-in account user/collaborator |
+| `administrator` | Platform administrator (from `administrators` table) |
 | `external` | Customer replying via email |
 | `system`   | Auto-generated              |
 
@@ -55,8 +56,8 @@ replies
 
 ## 🆔 `sender_id`
 
-* UUID from HQ
-* Only used when `sender_type = user`
+* UUID from auth provider
+* Used when `sender_type = user` or `sender_type = administrator`
 
 ---
 
@@ -100,6 +101,15 @@ Example:
 * Reply tracking
 * integrations later
 
+Include compliance-friendly keys where needed:
+
+```json
+{
+  "access_reason": "support_case_123",
+  "contains_pii": true
+}
+```
+
 ---
 
 # 🔗 Relationships
@@ -121,7 +131,7 @@ Schema::create('replies', function (Blueprint $table) {
 
     $table->uuid('account_id')->index();
 
-    $table->enum('sender_type', ['user', 'external', 'system']);
+    $table->enum('sender_type', ['user', 'administrator', 'external', 'system']);
     $table->uuid('sender_id')->nullable();
 
     $table->string('email')->nullable();
@@ -158,7 +168,17 @@ is_internal = false
 
 ---
 
-### 3. Internal note
+### 3. Administrator adds internal note
+
+```plaintext
+sender_type = administrator
+sender_id = administrator UUID
+is_internal = true
+```
+
+---
+
+### 4. User adds internal note
 
 ```plaintext
 sender_type = user
@@ -167,7 +187,7 @@ is_internal = true
 
 ---
 
-### 4. Future: email reply from customer
+### 5. Future: email reply from customer
 
 ```plaintext
 sender_type = external
@@ -195,6 +215,8 @@ parent_reply_id (BIGINT, nullable)
 * ❌ Never join on UUID → use `enquiry_id`
 * ❌ Don’t store full user data → only reference `sender_id`
 * ✅ Always filter by `account_id`
+* ✅ If `sender_type = administrator`, write audit log with access reason
+* ✅ Keep administrator identity lookup in `administrators` table only
 
 ---
 
