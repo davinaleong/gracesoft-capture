@@ -1,6 +1,6 @@
 # GraceSoft Capture Implementation Progress
 
-Last Updated: 2026-03-30 (latest pass)
+Last Updated: 2026-03-31 (latest pass)
 
 ## Completed Previously
 
@@ -141,6 +141,24 @@ Last Updated: 2026-03-30 (latest pass)
   - Applied to admin compliance routes.
 - Added feature tests for break-glass enforcement, two-person approval rule, and idle-timeout session denial.
 
+## Completed In Latest Continuation
+
+- Implemented explicit user/admin authentication flows with separate routes and controllers:
+  - User register/login/logout routes and handlers.
+  - Administrator login/logout routes and handlers.
+- Enforced user/admin session boundary behavior:
+  - Signing into one guard signs out the other guard.
+  - Session guard context markers updated on sign-in.
+- Added administrator active-status enforcement during admin login.
+- Added login/register views and session-state UX in app layout:
+  - User/admin login entry points when unauthenticated.
+  - Guard-specific session badge and logout actions when authenticated.
+- Added feature tests for auth flows and session boundary behavior:
+  - user registration/login
+  - administrator login
+  - cross-guard session replacement
+  - suspended admin login denial
+
 ## Current Security Behavior
 
 - With `CAPTURE_ENFORCE_ACCESS_CONTEXT=true`:
@@ -152,10 +170,10 @@ Last Updated: 2026-03-30 (latest pass)
 
 ## Remaining High-Priority Work
 
-- Authentication flows for users/admins in UI (login/logout and admin session boundary UX).
+- Password reset and email-verification flows for users and administrators.
 
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Current passing total: 62 tests.
+- Current passing total: 68 tests.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.

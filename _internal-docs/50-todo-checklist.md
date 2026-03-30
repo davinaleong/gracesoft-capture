@@ -143,7 +143,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Identity Flows
 
-* [ ] Support secure signup/login for users
+* [x] Support secure signup/login for users
 * [ ] Add invite acceptance flow for collaborators:
   * [x] invitation email
   * [x] token verification

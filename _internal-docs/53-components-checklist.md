@@ -176,7 +176,7 @@ This is your internal control system.
 * [ ] `layouts.admin`
 * [ ] `components.admin.sidebar`
 * [ ] `components.admin.navbar`
-* [ ] `components.admin.session-badge` *(shows administrator session)*
+* [x] `components.admin.session-badge` *(shows administrator session)*
 
 ---
 

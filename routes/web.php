@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\CollaboratorController;
 use App\Http\Controllers\AdminComplianceController;
+use App\Http\Controllers\AdminSessionController;
 use App\Http\Controllers\FormManagementController;
 use App\Http\Controllers\EnquiryNoteController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\PublicFormController;
+use App\Http\Controllers\UserSessionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,6 +28,28 @@ Route::post('/form/{token}/submit', [PublicFormController::class, 'submit'])
 
 Route::get('/support', [FeedbackController::class, 'create'])->name('support.create');
 Route::post('/support', [FeedbackController::class, 'store'])->name('support.store');
+
+Route::middleware('guest:web')->group(function () {
+    Route::get('/register', [UserSessionController::class, 'register'])->name('register');
+    Route::post('/register', [UserSessionController::class, 'storeRegistration'])->name('register.store');
+    Route::get('/login', [UserSessionController::class, 'create'])->name('login');
+    Route::post('/login', [UserSessionController::class, 'store'])->name('login.store');
+});
+
+Route::post('/logout', [UserSessionController::class, 'destroy'])
+    ->middleware('auth:web')
+    ->name('logout');
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('guest:admin')->group(function () {
+        Route::get('/login', [AdminSessionController::class, 'create'])->name('login');
+        Route::post('/login', [AdminSessionController::class, 'store'])->name('login.store');
+    });
+
+    Route::post('/logout', [AdminSessionController::class, 'destroy'])
+        ->middleware('auth:admin')
+        ->name('logout');
+});
 
 Route::prefix('manage/forms')->middleware(['auth.any', 'access.context'])->name('manage.forms.')->group(function () {
     Route::get('/', [FormManagementController::class, 'index'])->name('index');
