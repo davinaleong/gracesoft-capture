@@ -1,13 +1,15 @@
 # 🟩 1. Foundation Setup
 
+Progress Log: `_internal-docs/54-implementation-progress.md`
+
 ## Access Model and Trust Boundaries
 
-* [ ] Define actor types and permissions:
-  * [ ] `user`: only access data inside their own account/workspace
-  * [ ] `collaborator`: invited user with scoped access to the same account/workspace data
-  * [ ] `administrator`: platform operator stored in a dedicated `administrators` table
-* [ ] Enforce tenant boundary by default (`account_id` required on all business queries)
-* [ ] Document security model (auth, authorization, audit, retention, lawful access)
+* [x] Define actor types and permissions:
+  * [x] `user`: only access data inside their own account/workspace
+  * [x] `collaborator`: invited user with scoped access to the same account/workspace data
+  * [x] `administrator`: platform operator stored in a dedicated `administrators` table
+* [x] Enforce tenant boundary by default (`account_id` required on all business queries)
+* [x] Document security model (auth, authorization, audit, retention, lawful access)
 
 ---
 
@@ -87,7 +89,7 @@
 
 ## Collaborators and Access Control
 
-* [ ] Create `account_memberships` table
+* [x] Create `account_memberships` table
   * [ ] id
   * [ ] account_id
   * [ ] user_id
@@ -95,7 +97,7 @@
   * [ ] invited_by_user_id
   * [ ] joined_at
   * [ ] removed_at
-* [ ] Create `account_invitations` table
+* [x] Create `account_invitations` table
   * [ ] id
   * [ ] account_id
   * [ ] email
@@ -105,7 +107,7 @@
   * [ ] accepted_at
   * [ ] revoked_at
 
-* [ ] Create `administrators` table (platform operators)
+* [x] Create `administrators` table (platform operators)
   * [ ] id (BIGINT)
   * [ ] uuid (UUID)
   * [ ] email (unique)
@@ -118,7 +120,7 @@
 
 ## Compliance and Monitoring
 
-* [ ] Create `audit_logs` table
+* [x] Create `audit_logs` table
   * [ ] actor_type (`user/administrator/system`)
   * [ ] actor_id
   * [ ] actor_source_table (`users/administrators/system`)
@@ -131,9 +133,9 @@
   * [ ] user_agent
   * [ ] metadata (JSON, redacted)
   * [ ] created_at
-* [ ] Create `data_access_logs` table for sensitive read operations
-* [ ] Create `consents` table (policy_version + accepted_at)
-* [ ] Create `data_subject_requests` table (export/delete/restrict)
+* [x] Create `data_access_logs` table for sensitive read operations
+* [x] Create `consents` table (policy_version + accepted_at)
+* [x] Create `data_subject_requests` table (export/delete/restrict)
 
 ---
 
@@ -143,10 +145,10 @@
 
 * [ ] Support secure signup/login for users
 * [ ] Add invite acceptance flow for collaborators:
-  * [ ] invitation email
-  * [ ] token verification
-  * [ ] signup/login required before acceptance
-  * [ ] one-time token invalidation
+  * [x] invitation email
+  * [x] token verification
+  * [x] signup/login required before acceptance
+  * [x] one-time token invalidation
   * [ ] email verification required
 
 ---
@@ -154,22 +156,22 @@
 ## Authorization Rules
 
 * [ ] Implement Laravel Policies for Forms, Enquiries, Notes, Replies, Insights
-* [ ] Enforce account-scoped access in query layer (global scope or repository layer)
+* [x] Enforce account-scoped access in query layer (global scope or repository layer)
 * [ ] Deny-by-default for all protected routes
 * [ ] Add gate checks for account-scoped data access
-* [ ] Add role checks for collaborator capabilities
-* [ ] Add dedicated admin guard/provider backed by `administrators` table
-* [ ] Keep admin auth/session separate from user auth/session
+* [x] Add role checks for collaborator capabilities
+* [x] Add dedicated admin guard/provider backed by `administrators` table
+* [x] Keep admin auth/session separate from user auth/session
 
 ---
 
 ## Security-First Collaboration
 
-* [ ] Limit who can invite collaborators (`owner` only by default)
+* [x] Limit who can invite collaborators (`owner` only by default)
 * [ ] Prevent privilege escalation (member cannot grant owner role)
-* [ ] Require expiration and revocation support for invitations
+* [x] Require expiration and revocation support for invitations
 * [ ] Notify owner when invites are accepted/revoked
-* [ ] Detect and block cross-account access attempts
+* [x] Detect and block cross-account access attempts
 
 ---
 
@@ -208,7 +210,7 @@
 * [ ] UI: Create Form
 * [ ] Call HQ to create application
 * [ ] Store `application_id` and `account_id`
-* [ ] Restrict create/edit/delete form actions by membership role
+* [x] Restrict create/edit/delete form actions by membership role
 
 ---
 
@@ -287,7 +289,7 @@
 
 * [ ] Setup email service (Postmark/SMTP)
 * [ ] Create notification job for new enquiry
-* [ ] Create invitation email job for collaborator invites
+* [x] Create invitation email job for collaborator invites
 * [ ] Email templates contain least-sensitive data necessary
 
 ---
@@ -303,7 +305,7 @@
   * [ ] subject
   * [ ] status
   * [ ] date
-* [ ] Restrict rows to active account context
+* [x] Restrict rows to active account context
 
 ---
 
@@ -311,7 +313,7 @@
 
 * [ ] Full enquiry content
 * [ ] Status update buttons (`new -> contacted -> closed`)
-* [ ] Restrict visibility by role and account scope
+* [x] Restrict visibility by role and account scope
 
 ---
 
@@ -326,19 +328,19 @@
 
 ## Manage Collaborators
 
-* [ ] Route: `/settings/collaborators`
-* [ ] List active members and pending invites
-* [ ] Invite collaborator by email and role
-* [ ] Resend/revoke invitation
-* [ ] Remove collaborator from account
+* [x] Route: `/settings/collaborators`
+* [x] List active members and pending invites
+* [x] Invite collaborator by email and role
+* [x] Resend/revoke invitation
+* [x] Remove collaborator from account
 
 ---
 
 ## Security Controls
 
-* [ ] Invite links are signed, expiring, and single-use
-* [ ] Invitation tokens are hashed at rest
-* [ ] Audit all collaborator lifecycle actions
+* [x] Invite links are signed, expiring, and single-use
+* [x] Invitation tokens are hashed at rest
+* [x] Audit all collaborator lifecycle actions
 * [ ] Alert on repeated invalid token or cross-tenant access attempts
 
 ---

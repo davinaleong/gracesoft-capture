@@ -65,6 +65,7 @@ class InboxController extends Controller
     public function updateStatus(Request $request, Enquiry $enquiry, AuditLogger $auditLogger): RedirectResponse
     {
         $this->authorizeAccountAccess($request, $enquiry->account_id);
+        $this->authorizeAnyRole($request, ['owner', 'member'], $enquiry->account_id);
 
         $data = $request->validate([
             'status' => ['required', 'in:new,contacted,closed'],

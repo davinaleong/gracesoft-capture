@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountMembership;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 abstract class Controller
@@ -43,6 +45,52 @@ abstract class Controller
 
         if ($reason === '') {
             abort(422, 'access_reason is required for administrator override access.');
+        }
+    }
+
+    protected function resolvedMembershipRole(Request $request, ?string $accountId = null): ?string
+    {
+        if (! (bool) config('capture.features.enforce_access_context', false)) {
+            return null;
+        }
+
+        if ($this->isAdminOverride($request)) {
+            return 'administrator';
+        }
+
+        $user = Auth::guard('web')->user();
+
+        if (! $user) {
+            return null;
+        }
+
+        $resolvedAccountId = $accountId ?? $this->resolvedAccountId($request);
+
+        if (! is_string($resolvedAccountId) || $resolvedAccountId === '') {
+            return null;
+        }
+
+        return AccountMembership::query()
+            ->where('user_id', $user->getAuthIdentifier())
+            ->where('account_id', $resolvedAccountId)
+            ->whereNull('removed_at')
+            ->value('role');
+    }
+
+    protected function authorizeAnyRole(Request $request, array $allowedRoles, ?string $accountId = null): void
+    {
+        if (! (bool) config('capture.features.enforce_access_context', false)) {
+            return;
+        }
+
+        if ($this->isAdminOverride($request)) {
+            return;
+        }
+
+        $role = $this->resolvedMembershipRole($request, $accountId);
+
+        if (! is_string($role) || ! in_array($role, $allowedRoles, true)) {
+            abort(403, 'Your collaborator role is not allowed to perform this action.');
         }
     }
 }

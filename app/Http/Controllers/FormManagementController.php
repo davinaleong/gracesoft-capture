@@ -46,6 +46,8 @@ class FormManagementController extends Controller
             abort(403, 'You can only create forms in your active account.');
         }
 
+        $this->authorizeAnyRole($request, ['owner', 'member'], $data['account_id']);
+
         $form = Form::create([
             'name' => $data['name'],
             'account_id' => $data['account_id'],
@@ -94,6 +96,7 @@ class FormManagementController extends Controller
     public function update(Request $request, Form $form, AuditLogger $auditLogger): RedirectResponse
     {
         $this->authorizeAccountAccess($request, $form->account_id);
+        $this->authorizeAnyRole($request, ['owner', 'member'], $form->account_id);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -133,6 +136,7 @@ class FormManagementController extends Controller
     public function toggleActive(Request $request, Form $form, AuditLogger $auditLogger): RedirectResponse
     {
         $this->authorizeAccountAccess($request, $form->account_id);
+        $this->authorizeAnyRole($request, ['owner', 'member'], $form->account_id);
 
         $form->update([
             'is_active' => ! $form->is_active,

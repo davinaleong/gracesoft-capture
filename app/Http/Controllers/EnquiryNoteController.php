@@ -14,6 +14,7 @@ class EnquiryNoteController extends Controller
     public function store(Request $request, Enquiry $enquiry, PlanGate $planGate, AuditLogger $auditLogger): RedirectResponse
     {
         $this->authorizeAccountAccess($request, $enquiry->account_id);
+        $this->authorizeAnyRole($request, ['owner', 'member'], $enquiry->account_id);
 
         if (! $planGate->notesEnabled($enquiry->account_id)) {
             return back()->withErrors([
