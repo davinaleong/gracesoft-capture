@@ -516,9 +516,9 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 * [x] Enforce least-privilege admin roles
 * [x] Require MFA for admin accounts
-* [ ] Harden sessions and shorten idle timeout
+* [x] Harden sessions and shorten idle timeout
 * [x] Store admin identities only in `administrators` table (not in user/collaborator tables)
-* [ ] Define break-glass flow with enhanced logging and approval
+* [x] Define break-glass flow with enhanced logging and approval
 
 ---
 

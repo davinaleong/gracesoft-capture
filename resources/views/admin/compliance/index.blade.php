@@ -17,6 +17,65 @@
         </form>
     </x-ui.card>
 
+    <x-ui.card class="mb-4">
+        <h2 class="mb-3 text-lg font-semibold">Break-Glass Controls</h2>
+        <div class="grid gap-4 md:grid-cols-2">
+            <form method="post" action="{{ route('admin.compliance.break-glass.request') }}" class="space-y-3">
+                @csrf
+                <x-ui.field for="bg_account_id" label="Account ID">
+                    <x-ui.input id="bg_account_id" name="account_id" :value="$accountId" placeholder="Target account UUID" />
+                </x-ui.field>
+                <x-ui.field for="bg_scope" label="Scope">
+                    <x-ui.select id="bg_scope" name="scope" required>
+                        <option value="dsr_sensitive">dsr_sensitive</option>
+                    </x-ui.select>
+                </x-ui.field>
+                <x-ui.field for="bg_reason" label="Reason">
+                    <x-ui.textarea id="bg_reason" name="reason" rows="3" required placeholder="Why elevated access is required" />
+                </x-ui.field>
+                <x-ui.button type="submit" variant="secondary">Request Break-Glass</x-ui.button>
+            </form>
+
+            <div>
+                <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide text-gs-black-700">Recent Requests</h3>
+                <x-ui.table>
+                    <thead class="bg-gray-50 uppercase text-xs tracking-wide text-gs-black-700">
+                        <tr>
+                            <th class="p-2">ID</th>
+                            <th class="p-2">Scope</th>
+                            <th class="p-2">Requested By</th>
+                            <th class="p-2">Status</th>
+                            <th class="p-2">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($breakGlassApprovals as $approval)
+                            <tr class="border-b border-gray-200">
+                                <td class="p-2">{{ $approval->id }}</td>
+                                <td class="p-2">{{ $approval->scope }}</td>
+                                <td class="p-2">{{ $approval->requested_by_administrator_uuid }}</td>
+                                <td class="p-2">{{ $approval->approved_at ? 'approved' : 'pending' }}</td>
+                                <td class="p-2">
+                                    @if (! $approval->approved_at)
+                                        <form method="post" action="{{ route('admin.compliance.break-glass.approve', $approval) }}" class="flex items-center gap-2">
+                                            @csrf
+                                            <x-ui.input name="expires_minutes" value="30" class="w-20" />
+                                            <x-ui.button type="submit" size="sm" variant="danger">Approve</x-ui.button>
+                                        </form>
+                                    @else
+                                        <span class="text-xs text-gs-black-600">{{ $approval->expires_at?->format('Y-m-d H:i') ?? '-' }}</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5" class="p-4 text-center text-gs-black-600">No break-glass requests.</td></tr>
+                        @endforelse
+                    </tbody>
+                </x-ui.table>
+            </div>
+        </div>
+    </x-ui.card>
+
     <div class="grid gap-4">
         <x-ui.card>
             <h2 class="mb-3 text-lg font-semibold">Audit Logs</h2>

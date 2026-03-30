@@ -124,6 +124,23 @@ Last Updated: 2026-03-30 (latest pass)
   - When enabled, compliance capabilities require `administrators.mfa_enabled=true`.
 - Added feature coverage for MFA-gated compliance access.
 
+## Completed In Current Continuation
+
+- Implemented break-glass workflow with enhanced logging and two-person approval:
+  - Added `break_glass_approvals` table and `BreakGlassApproval` model.
+  - Added request + approve endpoints in admin compliance module.
+  - Enforced self-approval prohibition for break-glass approvals.
+  - Added audit events for request/approval actions.
+- Enforced break-glass requirement for sensitive DSR processing (`delete`/`restrict`) when enabled:
+  - `CAPTURE_REQUIRE_BREAK_GLASS_FOR_SENSITIVE_DSR`
+  - Requires active, non-expired approval for `dsr_sensitive` scope.
+- Added break-glass controls section to admin compliance UI.
+- Implemented admin session hardening middleware:
+  - Configurable idle timeout (`CAPTURE_ADMIN_SESSION_IDLE_TIMEOUT_MINUTES`).
+  - Configurable enable switch (`CAPTURE_HARDEN_ADMIN_SESSIONS`).
+  - Applied to admin compliance routes.
+- Added feature tests for break-glass enforcement, two-person approval rule, and idle-timeout session denial.
+
 ## Current Security Behavior
 
 - With `CAPTURE_ENFORCE_ACCESS_CONTEXT=true`:
@@ -140,5 +157,5 @@ Last Updated: 2026-03-30 (latest pass)
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Current passing total: 58 tests.
+- Current passing total: 62 tests.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.

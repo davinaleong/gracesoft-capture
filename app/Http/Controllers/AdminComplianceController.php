@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Models\BreakGlassApproval;
 use App\Models\DataAccessLog;
 use App\Models\DataSubjectRequest;
 use App\Services\DataSubjectRequestProcessor;
@@ -42,11 +43,18 @@ class AdminComplianceController extends Controller
             ->limit(100)
             ->get();
 
+        $breakGlassApprovals = BreakGlassApproval::query()
+            ->when($accountId !== '', fn ($query) => $query->where('account_id', $accountId))
+            ->latest('requested_at')
+            ->limit(20)
+            ->get();
+
         return view('admin.compliance.index', [
             'accountId' => $accountId,
             'auditLogs' => $auditLogs,
             'dataAccessLogs' => $dataAccessLogs,
             'dsrRequests' => $dsrRequests,
+            'breakGlassApprovals' => $breakGlassApprovals,
         ]);
     }
 
@@ -102,6 +110,8 @@ class AdminComplianceController extends Controller
             abort(403, 'Advanced compliance views are available on Pro plan accounts only.');
         }
 
+        $this->enforceBreakGlassIfRequired($dataSubjectRequest, $admin->uuid);
+
         $data = $request->validate([
             'reason' => ['nullable', 'string', 'max:1000'],
         ]);
@@ -125,5 +135,96 @@ class AdminComplianceController extends Controller
         );
 
         return back()->with('status', 'Data subject request processed.');
+    }
+
+    public function requestBreakGlass(Request $request, AuditLogger $auditLogger): RedirectResponse
+    {
+        $admin = $this->requireAdministrator('compliance.break_glass.request');
+
+        $data = $request->validate([
+            'account_id' => ['nullable', 'uuid'],
+            'scope' => ['required', 'string', 'max:120'],
+            'reason' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $approval = BreakGlassApproval::query()->create([
+            'account_id' => $data['account_id'] ?? null,
+            'scope' => $data['scope'],
+            'requested_by_administrator_uuid' => (string) $admin->uuid,
+            'reason' => $data['reason'],
+            'requested_at' => now(),
+        ]);
+
+        $auditLogger->log(
+            $request,
+            'break_glass.requested',
+            'break_glass_approval',
+            (string) $approval->id,
+            $approval->account_id,
+            [
+                'scope' => $approval->scope,
+                'reason_length' => strlen((string) $approval->reason),
+            ]
+        );
+
+        return back()->with('status', 'Break-glass request submitted.');
+    }
+
+    public function approveBreakGlass(Request $request, BreakGlassApproval $breakGlassApproval, AuditLogger $auditLogger): RedirectResponse
+    {
+        $admin = $this->requireAdministrator('compliance.break_glass.approve');
+
+        if ($breakGlassApproval->requested_by_administrator_uuid === (string) $admin->uuid) {
+            abort(403, 'Break-glass approval must be performed by a different administrator.');
+        }
+
+        $data = $request->validate([
+            'expires_minutes' => ['nullable', 'integer', 'min:1', 'max:240'],
+        ]);
+
+        $expiryMinutes = (int) ($data['expires_minutes'] ?? config('capture.features.break_glass_default_expiry_minutes', 30));
+
+        $breakGlassApproval->update([
+            'approved_by_administrator_uuid' => (string) $admin->uuid,
+            'approved_at' => now(),
+            'expires_at' => now()->addMinutes($expiryMinutes),
+        ]);
+
+        $auditLogger->log(
+            $request,
+            'break_glass.approved',
+            'break_glass_approval',
+            (string) $breakGlassApproval->id,
+            $breakGlassApproval->account_id,
+            [
+                'scope' => $breakGlassApproval->scope,
+                'expires_at' => $breakGlassApproval->expires_at?->toIso8601String(),
+                'requested_by' => $breakGlassApproval->requested_by_administrator_uuid,
+            ]
+        );
+
+        return back()->with('status', 'Break-glass request approved.');
+    }
+
+    private function enforceBreakGlassIfRequired(DataSubjectRequest $dataSubjectRequest, string $adminUuid): void
+    {
+        if (! (bool) config('capture.features.require_break_glass_for_sensitive_dsr', false)) {
+            return;
+        }
+
+        if (! in_array($dataSubjectRequest->request_type, ['delete', 'restrict'], true)) {
+            return;
+        }
+
+        $hasActiveApproval = BreakGlassApproval::query()
+            ->active()
+            ->where('scope', 'dsr_sensitive')
+            ->where('account_id', $dataSubjectRequest->account_id)
+            ->where('approved_by_administrator_uuid', '!=', $adminUuid)
+            ->exists();
+
+        if (! $hasActiveApproval) {
+            abort(403, 'Active break-glass approval is required for sensitive DSR processing.');
+        }
     }
 }

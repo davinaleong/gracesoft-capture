@@ -186,7 +186,7 @@ This is your internal control system.
 * [ ] `components.administrators.detail`
 * [ ] `components.administrators.status-badge`
 * [ ] `components.administrators.mfa-badge`
-* [ ] `components.administrators.break-glass-alert`
+* [x] `components.administrators.break-glass-alert`
 
 ---
 

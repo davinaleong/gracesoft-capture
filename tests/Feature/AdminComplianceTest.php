@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Administrator;
+use App\Models\BreakGlassApproval;
 use App\Models\Enquiry;
 use App\Models\Form;
 use App\Models\DataSubjectRequest;
@@ -275,4 +276,126 @@ test('admin compliance access requires mfa when configured', function () {
     $this->actingAs($adminWithMfa, 'admin')
         ->get(route('admin.compliance.index'))
         ->assertOk();
+});
+
+test('sensitive dsr processing requires active break glass approval when enabled', function () {
+    config([
+        'capture.features.require_break_glass_for_sensitive_dsr' => true,
+    ]);
+
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+    ]);
+
+    $form = Form::factory()->create();
+
+    $requestItem = DataSubjectRequest::query()->create([
+        'account_id' => $form->account_id,
+        'subject_email' => 'breakglass-required@example.com',
+        'request_type' => 'delete',
+        'status' => 'pending',
+        'requested_at' => now(),
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->post(route('admin.compliance.dsr.process', $requestItem), [
+            'reason' => 'Should require break glass',
+        ])
+        ->assertStatus(403);
+});
+
+test('sensitive dsr processing works with approved break glass by different admin', function () {
+    config([
+        'capture.features.require_break_glass_for_sensitive_dsr' => true,
+    ]);
+
+    $requester = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+    ]);
+
+    $approver = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+    ]);
+
+    $form = Form::factory()->create([
+        'account_id' => 'f772ee64-9458-4f08-a6a7-c870f4d583b6',
+        'application_id' => '4355f8a2-c7ba-4d5b-95de-8f6783f98789',
+    ]);
+
+    Enquiry::factory()->create([
+        'form_id' => $form->id,
+        'account_id' => $form->account_id,
+        'application_id' => $form->application_id,
+        'email' => 'sensitive@example.com',
+    ]);
+
+    $requestItem = DataSubjectRequest::query()->create([
+        'account_id' => $form->account_id,
+        'subject_email' => 'sensitive@example.com',
+        'request_type' => 'delete',
+        'status' => 'pending',
+        'requested_at' => now(),
+    ]);
+
+    $this->actingAs($requester, 'admin')
+        ->post(route('admin.compliance.break-glass.request'), [
+            'account_id' => $form->account_id,
+            'scope' => 'dsr_sensitive',
+            'reason' => 'Need elevated compliance operation',
+        ])
+        ->assertSessionHas('status');
+
+    $approval = BreakGlassApproval::query()->firstOrFail();
+
+    $this->actingAs($approver, 'admin')
+        ->post(route('admin.compliance.break-glass.approve', $approval), [
+            'expires_minutes' => 45,
+        ])
+        ->assertSessionHas('status');
+
+    $this->actingAs($requester, 'admin')
+        ->post(route('admin.compliance.dsr.process', $requestItem), [
+            'reason' => 'Break glass approved',
+        ])
+        ->assertSessionHas('status');
+
+    expect($requestItem->fresh()->status)->toBe('completed');
+});
+
+test('break glass approval cannot be self-approved', function () {
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->post(route('admin.compliance.break-glass.request'), [
+            'scope' => 'dsr_sensitive',
+            'reason' => 'Self approval test',
+        ])
+        ->assertSessionHas('status');
+
+    $approval = BreakGlassApproval::query()->firstOrFail();
+
+    $this->actingAs($admin, 'admin')
+        ->post(route('admin.compliance.break-glass.approve', $approval), [
+            'expires_minutes' => 20,
+        ])
+        ->assertStatus(403);
+});
+
+test('admin session is denied when idle timeout is exceeded', function () {
+    config([
+        'capture.features.harden_admin_sessions' => true,
+        'capture.features.admin_session_idle_timeout_minutes' => 15,
+    ]);
+
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+    ]);
+
+    $this->withSession([
+        'admin.last_activity_at' => now()->subMinutes(16)->timestamp,
+    ])->actingAs($admin, 'admin')
+        ->get(route('admin.compliance.index'))
+        ->assertStatus(403);
 });

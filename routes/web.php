@@ -55,8 +55,10 @@ Route::get('/collaborators/invitations/{invitation}/{token}/accept', [Collaborat
     ->middleware('auth')
     ->name('collaborators.accept');
 
-Route::prefix('admin/compliance')->middleware(['auth.any', 'access.context'])->name('admin.compliance.')->group(function () {
+Route::prefix('admin/compliance')->middleware(['auth.any', 'access.context', 'admin.session.secure'])->name('admin.compliance.')->group(function () {
     Route::get('/', [AdminComplianceController::class, 'index'])->name('index');
+    Route::post('/break-glass/request', [AdminComplianceController::class, 'requestBreakGlass'])->name('break-glass.request');
+    Route::post('/break-glass/{breakGlassApproval}/approve', [AdminComplianceController::class, 'approveBreakGlass'])->name('break-glass.approve');
     Route::post('/dsr/{dataSubjectRequest}/status', [AdminComplianceController::class, 'updateDsrStatus'])->name('dsr.update');
     Route::post('/dsr/{dataSubjectRequest}/process', [AdminComplianceController::class, 'processDsr'])->name('dsr.process');
 });
