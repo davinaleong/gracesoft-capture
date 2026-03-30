@@ -2,6 +2,17 @@
 
 Last Updated: 2026-03-31 (latest pass)
 
+## Completed In Current Continuation
+
+- Implemented default-sensitive-data masking in admin compliance dashboard:
+  - DSR subject identifiers are masked by default in list views.
+  - Added privileged reveal toggle (`show_sensitive`) for authorized admins only.
+  - Added `compliance.view_sensitive` capability and limited it to `compliance_admin` role.
+- Added feature coverage for masking behavior:
+  - default masked rendering
+  - privileged reveal behavior
+  - non-privileged reveal denial
+
 ## Completed In Documentation Continuation
 
 - Synchronized delivery checklist with implemented features and test-backed behavior:
@@ -231,6 +242,6 @@ Last Updated: 2026-03-31 (latest pass)
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Current passing total: 79 tests.
-- Current assertion total: 261 assertions.
+- Current passing total: 82 tests.
+- Current assertion total: 271 assertions.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.

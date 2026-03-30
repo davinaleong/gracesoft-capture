@@ -19,7 +19,7 @@ class AdminComplianceController extends Controller
 {
     public function index(Request $request, PlanGate $planGate, SecurityEventMetrics $securityEventMetrics): View
     {
-        $this->requireAdministrator('compliance.view');
+        $admin = $this->requireAdministrator('compliance.view');
 
         $accountId = $request->string('account_id')->toString();
 
@@ -39,11 +39,26 @@ class AdminComplianceController extends Controller
             ->limit(100)
             ->get();
 
+        $canViewSensitiveData = $admin->hasCapability('compliance.view_sensitive');
+        $showSensitiveData = $canViewSensitiveData && $request->boolean('show_sensitive');
+
         $dsrRequests = DataSubjectRequest::query()
             ->when($accountId !== '', fn ($query) => $query->where('account_id', $accountId))
             ->latest('requested_at')
             ->limit(100)
-            ->get();
+            ->get()
+            ->map(function (DataSubjectRequest $item) use ($showSensitiveData): DataSubjectRequest {
+                $subjectIdentifier = is_string($item->subject_email) && $item->subject_email !== ''
+                    ? $item->subject_email
+                    : $item->subject_user_id;
+
+                $item->setAttribute(
+                    'subject_display',
+                    $this->maskSensitiveIdentifier(is_string($subjectIdentifier) ? $subjectIdentifier : null, $showSensitiveData)
+                );
+
+                return $item;
+            });
 
         $breakGlassApprovals = BreakGlassApproval::query()
             ->when($accountId !== '', fn ($query) => $query->where('account_id', $accountId))
@@ -67,6 +82,8 @@ class AdminComplianceController extends Controller
             'breakGlassApprovals' => $breakGlassApprovals,
             'verificationBlockedSummary' => $verificationBlockedSummary,
             'recentSecuritySnapshots' => $recentSecuritySnapshots,
+            'canViewSensitiveData' => $canViewSensitiveData,
+            'showSensitiveData' => $showSensitiveData,
         ]);
     }
 
@@ -238,5 +255,27 @@ class AdminComplianceController extends Controller
         if (! $hasActiveApproval) {
             abort(403, 'Active break-glass approval is required for sensitive DSR processing.');
         }
+    }
+
+    private function maskSensitiveIdentifier(?string $value, bool $showSensitiveData): string
+    {
+        if ($value === null || $value === '') {
+            return '-';
+        }
+
+        if ($showSensitiveData) {
+            return $value;
+        }
+
+        if (str_contains($value, '@')) {
+            [$localPart, $domainPart] = explode('@', $value, 2);
+            $visible = $localPart === '' ? '' : mb_substr($localPart, 0, 1);
+
+            return $visible . '***@' . $domainPart;
+        }
+
+        $visiblePrefix = mb_substr($value, 0, 4);
+
+        return $visiblePrefix . '***';
     }
 }

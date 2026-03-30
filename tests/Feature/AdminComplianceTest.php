@@ -448,3 +448,64 @@ test('admin compliance dashboard shows persisted telemetry snapshots', function 
         ->assertSee('Persisted Daily Snapshots')
         ->assertSee('verification_blocked:web:collaborator_acceptance');
 });
+
+test('admin compliance dashboard masks subject identifiers by default', function () {
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+    ]);
+
+    DataSubjectRequest::query()->create([
+        'account_id' => 'e353b037-f95d-4f27-a5a8-f5f7ec07f196',
+        'subject_email' => 'private.subject@example.com',
+        'request_type' => 'export',
+        'status' => 'pending',
+        'requested_at' => now(),
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->get(route('admin.compliance.index'))
+        ->assertOk()
+        ->assertSee('p***@example.com')
+        ->assertDontSee('private.subject@example.com');
+});
+
+test('compliance admin can reveal masked subject identifiers', function () {
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+    ]);
+
+    DataSubjectRequest::query()->create([
+        'account_id' => 'ec75f6f2-45bc-4972-9127-53963bde8326',
+        'subject_email' => 'private.subject@example.com',
+        'request_type' => 'export',
+        'status' => 'pending',
+        'requested_at' => now(),
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->get(route('admin.compliance.index', ['show_sensitive' => 1]))
+        ->assertOk()
+        ->assertSee('private.subject@example.com')
+        ->assertSee('Hide Sensitive Data');
+});
+
+test('compliance reader cannot reveal masked subject identifiers', function () {
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_reader',
+    ]);
+
+    DataSubjectRequest::query()->create([
+        'account_id' => 'fb8c7f9f-4586-4b5a-b777-560442c5eb86',
+        'subject_email' => 'private.subject@example.com',
+        'request_type' => 'export',
+        'status' => 'pending',
+        'requested_at' => now(),
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->get(route('admin.compliance.index', ['show_sensitive' => 1]))
+        ->assertOk()
+        ->assertSee('p***@example.com')
+        ->assertDontSee('private.subject@example.com')
+        ->assertDontSee('Hide Sensitive Data');
+});

@@ -456,7 +456,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 * [x] Provide admin monitoring pages with aggregate-first views
 * [x] Require access reason for sensitive drill-down views
-* [ ] Mask sensitive data by default in admin UI
+* [x] Mask sensitive data by default in admin UI
 * [x] Log every admin read/write of customer data
 * [x] Persist daily verification-block telemetry snapshots for trend monitoring
 * [ ] Run periodic admin access review and recertification

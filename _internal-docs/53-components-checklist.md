@@ -230,7 +230,7 @@ This is your internal control system.
 * [x] `components.compliance.audit-log-table`
 * [x] `components.compliance.data-access-log-table`
 * [x] `components.compliance.access-reason-modal`
-* [ ] `components.compliance.pii-mask-toggle` *(permission-gated)*
+* [x] `components.compliance.pii-mask-toggle` *(permission-gated)*
 * [x] `components.compliance.dsr-request-table`
 * [ ] `components.compliance.retention-job-status`
 

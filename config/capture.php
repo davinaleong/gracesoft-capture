@@ -34,6 +34,7 @@ return [
             ],
             'compliance_admin' => [
                 'compliance.view',
+                'compliance.view_sensitive',
                 'compliance.manage_dsr_status',
                 'compliance.process_dsr',
                 'compliance.break_glass.request',

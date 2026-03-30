@@ -13,6 +13,7 @@ Implemented modules and capabilities include:
 - Separate user and administrator authentication guards/sessions
 - Password reset and email verification for both users and administrators
 - Admin compliance dashboard with audit logs, data access logs, DSR workflows
+- Default-masked sensitive identifiers in compliance views with privileged reveal control
 - Break-glass approvals, optional MFA gating, and admin idle-timeout hardening
 - Data retention cleanup command and scheduler
 - Verification-block telemetry counters with persisted daily snapshots
@@ -103,8 +104,8 @@ php artisan test
 
 Current validation baseline:
 
-- 79 passing tests
-- 261 assertions
+- 82 passing tests
+- 271 assertions
 
 ## Internal Documentation
 

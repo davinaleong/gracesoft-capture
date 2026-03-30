@@ -5,13 +5,23 @@
         <div class="mb-3">
             <h1 class="text-xl font-semibold text-gs-black-900">Admin Compliance Monitoring</h1>
             <p class="text-sm text-gs-black-700">Audit logs, data access logs, and data subject requests.</p>
+            <p class="mt-1 text-xs text-gs-black-600">
+                Sensitive subject identifiers are masked by default.
+                @if ($canViewSensitiveData)
+                    Use the toggle to reveal them for authorized investigations.
+                @endif
+            </p>
         </div>
 
         <form method="get" action="{{ route('admin.compliance.index') }}" class="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,280px)_auto] md:items-end">
             <x-ui.field for="account_id" label="Filter by Account ID">
                 <x-ui.input id="account_id" name="account_id" :value="$accountId" placeholder="Optional UUID" />
             </x-ui.field>
-            <div>
+            <div class="flex items-center gap-2">
+                @if ($canViewSensitiveData)
+                    <input type="hidden" name="show_sensitive" value="{{ $showSensitiveData ? '0' : '1' }}" />
+                    <x-ui.button type="submit" variant="secondary">{{ $showSensitiveData ? 'Hide Sensitive Data' : 'Show Sensitive Data' }}</x-ui.button>
+                @endif
                 <x-ui.button type="submit">Apply</x-ui.button>
             </div>
         </form>
@@ -195,7 +205,7 @@
                         <tr class="border-b border-gray-200">
                             <td class="p-2">{{ $item->requested_at?->format('Y-m-d H:i') }}</td>
                             <td class="p-2">{{ $item->request_type }}</td>
-                            <td class="p-2">{{ $item->subject_email ?? $item->subject_user_id ?? '-' }}</td>
+                            <td class="p-2">{{ $item->subject_display }}</td>
                             <td class="p-2">{{ $item->status }}</td>
                             <td class="p-2">
                                 <form method="post" action="{{ route('admin.compliance.dsr.update', $item) }}" class="flex flex-wrap items-center gap-2">
