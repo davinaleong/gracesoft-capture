@@ -17,6 +17,8 @@ return [
         'require_admin_mfa_for_compliance' => (bool) env('CAPTURE_REQUIRE_ADMIN_MFA_FOR_COMPLIANCE', false),
         'require_break_glass_for_sensitive_dsr' => (bool) env('CAPTURE_REQUIRE_BREAK_GLASS_FOR_SENSITIVE_DSR', false),
         'break_glass_default_expiry_minutes' => (int) env('CAPTURE_BREAK_GLASS_DEFAULT_EXPIRY_MINUTES', 30),
+        'require_verified_email_for_collaborator_acceptance' => (bool) env('CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_COLLABORATOR_ACCEPTANCE', false),
+        'require_verified_email_for_sensitive_admin_operations' => (bool) env('CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_SENSITIVE_ADMIN_OPERATIONS', false),
     ],
     'admin_authorization' => [
         'default_role' => env('CAPTURE_DEFAULT_ADMIN_ROLE', 'compliance_admin'),

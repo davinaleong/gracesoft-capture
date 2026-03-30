@@ -156,3 +156,44 @@ test('owner cannot remove owner collaborator membership', function () {
 
     expect($ownerMembership->fresh()->removed_at)->toBeNull();
 });
+
+test('unverified invited user cannot accept invitation when verification enforcement is enabled', function () {
+    config([
+        'capture.features.require_verified_email_for_collaborator_acceptance' => true,
+    ]);
+
+    $owner = User::factory()->create();
+    $invitee = User::factory()->unverified()->create([
+        'email' => 'invitee-unverified@example.com',
+    ]);
+
+    $accountId = '0ebefb3b-a70f-4761-b8c5-0694f68db976';
+    $plainToken = 'secure-plain-token-2';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    $invitation = AccountInvitation::query()->create([
+        'account_id' => $accountId,
+        'email' => 'invitee-unverified@example.com',
+        'role' => 'member',
+        'invite_token' => hash('sha256', $plainToken),
+        'invited_by_user_id' => $owner->id,
+        'expires_at' => now()->addHour(),
+    ]);
+
+    $url = URL::temporarySignedRoute('collaborators.accept', now()->addHour(), [
+        'invitation' => $invitation->id,
+        'token' => $plainToken,
+    ]);
+
+    $this->actingAs($invitee)
+        ->get($url)
+        ->assertRedirect(route('verification.notice'));
+
+    expect($invitation->fresh()->accepted_at)->toBeNull();
+});

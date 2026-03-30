@@ -112,13 +112,21 @@ Route::prefix('settings/collaborators')->middleware(['auth', 'access.context'])-
 });
 
 Route::get('/collaborators/invitations/{invitation}/{token}/accept', [CollaboratorController::class, 'accept'])
-    ->middleware('auth')
+    ->middleware(['auth', 'verified.guard:web,collaborator_acceptance'])
     ->name('collaborators.accept');
 
 Route::prefix('admin/compliance')->middleware(['auth.any', 'access.context', 'admin.session.secure'])->name('admin.compliance.')->group(function () {
     Route::get('/', [AdminComplianceController::class, 'index'])->name('index');
-    Route::post('/break-glass/request', [AdminComplianceController::class, 'requestBreakGlass'])->name('break-glass.request');
-    Route::post('/break-glass/{breakGlassApproval}/approve', [AdminComplianceController::class, 'approveBreakGlass'])->name('break-glass.approve');
-    Route::post('/dsr/{dataSubjectRequest}/status', [AdminComplianceController::class, 'updateDsrStatus'])->name('dsr.update');
-    Route::post('/dsr/{dataSubjectRequest}/process', [AdminComplianceController::class, 'processDsr'])->name('dsr.process');
+    Route::post('/break-glass/request', [AdminComplianceController::class, 'requestBreakGlass'])
+        ->middleware('verified.guard:admin,sensitive_admin_operation')
+        ->name('break-glass.request');
+    Route::post('/break-glass/{breakGlassApproval}/approve', [AdminComplianceController::class, 'approveBreakGlass'])
+        ->middleware('verified.guard:admin,sensitive_admin_operation')
+        ->name('break-glass.approve');
+    Route::post('/dsr/{dataSubjectRequest}/status', [AdminComplianceController::class, 'updateDsrStatus'])
+        ->middleware('verified.guard:admin,sensitive_admin_operation')
+        ->name('dsr.update');
+    Route::post('/dsr/{dataSubjectRequest}/process', [AdminComplianceController::class, 'processDsr'])
+        ->middleware('verified.guard:admin,sensitive_admin_operation')
+        ->name('dsr.process');
 });

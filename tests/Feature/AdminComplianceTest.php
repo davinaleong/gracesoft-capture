@@ -399,3 +399,30 @@ test('admin session is denied when idle timeout is exceeded', function () {
         ->get(route('admin.compliance.index'))
         ->assertStatus(403);
 });
+
+test('unverified admin cannot perform sensitive compliance actions when verification enforcement is enabled', function () {
+    config([
+        'capture.features.require_verified_email_for_sensitive_admin_operations' => true,
+    ]);
+
+    $admin = Administrator::factory()->create([
+        'role' => 'compliance_admin',
+        'email_verified_at' => null,
+    ]);
+
+    $requestItem = DataSubjectRequest::query()->create([
+        'account_id' => '4d9a0ee7-84a6-48e6-9d9f-64bf90509ca6',
+        'subject_email' => 'sensitive-action@example.com',
+        'request_type' => 'export',
+        'status' => 'pending',
+        'requested_at' => now(),
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->post(route('admin.compliance.dsr.update', $requestItem), [
+            'status' => 'in_progress',
+        ])
+        ->assertRedirect(route('admin.verification.notice'));
+
+    expect($requestItem->fresh()->status)->toBe('pending');
+});

@@ -179,6 +179,17 @@ Last Updated: 2026-03-31 (latest pass)
   - user verification from signed link
   - admin verification from signed link
 
+## Completed In Latest Continuation
+
+- Added rollout-gated verified-email enforcement middleware for sensitive actions.
+- Enforced verified email on collaborator invitation acceptance when enabled:
+  - `CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_COLLABORATOR_ACCEPTANCE`
+- Enforced verified email on sensitive admin compliance operations when enabled:
+  - `CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_SENSITIVE_ADMIN_OPERATIONS`
+- Added feature coverage for both enforcement paths:
+  - unverified invited user is redirected to verification notice
+  - unverified admin is blocked from sensitive compliance updates
+
 ## Current Security Behavior
 
 - With `CAPTURE_ENFORCE_ACCESS_CONTEXT=true`:
@@ -190,10 +201,10 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Remaining High-Priority Work
 
-- Enforce verified-email checks on selected protected actions (for example collaborator invite acceptance and sensitive admin operations) after rollout validation.
+- Consider expanding verified-email enforcement to broader write actions once rollout metrics are stable.
 
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Current passing total: 74 tests.
+- Current passing total: 76 tests.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.
