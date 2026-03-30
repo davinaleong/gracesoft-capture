@@ -201,3 +201,47 @@ test('unverified invited user cannot accept invitation when verification enforce
     expect(AuditLog::query()->where('action', 'auth.verification.blocked')->count())->toBeGreaterThan(0);
     expect(data_get(app(SecurityEventMetrics::class)->verificationBlockedSummary(), 'breakdown.web:collaborator_acceptance'))->toBeGreaterThan(0);
 });
+
+test('repeated invalid invitation acceptance attempts trigger security alert', function () {
+    config([
+        'capture.features.collaborator_invite_alert_threshold' => 3,
+        'capture.features.collaborator_invite_alert_window_minutes' => 30,
+    ]);
+
+    $owner = User::factory()->create();
+    $invitee = User::factory()->create([
+        'email' => 'invitee-alert@example.com',
+    ]);
+
+    $accountId = 'dba9d438-1b1c-4409-9dd9-af1a41cf4978';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    $invitation = AccountInvitation::query()->create([
+        'account_id' => $accountId,
+        'email' => 'invitee-alert@example.com',
+        'role' => 'member',
+        'invite_token' => hash('sha256', 'correct-token'),
+        'invited_by_user_id' => $owner->id,
+        'expires_at' => now()->addHour(),
+    ]);
+
+    foreach (range(1, 3) as $_) {
+        $url = URL::temporarySignedRoute('collaborators.accept', now()->addHour(), [
+            'invitation' => $invitation->id,
+            'token' => 'wrong-token',
+        ]);
+
+        $this->actingAs($invitee)
+            ->get($url)
+            ->assertRedirect(route('collaborators.index'));
+    }
+
+    expect(AuditLog::query()->where('action', 'collaborators.invite.accept.invalid')->count())->toBe(3);
+    expect(AuditLog::query()->where('action', 'collaborators.invite.accept.alert')->count())->toBeGreaterThan(0);
+});

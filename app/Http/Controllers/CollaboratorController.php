@@ -9,6 +9,7 @@ use App\Support\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -244,24 +245,32 @@ class CollaboratorController extends Controller
         abort_unless($user !== null, 401);
 
         if (! $request->hasValidSignature()) {
+            $this->recordInvalidAcceptanceAttempt($request, $invitation, 'invalid_signature', $auditLogger);
+
             return redirect()->route('collaborators.index')->withErrors([
                 'invitation' => 'Invitation link is invalid or expired.',
             ]);
         }
 
         if ($invitation->revoked_at !== null || $invitation->accepted_at !== null || $invitation->expires_at?->isPast()) {
+            $this->recordInvalidAcceptanceAttempt($request, $invitation, 'invitation_inactive', $auditLogger);
+
             return redirect()->route('collaborators.index')->withErrors([
                 'invitation' => 'Invitation is no longer valid.',
             ]);
         }
 
         if (! hash_equals($invitation->invite_token, hash('sha256', $token))) {
+            $this->recordInvalidAcceptanceAttempt($request, $invitation, 'token_mismatch', $auditLogger);
+
             return redirect()->route('collaborators.index')->withErrors([
                 'invitation' => 'Invitation token mismatch.',
             ]);
         }
 
         if (Str::lower($user->email) !== Str::lower($invitation->email)) {
+            $this->recordInvalidAcceptanceAttempt($request, $invitation, 'email_mismatch', $auditLogger);
+
             return redirect()->route('collaborators.index')->withErrors([
                 'invitation' => 'You must sign in with the invited email address.',
             ]);
@@ -310,5 +319,51 @@ class CollaboratorController extends Controller
     private function authorizeOwner(string $role): void
     {
         abort_unless($role === 'owner', 403, 'Only account owners can manage collaborators.');
+    }
+
+    private function recordInvalidAcceptanceAttempt(Request $request, AccountInvitation $invitation, string $reason, AuditLogger $auditLogger): void
+    {
+        $windowMinutes = max((int) config('capture.features.collaborator_invite_alert_window_minutes', 30), 1);
+        $threshold = max((int) config('capture.features.collaborator_invite_alert_threshold', 3), 1);
+        $emailHash = hash('sha256', Str::lower((string) $invitation->email));
+        $cacheKey = implode(':', [
+            'capture',
+            'collaborators',
+            'invite',
+            'invalid',
+            $reason,
+            (string) $invitation->id,
+            (string) $request->ip(),
+            $emailHash,
+        ]);
+
+        Cache::add($cacheKey, 0, now()->addMinutes($windowMinutes));
+        $attempts = (int) Cache::increment($cacheKey);
+
+        $metadata = [
+            'reason' => $reason,
+            'attempts' => $attempts,
+            'window_minutes' => $windowMinutes,
+        ];
+
+        $auditLogger->log(
+            $request,
+            'collaborators.invite.accept.invalid',
+            'account_invitation',
+            (string) $invitation->id,
+            $invitation->account_id,
+            $metadata
+        );
+
+        if ($attempts >= $threshold) {
+            $auditLogger->log(
+                $request,
+                'collaborators.invite.accept.alert',
+                'account_invitation',
+                (string) $invitation->id,
+                $invitation->account_id,
+                $metadata
+            );
+        }
     }
 }

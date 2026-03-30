@@ -21,6 +21,8 @@ return [
         'require_verified_email_for_sensitive_admin_operations' => (bool) env('CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_SENSITIVE_ADMIN_OPERATIONS', false),
         'verification_block_metrics_enabled' => (bool) env('CAPTURE_VERIFICATION_BLOCK_METRICS_ENABLED', true),
         'admin_access_recertification_days' => (int) env('CAPTURE_ADMIN_ACCESS_RECERTIFICATION_DAYS', 90),
+        'collaborator_invite_alert_threshold' => (int) env('CAPTURE_COLLAB_INVITE_ALERT_THRESHOLD', 3),
+        'collaborator_invite_alert_window_minutes' => (int) env('CAPTURE_COLLAB_INVITE_ALERT_WINDOW_MINUTES', 30),
     ],
     'admin_authorization' => [
         'default_role' => env('CAPTURE_DEFAULT_ADMIN_ROLE', 'compliance_admin'),

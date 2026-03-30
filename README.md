@@ -9,6 +9,7 @@ Implemented modules and capabilities include:
 - Public form rendering and submission (`/form/{token}`)
 - Enquiry storage, inbox listing/detail, and status transitions
 - Collaborator invitation lifecycle (invite, resend, revoke, accept)
+- Repeated invalid invitation acceptance alerting via audit events
 - Role-based access for `owner/member/viewer`
 - Separate user and administrator authentication guards/sessions
 - Password reset and email verification for both users and administrators
@@ -77,6 +78,8 @@ These toggles control security and compliance behavior:
 - `CAPTURE_REQUIRE_VERIFIED_EMAIL_FOR_SENSITIVE_ADMIN_OPERATIONS`
 - `CAPTURE_VERIFICATION_BLOCK_METRICS_ENABLED`
 - `CAPTURE_ADMIN_ACCESS_RECERTIFICATION_DAYS`
+- `CAPTURE_COLLAB_INVITE_ALERT_THRESHOLD`
+- `CAPTURE_COLLAB_INVITE_ALERT_WINDOW_MINUTES`
 
 HQ integration-related settings are configured in `config/hq.php` and use `HQ_*` env values.
 
@@ -106,8 +109,8 @@ php artisan test
 
 Current validation baseline:
 
-- 86 passing tests
-- 280 assertions
+- 87 passing tests
+- 288 assertions
 
 ## Internal Documentation
 

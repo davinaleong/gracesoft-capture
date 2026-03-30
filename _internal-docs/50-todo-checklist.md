@@ -341,7 +341,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [x] Invite links are signed, expiring, and single-use
 * [x] Invitation tokens are hashed at rest
 * [x] Audit all collaborator lifecycle actions
-* [ ] Alert on repeated invalid token or cross-tenant access attempts
+* [x] Alert on repeated invalid token or cross-tenant access attempts
 
 ---
 

@@ -4,6 +4,15 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented collaborator invitation abuse alerting for repeated invalid acceptance attempts:
+  - Added cache-window counter tracking by invitation/reason/IP.
+  - Added structured audit event for invalid attempts (`collaborators.invite.accept.invalid`).
+  - Added alert audit event when threshold is exceeded (`collaborators.invite.accept.alert`).
+  - Covered invalid signature, inactive invitation, token mismatch, and email mismatch paths.
+- Added feature coverage for repeated invalid token attempts and alert emission behavior.
+
+## Completed In Current Continuation
+
 - Implemented administrator access recertification workflow for periodic access review:
   - Added `administrators.compliance_recertified_at` tracking column.
   - Added compliance dashboard recertification table with due/current status.
@@ -256,6 +265,6 @@ Last Updated: 2026-03-31 (latest pass)
 ## Validation Snapshot
 
 - Current status: tests passing (`php artisan test`).
-- Current passing total: 86 tests.
-- Current assertion total: 280 assertions.
+- Current passing total: 87 tests.
+- Current assertion total: 288 assertions.
 - Added feature tests for collaborators, role-based authorization, admin compliance, and consent capture.
