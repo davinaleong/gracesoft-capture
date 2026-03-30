@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Enquiry;
+use App\Support\AuditLogger;
 use App\Support\PlanGate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,14 +15,22 @@ class InboxController extends Controller
     {
         $status = $request->string('status')->toString();
 
-        $enquiries = Enquiry::query()
+        $query = Enquiry::query()
             ->with('form')
             ->when(in_array($status, ['new', 'contacted', 'closed'], true), function ($query) use ($status) {
                 $query->where('status', $status);
             })
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
+            ->latest();
+
+        $resolvedAccountId = $this->resolvedAccountId($request);
+
+        if (! $this->isAdminOverride($request) && $resolvedAccountId !== null) {
+            $query->where('account_id', $resolvedAccountId);
+        } elseif ($resolvedAccountId !== null) {
+            $query->where('account_id', $resolvedAccountId);
+        }
+
+        $enquiries = $query->paginate(20)->withQueryString();
 
         return view('inbox.index', [
             'enquiries' => $enquiries,
@@ -29,8 +38,10 @@ class InboxController extends Controller
         ]);
     }
 
-    public function show(Enquiry $enquiry, PlanGate $planGate): View
+    public function show(Request $request, Enquiry $enquiry, PlanGate $planGate): View
     {
+        $this->authorizeAccountAccess($request, $enquiry->account_id);
+
         $enquiry->load(['form', 'notes']);
 
         return view('inbox.show', [
@@ -39,8 +50,10 @@ class InboxController extends Controller
         ]);
     }
 
-    public function updateStatus(Request $request, Enquiry $enquiry): RedirectResponse
+    public function updateStatus(Request $request, Enquiry $enquiry, AuditLogger $auditLogger): RedirectResponse
     {
+        $this->authorizeAccountAccess($request, $enquiry->account_id);
+
         $data = $request->validate([
             'status' => ['required', 'in:new,contacted,closed'],
         ]);
@@ -64,6 +77,19 @@ class InboxController extends Controller
         }
 
         $enquiry->update($updates);
+
+        $auditLogger->log(
+            $request,
+            'enquiries.status.update',
+            'enquiry',
+            (string) $enquiry->uuid,
+            $enquiry->account_id,
+            [
+                'from' => $enquiry->getOriginal('status'),
+                'to' => $enquiry->status,
+                'admin_override' => $this->isAdminOverride($request),
+            ]
+        );
 
         return redirect()
             ->route('inbox.show', $enquiry)

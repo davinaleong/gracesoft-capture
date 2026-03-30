@@ -25,7 +25,7 @@ Route::post('/form/{token}/submit', [PublicFormController::class, 'submit'])
 Route::get('/support', [FeedbackController::class, 'create'])->name('support.create');
 Route::post('/support', [FeedbackController::class, 'store'])->name('support.store');
 
-Route::prefix('manage/forms')->name('manage.forms.')->group(function () {
+Route::prefix('manage/forms')->middleware(['auth.any', 'access.context'])->name('manage.forms.')->group(function () {
     Route::get('/', [FormManagementController::class, 'index'])->name('index');
     Route::get('/create', [FormManagementController::class, 'create'])->name('create');
     Route::post('/', [FormManagementController::class, 'store'])->name('store');
@@ -34,7 +34,7 @@ Route::prefix('manage/forms')->name('manage.forms.')->group(function () {
     Route::post('/{form}/toggle-active', [FormManagementController::class, 'toggleActive'])->name('toggle-active');
 });
 
-Route::prefix('inbox')->name('inbox.')->group(function () {
+Route::prefix('inbox')->middleware(['auth.any', 'access.context'])->name('inbox.')->group(function () {
     Route::get('/', [InboxController::class, 'index'])->name('index');
     Route::get('/{enquiry}', [InboxController::class, 'show'])->name('show');
     Route::post('/{enquiry}/status', [InboxController::class, 'updateStatus'])->name('status.update');
