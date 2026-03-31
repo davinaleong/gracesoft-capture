@@ -4,6 +4,25 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented remaining shared UI primitives across states, labels, and utility helpers:
+  - `components.ui.empty-state`
+  - `components.ui.loading`
+  - `components.ui.toast`
+  - `components.ui.status-badge`
+  - `components.ui.tag`
+  - `components.ui.role-badge`
+  - `components.ui.consent-badge`
+  - `components.ui.copy-to-clipboard`
+  - `components.ui.date-time`
+  - `components.ui.avatar`
+  - `components.ui.pii-mask`
+- Synchronized component checklist status for shared UI completion in these groups:
+  - Feedback and States
+  - Status and Labels
+  - Utility
+
+## Completed In Current Continuation
+
 - Added dedicated authentication layout and migrated auth screens:
   - Added `layouts.auth` with auth-focused shell and cross-auth navigation shortcuts.
   - Migrated all user/admin auth views to extend `layouts.auth`.

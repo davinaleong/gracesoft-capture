@@ -269,9 +269,9 @@ This is your internal control system.
 
 ## 🧾 Feedback and States
 
-* [ ] `components.ui.empty-state`
-* [ ] `components.ui.loading`
-* [ ] `components.ui.toast`
+* [x] `components.ui.empty-state`
+* [x] `components.ui.loading`
+* [x] `components.ui.toast`
 * [x] `components.ui.alert`
 * [x] `components.ui.access-denied`
 
@@ -279,19 +279,19 @@ This is your internal control system.
 
 ## 🏷️ Status and Labels
 
-* [ ] `components.ui.status-badge`
-* [ ] `components.ui.tag`
-* [ ] `components.ui.role-badge`
-* [ ] `components.ui.consent-badge`
+* [x] `components.ui.status-badge`
+* [x] `components.ui.tag`
+* [x] `components.ui.role-badge`
+* [x] `components.ui.consent-badge`
 
 ---
 
 ## 📋 Utility
 
-* [ ] `components.ui.copy-to-clipboard`
-* [ ] `components.ui.date-time`
-* [ ] `components.ui.avatar`
-* [ ] `components.ui.pii-mask`
+* [x] `components.ui.copy-to-clipboard`
+* [x] `components.ui.date-time`
+* [x] `components.ui.avatar`
+* [x] `components.ui.pii-mask`
 
 ---
 
