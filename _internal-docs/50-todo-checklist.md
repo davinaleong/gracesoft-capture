@@ -90,49 +90,49 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Collaborators and Access Control
 
 * [x] Create `account_memberships` table
-  * [ ] id
-  * [ ] account_id
-  * [ ] user_id
-  * [ ] role (`owner/member/viewer`)
-  * [ ] invited_by_user_id
-  * [ ] joined_at
-  * [ ] removed_at
+  * [x] id
+  * [x] account_id
+  * [x] user_id
+  * [x] role (`owner/member/viewer`)
+  * [x] invited_by_user_id
+  * [x] joined_at
+  * [x] removed_at
 * [x] Create `account_invitations` table
-  * [ ] id
-  * [ ] account_id
-  * [ ] email
-  * [ ] role
-  * [ ] invite_token (hashed)
-  * [ ] expires_at
-  * [ ] accepted_at
-  * [ ] revoked_at
+  * [x] id
+  * [x] account_id
+  * [x] email
+  * [x] role
+  * [x] invite_token (hashed)
+  * [x] expires_at
+  * [x] accepted_at
+  * [x] revoked_at
 
 * [x] Create `administrators` table (platform operators)
-  * [ ] id (BIGINT)
-  * [ ] uuid (UUID)
-  * [ ] email (unique)
-  * [ ] display_name
-  * [ ] status (`active/suspended`)
-  * [ ] mfa_enabled
-  * [ ] last_login_at
+  * [x] id (BIGINT)
+  * [x] uuid (UUID)
+  * [x] email (unique)
+  * [x] display_name
+  * [x] status (`active/suspended`)
+  * [x] mfa_enabled
+  * [x] last_login_at
 
 ---
 
 ## Compliance and Monitoring
 
 * [x] Create `audit_logs` table
-  * [ ] actor_type (`user/administrator/system`)
-  * [ ] actor_id
-  * [ ] actor_source_table (`users/administrators/system`)
-  * [ ] account_id (nullable for global admin actions)
-  * [ ] action
-  * [ ] target_type
-  * [ ] target_id
-  * [ ] access_reason (nullable)
-  * [ ] ip_address
-  * [ ] user_agent
-  * [ ] metadata (JSON, redacted)
-  * [ ] created_at
+  * [x] actor_type (`user/administrator/system`)
+  * [x] actor_id
+  * [x] actor_source_table (`users/administrators/system`)
+  * [x] account_id (nullable for global admin actions)
+  * [x] action
+  * [x] target_type
+  * [x] target_id
+  * [x] access_reason (nullable)
+  * [x] ip_address
+  * [x] user_agent
+  * [x] metadata (JSON, redacted)
+  * [x] created_at
 * [x] Create `data_access_logs` table for sensitive read operations
 * [x] Create `consents` table (policy_version + accepted_at)
 * [x] Create `data_subject_requests` table (export/delete/restrict)
@@ -425,7 +425,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [x] Public token must be unguessable
 * [x] Rate limiting (global + per form)
 * [x] Honeypot validation
-* [ ] CSRF, XSS, and output escaping checks
+* [x] CSRF, XSS, and output escaping checks
 * [ ] Encrypt sensitive fields at rest where applicable
 * [ ] Rotate secrets and integration keys on schedule
 * [x] Optional domain validation via headers
@@ -506,9 +506,9 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Admin Capabilities
 
-* [ ] Global metrics dashboard (without unnecessary raw personal data)
-* [ ] Tenant health monitoring
-* [ ] Abuse/spam detection queue
+* [x] Global metrics dashboard (without unnecessary raw personal data)
+* [x] Tenant health monitoring
+* [x] Abuse/spam detection queue
 * [x] Compliance event dashboard (consent, DSR, deletions)
 
 ---

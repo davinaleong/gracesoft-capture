@@ -51,6 +51,79 @@
     </x-ui.card>
 
     <x-ui.card class="mb-4">
+        <h2 class="mb-3 text-lg font-semibold">Global Platform Metrics</h2>
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+            <div class="rounded border border-gs-black-200 p-3">
+                <p class="text-xs uppercase tracking-wide text-gs-black-600">Accounts</p>
+                <p class="text-xl font-semibold">{{ data_get($globalMetrics, 'total_accounts', 0) }}</p>
+            </div>
+            <div class="rounded border border-gs-black-200 p-3">
+                <p class="text-xs uppercase tracking-wide text-gs-black-600">Enquiries</p>
+                <p class="text-xl font-semibold">{{ data_get($globalMetrics, 'total_enquiries', 0) }}</p>
+            </div>
+            <div class="rounded border border-gs-black-200 p-3">
+                <p class="text-xs uppercase tracking-wide text-gs-black-600">Open Enquiries</p>
+                <p class="text-xl font-semibold">{{ data_get($globalMetrics, 'open_enquiries', 0) }}</p>
+            </div>
+            <div class="rounded border border-gs-black-200 p-3">
+                <p class="text-xs uppercase tracking-wide text-gs-black-600">Pending DSR</p>
+                <p class="text-xl font-semibold">{{ data_get($globalMetrics, 'pending_dsr', 0) }}</p>
+            </div>
+        </div>
+    </x-ui.card>
+
+    <x-ui.card class="mb-4">
+        <h2 class="mb-3 text-lg font-semibold">Tenant Health Monitoring</h2>
+        <x-ui.table>
+            <thead class="bg-gray-50 uppercase text-xs tracking-wide text-gs-black-700">
+                <tr>
+                    <th class="p-2">Account</th>
+                    <th class="p-2">Enquiries (Total)</th>
+                    <th class="p-2">Enquiries (7d)</th>
+                    <th class="p-2">Open Enquiries</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($tenantHealth as $tenant)
+                    <tr class="border-b border-gray-200">
+                        <td class="p-2">{{ $tenant->account_id }}</td>
+                        <td class="p-2">{{ (int) $tenant->enquiries_total }}</td>
+                        <td class="p-2">{{ (int) $tenant->enquiries_7d }}</td>
+                        <td class="p-2">{{ (int) $tenant->open_enquiries }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="4" class="p-4 text-center text-gs-black-600">No tenant activity yet.</td></tr>
+                @endforelse
+            </tbody>
+        </x-ui.table>
+    </x-ui.card>
+
+    <x-ui.card class="mb-4">
+        <h2 class="mb-3 text-lg font-semibold">Abuse Detection Queue</h2>
+        <p class="mb-2 text-sm text-gs-black-700">Rows include account/email combinations with repeated submission volume (threshold: {{ $abuseQueueThreshold }}).</p>
+        <x-ui.table>
+            <thead class="bg-gray-50 uppercase text-xs tracking-wide text-gs-black-700">
+                <tr>
+                    <th class="p-2">Account</th>
+                    <th class="p-2">Email</th>
+                    <th class="p-2">Submission Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($abuseQueue as $item)
+                    <tr class="border-b border-gray-200">
+                        <td class="p-2">{{ $item->account_id }}</td>
+                        <td class="p-2">{{ $item->email }}</td>
+                        <td class="p-2">{{ (int) $item->submissions_count }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="3" class="p-4 text-center text-gs-black-600">No abuse queue candidates.</td></tr>
+                @endforelse
+            </tbody>
+        </x-ui.table>
+    </x-ui.card>
+
+    <x-ui.card class="mb-4">
         <h2 class="mb-3 text-lg font-semibold">Persisted Daily Snapshots</h2>
         <x-ui.table>
             <thead class="bg-gray-50 uppercase text-xs tracking-wide text-gs-black-700">

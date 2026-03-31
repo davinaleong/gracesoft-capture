@@ -4,6 +4,24 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Added explicit security rendering checks:
+  - `SecurityRenderingTest` verifies CSRF hidden token is present on public form submission UI.
+  - `SecurityRenderingTest` verifies inbox detail escapes potentially unsafe enquiry `subject` and `message` content.
+- Verified security rendering suite is green (`2` tests, `7` assertions).
+
+## Completed In Current Continuation
+
+- Implemented remaining admin monitoring capabilities in compliance dashboard:
+  - Added `Global Platform Metrics` (accounts, enquiries, open enquiries, pending DSR).
+  - Added `Tenant Health Monitoring` table with per-account activity indicators.
+  - Added `Abuse Detection Queue` table for repeated submission patterns by account/email.
+- Added feature coverage for new admin monitoring sections in `AdminComplianceTest`.
+- Adjusted dashboard guest-access expectation in tests to match deny-by-default route behavior.
+- Verified admin compliance suite is green (`25` tests, `69` assertions).
+- Synchronized checklist schema-field and admin monitoring status markers with implemented behavior.
+
+## Completed In Current Continuation
+
 - Implemented data minimization controls across forms, analytics, and logs:
   - Added `CAPTURE_STORE_SUBMISSION_REQUEST_METADATA` (default off) to avoid persisting request IP/user-agent on submissions unless explicitly enabled.
   - Added recursive sensitive-key redaction for audit and data-access log metadata via `capture.features.audit_metadata_redact_keys`.

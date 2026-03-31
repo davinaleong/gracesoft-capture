@@ -1,12 +1,14 @@
 <?php
 
 use App\Models\Administrator;
+use App\Models\AccountMembership;
 use App\Models\BreakGlassApproval;
 use App\Models\Enquiry;
 use App\Models\Form;
 use App\Models\DataSubjectRequest;
 use App\Models\SecurityEventSnapshot;
 use App\Models\AuditLog;
+use App\Models\User;
 use App\Support\SecurityEventMetrics;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -21,9 +23,42 @@ test('admin can view compliance dashboard', function () {
         ->assertSee('Admin Compliance Monitoring');
 });
 
+test('admin dashboard renders global metrics tenant health and abuse queue sections', function () {
+    $admin = Administrator::factory()->create();
+
+    $accountId = '9a94c4f7-4f42-4fcf-a36d-5bc16d452a5e';
+    $owner = User::factory()->create();
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    $form = Form::factory()->create([
+        'account_id' => $accountId,
+    ]);
+
+    Enquiry::factory()->count(3)->create([
+        'form_id' => $form->id,
+        'account_id' => $accountId,
+        'email' => 'repeat@example.com',
+        'status' => 'new',
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->get(route('admin.compliance.index'))
+        ->assertOk()
+        ->assertSee('Global Platform Metrics')
+        ->assertSee('Tenant Health Monitoring')
+        ->assertSee('Abuse Detection Queue')
+        ->assertSee('repeat@example.com');
+});
+
 test('non admin cannot view compliance dashboard', function () {
     $this->get(route('admin.compliance.index'))
-        ->assertStatus(403);
+    ->assertRedirect('/login');
 });
 
 test('compliance reader can view dashboard but cannot update dsr status', function () {

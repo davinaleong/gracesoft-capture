@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Administrator;
+use App\Models\AccountMembership;
 use App\Models\AuditLog;
 use App\Models\BreakGlassApproval;
 use App\Models\DataAccessLog;
 use App\Models\DataSubjectRequest;
+use App\Models\Enquiry;
 use App\Models\SecurityEventSnapshot;
 use App\Services\DataSubjectRequestProcessor;
 use App\Support\AuditLogger;
@@ -14,6 +16,7 @@ use App\Support\PlanGate;
 use App\Support\SecurityEventMetrics;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AdminComplianceController extends Controller
@@ -92,6 +95,43 @@ class AdminComplianceController extends Controller
                 return $administrator;
             });
 
+        $globalMetrics = [
+            'total_accounts' => AccountMembership::query()
+                ->select('account_id')
+                ->distinct()
+                ->count('account_id'),
+            'total_enquiries' => Enquiry::query()->count(),
+            'open_enquiries' => Enquiry::query()
+                ->whereIn('status', ['new', 'contacted'])
+                ->count(),
+            'pending_dsr' => DataSubjectRequest::query()
+                ->where('status', 'pending')
+                ->count(),
+        ];
+
+        $tenantHealth = Enquiry::query()
+            ->select('account_id')
+            ->selectRaw('count(*) as enquiries_total')
+            ->selectRaw("sum(case when status in ('new','contacted') then 1 else 0 end) as open_enquiries")
+            ->selectRaw('sum(case when created_at >= ? then 1 else 0 end) as enquiries_7d', [now()->subDays(7)])
+            ->whereNotNull('account_id')
+            ->groupBy('account_id')
+            ->orderByDesc(DB::raw('open_enquiries'))
+            ->limit(20)
+            ->get();
+
+        $abuseQueueThreshold = max((int) config('capture.features.abuse_queue_threshold', 3), 2);
+
+        $abuseQueue = Enquiry::query()
+            ->select('account_id', 'email')
+            ->selectRaw('count(*) as submissions_count')
+            ->whereNotNull('email')
+            ->groupBy('account_id', 'email')
+            ->havingRaw('count(*) >= ?', [$abuseQueueThreshold])
+            ->orderByDesc(DB::raw('submissions_count'))
+            ->limit(50)
+            ->get();
+
         return view('admin.compliance.index', [
             'accountId' => $accountId,
             'auditLogs' => $auditLogs,
@@ -101,6 +141,10 @@ class AdminComplianceController extends Controller
             'verificationBlockedSummary' => $verificationBlockedSummary,
             'recentSecuritySnapshots' => $recentSecuritySnapshots,
             'administratorRecertifications' => $administratorRecertifications,
+            'globalMetrics' => $globalMetrics,
+            'tenantHealth' => $tenantHealth,
+            'abuseQueue' => $abuseQueue,
+            'abuseQueueThreshold' => $abuseQueueThreshold,
             'canViewSensitiveData' => $canViewSensitiveData,
             'showSensitiveData' => $showSensitiveData,
         ]);
