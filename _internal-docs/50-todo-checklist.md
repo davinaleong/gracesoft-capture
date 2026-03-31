@@ -571,7 +571,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 # 🚀 19. Nice-to-Have (Post-MVP)
 
-* [ ] Redirect after submit
+* [x] Redirect after submit
 * [ ] Custom themes
 * [ ] Custom fields
 * [ ] File uploads

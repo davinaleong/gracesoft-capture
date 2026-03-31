@@ -21,6 +21,7 @@ return [
         'admin_session_idle_timeout_minutes' => (int) env('CAPTURE_ADMIN_SESSION_IDLE_TIMEOUT_MINUTES', 20),
         'require_form_consent' => (bool) env('CAPTURE_REQUIRE_FORM_CONSENT', false),
         'enforce_form_domain_validation' => (bool) env('CAPTURE_ENFORCE_FORM_DOMAIN_VALIDATION', false),
+        'enable_form_success_redirect' => (bool) env('CAPTURE_ENABLE_FORM_SUCCESS_REDIRECT', false),
         'consent_policy_version' => env('CAPTURE_CONSENT_POLICY_VERSION', 'v1'),
         'data_retention_days' => (int) env('APP_DATA_RETENTION_DAYS', 365),
         'admin_compliance_plan_gate_enabled' => (bool) env('CAPTURE_ADMIN_COMPLIANCE_PLAN_GATE_ENABLED', false),

@@ -97,6 +97,14 @@ class PublicFormController extends Controller
             ], 201);
         }
 
+        if ((bool) config('capture.features.enable_form_success_redirect', false)) {
+            $redirectUrl = $this->resolveSuccessRedirectUrl($form);
+
+            if ($redirectUrl !== null) {
+                return redirect()->away($redirectUrl);
+            }
+        }
+
         return redirect()
             ->route('forms.show', $form->public_token)
             ->with('status', 'Thanks, your message has been sent.');
@@ -153,5 +161,22 @@ class PublicFormController extends Controller
         }
 
         return Str::lower($host);
+    }
+
+    private function resolveSuccessRedirectUrl(Form $form): ?string
+    {
+        $redirectUrl = trim((string) data_get($form->settings, 'success_redirect_url', ''));
+
+        if ($redirectUrl === '') {
+            return null;
+        }
+
+        $scheme = parse_url($redirectUrl, PHP_URL_SCHEME);
+
+        if (! is_string($scheme) || ! in_array(Str::lower($scheme), ['http', 'https'], true)) {
+            return null;
+        }
+
+        return $redirectUrl;
     }
 }

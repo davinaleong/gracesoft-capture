@@ -4,6 +4,18 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented optional post-submit redirect for public forms:
+  - Added feature flag: `CAPTURE_ENABLE_FORM_SUCCESS_REDIRECT`.
+  - Added support for per-form `settings.success_redirect_url` on successful submission.
+  - Added URL safety validation (only `http/https` schemes allowed).
+  - Falls back to default in-form success redirect when URL is absent/invalid.
+- Added feature coverage for success redirect behavior:
+  - redirects to configured success URL when enabled
+  - ignores invalid redirect URL and falls back safely
+- Verified public form suite is green (`10` tests, `37` assertions).
+
+## Completed In Current Continuation
+
 - Implemented optional form domain validation via request headers:
   - Added feature flag: `CAPTURE_ENFORCE_FORM_DOMAIN_VALIDATION`.
   - Enforced Origin/Referer host validation against per-form `settings.allowed_domains` on public form view and submit.

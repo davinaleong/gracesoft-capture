@@ -170,3 +170,45 @@ test('public form submission is allowed when domain validation matches configure
         'email' => 'allowed@example.com',
     ]);
 });
+
+test('public form can redirect to success url after submit when enabled', function () {
+    config(['capture.features.enable_form_success_redirect' => true]);
+
+    $form = Form::factory()->create([
+        'settings' => [
+            'success_redirect_url' => 'https://www.example.com/thank-you',
+        ],
+    ]);
+
+    $payload = [
+        'name' => 'Redirect User',
+        'email' => 'redirect@example.com',
+        'subject' => 'Redirect check',
+        'message' => 'Please redirect me.',
+        'website' => '',
+    ];
+
+    $this->post(route('forms.submit', $form->public_token), $payload)
+        ->assertRedirect('https://www.example.com/thank-you');
+});
+
+test('public form ignores invalid success redirect url and falls back to form page', function () {
+    config(['capture.features.enable_form_success_redirect' => true]);
+
+    $form = Form::factory()->create([
+        'settings' => [
+            'success_redirect_url' => 'javascript:alert(1)',
+        ],
+    ]);
+
+    $payload = [
+        'name' => 'Fallback User',
+        'email' => 'fallback@example.com',
+        'subject' => 'Fallback check',
+        'message' => 'Invalid redirect should be ignored.',
+        'website' => '',
+    ];
+
+    $this->post(route('forms.submit', $form->public_token), $payload)
+        ->assertRedirect(route('forms.show', $form->public_token));
+});
