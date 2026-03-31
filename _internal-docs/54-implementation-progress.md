@@ -4,6 +4,18 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented Feedback module componentization for support-to-HQ flow:
+  - Added `components.feedback.button`
+  - Added `components.feedback.modal`
+  - Added `components.feedback.form`
+  - Refactored `support/contact` view to use `x-feedback.*` components.
+- Added support page assertion coverage for feedback modal trigger/render markers.
+- Verified feedback pipeline remains green:
+  - `FeedbackSupportTest`
+  - `SyncFeedbackToHQJobTest`
+
+## Completed In Current Continuation
+
 - Implemented full Notes module componentization on enquiry detail:
   - Added `components.notes.list`
   - Added `components.notes.item`

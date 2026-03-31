@@ -149,9 +149,9 @@
 
 ## 💬 Feedback (to HQ)
 
-* [ ] `components.feedback.button`
-* [ ] `components.feedback.modal`
-* [ ] `components.feedback.form`
+* [x] `components.feedback.button`
+* [x] `components.feedback.modal`
+* [x] `components.feedback.form`
 
 ---
 

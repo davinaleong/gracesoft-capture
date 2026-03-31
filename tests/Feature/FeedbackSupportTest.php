@@ -9,7 +9,9 @@ uses(RefreshDatabase::class);
 test('contact support page can be opened', function () {
     $this->get(route('support.create'))
         ->assertOk()
-        ->assertSee('Contact Support');
+    ->assertSee('Contact Support')
+    ->assertSee('Open Support Form')
+    ->assertSee('support-feedback-modal');
 });
 
 test('submitting support form dispatches feedback sync job', function () {
