@@ -80,8 +80,23 @@ These toggles control security and compliance behavior:
 - `CAPTURE_ADMIN_ACCESS_RECERTIFICATION_DAYS`
 - `CAPTURE_COLLAB_INVITE_ALERT_THRESHOLD`
 - `CAPTURE_COLLAB_INVITE_ALERT_WINDOW_MINUTES`
+- `CAPTURE_SSO_ENABLED`
+- `CAPTURE_SSO_SHARED_SECRET`
+- `CAPTURE_SSO_SIGNATURE_TTL_SECONDS`
+- `CAPTURE_SECRET_ROTATION_INTERVAL_DAYS`
+- `CAPTURE_LAST_SECRET_ROTATION_AT`
 
 HQ integration-related settings are configured in `config/hq.php` and use `HQ_*` env values.
+
+Setup-focused environment values:
+
+- `HQ_API_URL`
+- `HQ_API_KEY`
+- `CREATE_APPLICATION_HQ_SYNC_URL`
+- `APP_DATA_RETENTION_DAYS`
+- `INVITE_TOKEN_TTL_HOURS`
+- `ADMIN_AUDIT_LOG_ENABLED`
+- `CAPTURE_DB_*` (optional dedicated Capture DB connection)
 
 ## Operations Commands
 
@@ -92,12 +107,15 @@ php artisan capture:retention:cleanup
 php artisan capture:retention:queue
 php artisan capture:security-metrics:snapshot
 php artisan capture:security-metrics:snapshot --date=2026-03-30
+php artisan capture:mail:health-check --to=ops@example.com
+php artisan capture:secrets:rotation:check
 ```
 
 Scheduled tasks (configured in `routes/console.php`):
 
 - `capture:security-metrics:snapshot` daily at `00:20`
 - `capture:retention:cleanup` daily at `02:10`
+- `capture:secrets:rotation:check` weekly Monday at `03:15`
 
 ## Testing
 

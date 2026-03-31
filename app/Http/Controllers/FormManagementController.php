@@ -40,9 +40,21 @@ class FormManagementController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'account_id' => ['required', 'uuid'],
-            'application_id' => ['required', 'uuid'],
+            'application_id' => ['nullable', 'uuid'],
             'notification_email' => ['nullable', 'email', 'max:255'],
         ]);
+
+        $applicationId = (string) ($data['application_id'] ?? '');
+
+        if ($applicationId === '') {
+            $applicationId = (string) $hqService->createApplication($data['account_id'], $data['name']);
+
+            if ($applicationId === '') {
+                return back()->withErrors([
+                    'application_id' => 'Unable to create application in HQ for this form.',
+                ])->withInput();
+            }
+        }
 
         $resolvedAccountId = $this->resolvedAccountId($request);
 
@@ -56,7 +68,7 @@ class FormManagementController extends Controller
             ])->withInput();
         }
 
-        if (! $hqService->validateApplication($data['account_id'], $data['application_id'])) {
+        if (! $hqService->validateApplication($data['account_id'], $applicationId)) {
             return back()->withErrors([
                 'application_id' => 'The selected application could not be validated with HQ.',
             ])->withInput();
@@ -67,7 +79,7 @@ class FormManagementController extends Controller
         $form = Form::create([
             'name' => $data['name'],
             'account_id' => $data['account_id'],
-            'application_id' => $data['application_id'],
+            'application_id' => $applicationId,
             'is_active' => true,
             'settings' => [
                 'notification_email' => $data['notification_email'] ?? null,

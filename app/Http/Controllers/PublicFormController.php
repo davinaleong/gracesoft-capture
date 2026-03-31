@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendEnquiryNotificationJob;
+use App\Jobs\SendFormSubmissionWebhookJob;
 use App\Jobs\SyncAnalyticsEventToHQJob;
 use App\Models\Consent;
 use App\Models\Enquiry;
@@ -25,6 +26,8 @@ class PublicFormController extends Controller
 
         return response()->view('form', [
             'form' => $form,
+            'customFields' => $this->resolvedCustomFields($form),
+            'themeClass' => $this->resolvedThemeClass($form),
         ]);
     }
 
@@ -39,14 +42,17 @@ class PublicFormController extends Controller
 
         $requireConsent = (bool) config('capture.features.require_form_consent', false);
 
-        $data = $request->validate([
+        $data = $request->validate(array_merge([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255'],
             'subject' => ['required', 'string', 'max:180'],
             'message' => ['required', 'string', 'max:5000'],
             'website' => ['nullable', 'max:0'],
             'consent_accepted' => $requireConsent ? ['required', 'accepted'] : ['sometimes', 'accepted'],
-        ]);
+            'attachment' => (bool) config('capture.features.enable_form_file_uploads', true)
+                ? ['nullable', 'file', 'mimes:pdf,png,jpg,jpeg,doc,docx,txt', 'max:5120']
+                : ['nullable'],
+        ], $this->customFieldValidationRules($form)));
 
         $metadata = null;
 
@@ -55,6 +61,24 @@ class PublicFormController extends Controller
                 'ip_address' => $request->ip(),
                 'user_agent' => (string) $request->userAgent(),
             ];
+        }
+
+        $customFieldPayload = $this->extractCustomFieldPayload($form, $data);
+
+        if ($customFieldPayload !== []) {
+            $metadata = is_array($metadata) ? $metadata : [];
+            $metadata['custom_fields'] = $customFieldPayload;
+        }
+
+        if ((bool) config('capture.features.enable_form_file_uploads', true) && $request->hasFile('attachment')) {
+            $path = $request->file('attachment')?->store('form-uploads');
+
+            if (is_string($path) && $path !== '') {
+                $metadata = is_array($metadata) ? $metadata : [];
+                $metadata['attachments'] = [
+                    ['path' => $path],
+                ];
+            }
         }
 
         $enquiry = Enquiry::create([
@@ -96,6 +120,20 @@ class PublicFormController extends Controller
             'status' => $enquiry->status,
             'occurred_at' => now()->toIso8601String(),
         ]);
+
+        $webhookUrl = trim((string) data_get($form->settings, 'webhook_url', ''));
+
+        if ((bool) config('capture.features.enable_form_submission_webhooks', true) && $webhookUrl !== '') {
+            SendFormSubmissionWebhookJob::dispatch($webhookUrl, [
+                'event' => 'form.submission.received',
+                'account_id' => $enquiry->account_id,
+                'application_id' => $enquiry->application_id,
+                'form_uuid' => $form->uuid,
+                'enquiry_uuid' => $enquiry->uuid,
+                'status' => $enquiry->status,
+                'occurred_at' => now()->toIso8601String(),
+            ]);
+        }
 
         if ($request->expectsJson()) {
             return response([
@@ -184,5 +222,98 @@ class PublicFormController extends Controller
         }
 
         return $redirectUrl;
+    }
+
+    /**
+     * @return array<int, array{name: string, label: string, type: string, required: bool}>
+     */
+    private function resolvedCustomFields(Form $form): array
+    {
+        if (! (bool) config('capture.features.enable_form_custom_fields', true)) {
+            return [];
+        }
+
+        $fields = data_get($form->settings, 'custom_fields', []);
+
+        if (! is_array($fields)) {
+            return [];
+        }
+
+        return collect($fields)
+            ->filter(fn ($field): bool => is_array($field))
+            ->map(function (array $field): array {
+                $name = trim((string) data_get($field, 'name', ''));
+                $label = trim((string) data_get($field, 'label', $name));
+                $type = trim((string) data_get($field, 'type', 'text'));
+
+                return [
+                    'name' => $name,
+                    'label' => $label !== '' ? $label : $name,
+                    'type' => in_array($type, ['text', 'email', 'textarea'], true) ? $type : 'text',
+                    'required' => (bool) data_get($field, 'required', false),
+                ];
+            })
+            ->filter(fn (array $field): bool => $field['name'] !== '')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, array<int, string>>
+     */
+    private function customFieldValidationRules(Form $form): array
+    {
+        $rules = [];
+
+        foreach ($this->resolvedCustomFields($form) as $field) {
+            $key = 'custom_fields.' . $field['name'];
+            $fieldRules = [$field['required'] ? 'required' : 'nullable', 'string', 'max:255'];
+
+            if ($field['type'] === 'email') {
+                $fieldRules[] = 'email';
+            }
+
+            $rules[$key] = $fieldRules;
+        }
+
+        return $rules;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, string>
+     */
+    private function extractCustomFieldPayload(Form $form, array $data): array
+    {
+        $submitted = data_get($data, 'custom_fields', []);
+
+        if (! is_array($submitted)) {
+            return [];
+        }
+
+        $allowedNames = collect($this->resolvedCustomFields($form))
+            ->pluck('name')
+            ->all();
+
+        return collect($submitted)
+            ->filter(fn ($value, $key): bool => in_array((string) $key, $allowedNames, true))
+            ->map(fn ($value): string => trim((string) $value))
+            ->filter(fn (string $value): bool => $value !== '')
+            ->all();
+    }
+
+    private function resolvedThemeClass(Form $form): string
+    {
+        if (! (bool) config('capture.features.enable_form_custom_themes', true)) {
+            return 'theme-default';
+        }
+
+        $theme = trim((string) data_get($form->settings, 'theme', 'default'));
+
+        return match ($theme) {
+            'sunrise' => 'theme-sunrise',
+            'forest' => 'theme-forest',
+            default => 'theme-default',
+        };
     }
 }

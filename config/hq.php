@@ -12,6 +12,7 @@ return [
     ],
 
     'sync' => [
+        'create_application_url' => env('CREATE_APPLICATION_HQ_SYNC_URL'),
         'subscription_url' => env('SUBSCRIPTION_HQ_SYNC_URL'),
         'feedback_url' => env('FEEDBACK_HQ_SYNC_URL'),
         'analytics_url' => env('ANALYTICS_HQ_SYNC_URL'),

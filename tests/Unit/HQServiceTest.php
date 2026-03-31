@@ -14,6 +14,7 @@ beforeEach(function () {
     config()->set('hq.http.retry_sleep_milliseconds', 1);
     config()->set('hq.sync.analytics_url', 'http://hq.test/api/v1/analytics');
     config()->set('hq.sync.feedback_url', 'http://hq.test/api/v1/feedback');
+    config()->set('hq.sync.create_application_url', 'http://hq.test/api/v1/applications');
     config()->set('hq.validation.enabled', false);
     config()->set('hq.validation.url', 'http://hq.test/api/v1/validate-application');
     config()->set('hq.validation.cache_ttl_seconds', 120);
@@ -126,5 +127,28 @@ test('skips validation call when feature is disabled', function () {
 
     expect($service->validateApplication('acct-1', 'app-1'))->toBeTrue();
 
+    Http::assertNothingSent();
+});
+
+test('creates application via hq and returns application id', function () {
+    Http::fake([
+        'http://hq.test/api/v1/applications' => Http::response([
+            'application_id' => 'f3d18d9b-a126-41b9-a877-994808ddf31e',
+        ], 200),
+    ]);
+
+    $service = app(HQService::class);
+
+    expect($service->createApplication('acct-1', 'Support Form'))
+        ->toBe('f3d18d9b-a126-41b9-a877-994808ddf31e');
+});
+
+test('returns null when create application endpoint is not configured', function () {
+    config()->set('hq.sync.create_application_url', null);
+    Http::fake();
+
+    $service = app(HQService::class);
+
+    expect($service->createApplication('acct-1', 'Support Form'))->toBeNull();
     Http::assertNothingSent();
 });

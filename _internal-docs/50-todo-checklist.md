@@ -16,13 +16,13 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Project Setup
 
 * [x] Create Capture app (Laravel)
-* [ ] Configure separate Capture DB
-* [ ] Setup env:
-  * [ ] `HQ_API_URL`
-  * [ ] `HQ_API_KEY`
-  * [ ] `APP_DATA_RETENTION_DAYS`
-  * [ ] `INVITE_TOKEN_TTL_HOURS`
-  * [ ] `ADMIN_AUDIT_LOG_ENABLED=true`
+* [x] Configure separate Capture DB
+* [x] Setup env:
+  * [x] `HQ_API_URL`
+  * [x] `HQ_API_KEY`
+  * [x] `APP_DATA_RETENTION_DAYS`
+  * [x] `INVITE_TOKEN_TTL_HOURS`
+  * [x] `ADMIN_AUDIT_LOG_ENABLED=true`
 
 ---
 
@@ -208,7 +208,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Create Form
 
 * [x] UI: Create Form
-* [ ] Call HQ to create application
+* [x] Call HQ to create application
 * [x] Store `application_id` and `account_id`
 * [x] Restrict create/edit/delete form actions by membership role
 
@@ -287,7 +287,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 # 🔔 7. Notifications
 
-* [ ] Setup email service (Postmark/SMTP)
+* [x] Setup email service (Postmark/SMTP)
 * [x] Create notification job for new enquiry
 * [x] Create invitation email job for collaborator invites
 * [x] Email templates contain least-sensitive data necessary
@@ -426,8 +426,8 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [x] Rate limiting (global + per form)
 * [x] Honeypot validation
 * [x] CSRF, XSS, and output escaping checks
-* [ ] Encrypt sensitive fields at rest where applicable
-* [ ] Rotate secrets and integration keys on schedule
+* [x] Encrypt sensitive fields at rest where applicable
+* [x] Rotate secrets and integration keys on schedule
 * [x] Optional domain validation via headers
 
 ---
@@ -572,11 +572,11 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 # 🚀 19. Nice-to-Have (Post-MVP)
 
 * [x] Redirect after submit
-* [ ] Custom themes
-* [ ] Custom fields
-* [ ] File uploads
-* [ ] Webhooks
-* [ ] SCIM or SSO for larger teams
+* [x] Custom themes
+* [x] Custom fields
+* [x] File uploads
+* [x] Webhooks
+* [x] SCIM or SSO for larger teams
 
 ---
 

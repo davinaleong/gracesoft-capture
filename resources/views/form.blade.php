@@ -1,7 +1,7 @@
 @extends('layouts.embed', ['title' => $form->name])
 
 @section('content')
-	<x-form.wrapper :title="$form->name" description="Fill out the form below and we will get back to you soon.">
+	<x-form.wrapper :title="$form->name" description="Fill out the form below and we will get back to you soon." :class="$themeClass">
 		@if (session('status'))
 			<x-form.success-state :message="session('status')" />
 		@endif
@@ -10,7 +10,7 @@
 			<x-form.error-state />
 		@endif
 
-		<form action="{{ route('forms.submit', $form->public_token) }}" method="post" novalidate>
+		<form action="{{ route('forms.submit', $form->public_token) }}" method="post" novalidate enctype="multipart/form-data">
 			@csrf
 
 			<div class="sr-only" aria-hidden="true">
@@ -58,6 +58,36 @@
 					:required="true"
 					class="md:col-span-2"
 				/>
+
+				@foreach ($customFields as $field)
+					@if ($field['type'] === 'textarea')
+						<x-form.textarea
+							:id="'custom_field_' . $field['name']"
+							:name="'custom_fields[' . $field['name'] . ']'"
+							:label="$field['label']"
+							:value="old('custom_fields.' . $field['name'])"
+							:rows="4"
+							:required="$field['required']"
+							class="md:col-span-2"
+						/>
+					@else
+						<x-form.input
+							:id="'custom_field_' . $field['name']"
+							:name="'custom_fields[' . $field['name'] . ']'"
+							:label="$field['label']"
+							:type="$field['type']"
+							:value="old('custom_fields.' . $field['name'])"
+							:required="$field['required']"
+							class="md:col-span-2"
+						/>
+					@endif
+				@endforeach
+
+				@if (config('capture.features.enable_form_file_uploads', true))
+					<x-ui.field for="attachment" label="Attachment (optional)" class="md:col-span-2">
+						<x-ui.input id="attachment" name="attachment" type="file" />
+					</x-ui.field>
+				@endif
 
 				<div class="md:col-span-2">
 					<x-form.consent-notice />

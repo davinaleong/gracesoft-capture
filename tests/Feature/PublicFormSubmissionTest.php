@@ -2,7 +2,11 @@
 
 use App\Models\Form;
 use App\Models\Enquiry;
+use App\Jobs\SendFormSubmissionWebhookJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -253,4 +257,83 @@ test('submission can store request metadata when explicitly enabled', function (
     $enquiry = Enquiry::query()->latest('id')->firstOrFail();
 
     expect((array) $enquiry->metadata)->toHaveKeys(['ip_address', 'user_agent']);
+});
+
+test('public form applies configured custom theme class', function () {
+    $form = Form::factory()->create([
+        'settings' => [
+            'theme' => 'sunrise',
+        ],
+    ]);
+
+    $this->get(route('forms.show', $form->public_token))
+        ->assertOk()
+        ->assertSee('theme-sunrise');
+});
+
+test('public form accepts configured custom fields and stores payload metadata', function () {
+    $form = Form::factory()->create([
+        'settings' => [
+            'custom_fields' => [
+                ['name' => 'company', 'label' => 'Company', 'type' => 'text', 'required' => true],
+            ],
+        ],
+    ]);
+
+    $this->post(route('forms.submit', $form->public_token), [
+        'name' => 'Custom Field User',
+        'email' => 'custom@example.com',
+        'subject' => 'Custom fields',
+        'message' => 'Contains custom field value.',
+        'custom_fields' => ['company' => 'GraceSoft'],
+        'website' => '',
+    ])->assertRedirect(route('forms.show', $form->public_token));
+
+    $enquiry = Enquiry::query()->latest('id')->firstOrFail();
+
+    expect(data_get($enquiry->metadata, 'custom_fields.company'))->toBe('GraceSoft');
+});
+
+test('public form can store optional file upload attachment metadata', function () {
+    Storage::fake('local');
+
+    $form = Form::factory()->create();
+
+    $this->post(route('forms.submit', $form->public_token), [
+        'name' => 'Upload User',
+        'email' => 'upload@example.com',
+        'subject' => 'Upload test',
+        'message' => 'Includes attachment.',
+        'attachment' => UploadedFile::fake()->create('brief.pdf', 120, 'application/pdf'),
+        'website' => '',
+    ])->assertRedirect(route('forms.show', $form->public_token));
+
+    $enquiry = Enquiry::query()->latest('id')->firstOrFail();
+    $path = (string) data_get($enquiry->metadata, 'attachments.0.path');
+
+    expect($path)->not->toBe('');
+    Storage::disk('local')->assertExists($path);
+});
+
+test('public form dispatches webhook job when webhook url is configured', function () {
+    Queue::fake();
+
+    $form = Form::factory()->create([
+        'settings' => [
+            'webhook_url' => 'https://example.test/webhook/form-submissions',
+        ],
+    ]);
+
+    $this->post(route('forms.submit', $form->public_token), [
+        'name' => 'Webhook User',
+        'email' => 'webhook@example.com',
+        'subject' => 'Webhook test',
+        'message' => 'Should dispatch webhook job.',
+        'website' => '',
+    ])->assertRedirect(route('forms.show', $form->public_token));
+
+    Queue::assertPushed(SendFormSubmissionWebhookJob::class, function (SendFormSubmissionWebhookJob $job) {
+        return $job->webhookUrl === 'https://example.test/webhook/form-submissions'
+            && data_get($job->payload, 'event') === 'form.submission.received';
+    });
 });

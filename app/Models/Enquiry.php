@@ -44,6 +44,7 @@ class Enquiry extends Model
             'contacted_at' => 'datetime',
             'closed_at' => 'datetime',
             'metadata' => 'array',
+            'message' => 'encrypted',
         ];
     }
 

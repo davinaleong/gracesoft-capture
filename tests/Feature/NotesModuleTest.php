@@ -3,9 +3,14 @@
 use App\Models\Enquiry;
 use App\Models\Form;
 use App\Models\Note;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->actingAs(User::factory()->create());
+});
 
 test('inbox detail shows notes upgrade message when notes are not enabled', function () {
     config()->set('capture.features.notes_force_enabled', false);
@@ -44,11 +49,11 @@ test('note can be added from inbox detail when notes are enabled', function () {
         ->assertRedirect(route('inbox.show', $enquiry))
         ->assertSessionHas('status');
 
-    $this->assertDatabaseHas('notes', [
-        'enquiry_id' => $enquiry->id,
-        'user_id' => $payload['user_id'],
-        'content' => $payload['content'],
-    ]);
+    $note = Note::query()->latest('id')->firstOrFail();
+
+    expect($note->enquiry_id)->toBe($enquiry->id);
+    expect($note->user_id)->toBe($payload['user_id']);
+    expect($note->content)->toBe($payload['content']);
 
     $this->get(route('inbox.show', $enquiry))
         ->assertOk()

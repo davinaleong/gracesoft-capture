@@ -24,6 +24,7 @@ class Reply extends Model
         return [
             'is_internal' => 'bool',
             'metadata' => 'array',
+            'content' => 'encrypted',
         ];
     }
 

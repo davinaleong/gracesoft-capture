@@ -10,6 +10,39 @@ use Throwable;
 
 class HQService
 {
+    public function createApplication(string $accountId, string $name): ?string
+    {
+        if (! (bool) config('hq.enabled', true)) {
+            return null;
+        }
+
+        $url = (string) config('hq.sync.create_application_url', '');
+
+        if ($url === '') {
+            return null;
+        }
+
+        try {
+            $response = $this->baseRequest()->post($url, [
+                'account_id' => $accountId,
+                'name' => $name,
+            ]);
+
+            if (! $response->successful()) {
+                return null;
+            }
+
+            return $this->extractApplicationId((array) $response->json());
+        } catch (Throwable $exception) {
+            Log::warning('Failed to create application via HQ.', [
+                'account_id' => $accountId,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
     public function validateApplication(string $accountId, string $applicationId): bool
     {
         if (! (bool) config('hq.validation.enabled', false)) {
@@ -153,6 +186,29 @@ class HQService
         }
 
         return false;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function extractApplicationId(array $payload): ?string
+    {
+        $candidates = [
+            data_get($payload, 'application_id'),
+            data_get($payload, 'data.application_id'),
+            data_get($payload, 'application.id'),
+            data_get($payload, 'data.application.id'),
+            data_get($payload, 'id'),
+            data_get($payload, 'data.id'),
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (is_string($candidate) && $candidate !== '') {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     /**

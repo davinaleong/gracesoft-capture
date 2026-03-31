@@ -3,6 +3,8 @@
 use App\Jobs\RunDataRetentionCleanupJob;
 use App\Services\DataRetentionService;
 use App\Support\SecurityEventMetrics;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Carbon;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -47,10 +49,61 @@ Artisan::command('capture:security-metrics:snapshot {--date=}', function (Securi
     $this->line('Total blocked events: ' . $result['total']);
 })->purpose('Persist daily security telemetry snapshot to the database.');
 
+Artisan::command('capture:mail:health-check {--to=}', function () {
+    $recipient = (string) ($this->option('to') ?: config('mail.from.address'));
+
+    if ($recipient === '') {
+        $this->error('No recipient available for mail health check.');
+
+        return 1;
+    }
+
+    Mail::raw('GraceSoft Capture mail health check', function ($message) use ($recipient): void {
+        $message->to($recipient)->subject('GraceSoft Capture Mail Health Check');
+    });
+
+    $this->info('Mail health-check message dispatched to ' . $recipient);
+
+    return 0;
+})->purpose('Send a mail health-check message to verify SMTP/Postmark connectivity.');
+
+Artisan::command('capture:secrets:rotation:check', function () {
+    $intervalDays = max((int) config('capture.features.secret_rotation_interval_days', 90), 1);
+    $lastRotationAt = (string) config('capture.features.last_secret_rotation_at', '');
+
+    if ($lastRotationAt === '') {
+        $this->warn('No last secret rotation timestamp configured (CAPTURE_LAST_SECRET_ROTATION_AT).');
+
+        return 0;
+    }
+
+    $lastRotation = Carbon::parse($lastRotationAt);
+    $ageDays = $lastRotation->diffInDays(now());
+
+    if ($ageDays >= $intervalDays) {
+        $message = sprintf('Secret rotation is overdue by %d days.', $ageDays - $intervalDays);
+        Log::warning($message, [
+            'last_rotation_at' => $lastRotation->toIso8601String(),
+            'interval_days' => $intervalDays,
+        ]);
+        $this->warn($message);
+
+        return 0;
+    }
+
+    $this->info('Secret rotation is within policy window.');
+
+    return 0;
+})->purpose('Check whether secret rotation is within configured policy interval.');
+
 Schedule::command('capture:retention:cleanup')
     ->dailyAt('02:10')
     ->withoutOverlapping();
 
 Schedule::command('capture:security-metrics:snapshot')
     ->dailyAt('00:20')
+    ->withoutOverlapping();
+
+Schedule::command('capture:secrets:rotation:check')
+    ->weeklyOn(1, '03:15')
     ->withoutOverlapping();

@@ -13,6 +13,7 @@ use App\Http\Controllers\InboxController;
 use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\PublicFormController;
+use App\Http\Controllers\SsoController;
 use App\Http\Controllers\UserEmailVerificationController;
 use App\Http\Controllers\UserPasswordResetController;
 use App\Http\Controllers\UserSessionController;
@@ -44,6 +45,8 @@ Route::post('/form/{token}/submit', [PublicFormController::class, 'submit'])
 
 Route::get('/support', [FeedbackController::class, 'create'])->name('support.create');
 Route::post('/support', [FeedbackController::class, 'store'])->name('support.store');
+
+Route::post('/sso/login', [SsoController::class, 'login'])->name('sso.login');
 
 Route::middleware('guest:web')->group(function () {
     Route::get('/register', [UserSessionController::class, 'register'])->name('register');

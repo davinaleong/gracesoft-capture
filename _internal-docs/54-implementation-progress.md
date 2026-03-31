@@ -4,6 +4,58 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented encryption-at-rest for sensitive free-text fields:
+  - `Enquiry.message`
+  - `Note.content`
+  - `Reply.content`
+- Added encryption validation coverage:
+  - `EncryptionAtRestTest` verifies encrypted persistence and decrypted model reads.
+- Implemented lightweight SSO flow for larger-team integration scenarios:
+  - Added `POST /sso/login` endpoint with HMAC signature verification + TTL validation.
+  - Auto-provisions/updates verified user session on valid SSO payload.
+  - Added `SsoLoginTest` for success and invalid-signature paths.
+- Added operational commands for email service verification and key-rotation hygiene:
+  - `capture:mail:health-check`
+  - `capture:secrets:rotation:check`
+  - Scheduled weekly rotation check.
+  - Added `OperationsCommandsTest` coverage.
+- Implemented additional form platform capabilities and tests:
+  - HQ application auto-create integration in form creation.
+  - Optional custom themes, custom fields, file uploads, and webhook dispatch.
+
+
+## Completed In Current Continuation
+
+- Implemented extended public form capabilities:
+  - Custom themes via `settings.theme` (`default`, `sunrise`, `forest`).
+  - Custom fields via `settings.custom_fields` with dynamic validation and metadata persistence.
+  - Optional file upload attachment support with persisted stored-path metadata.
+  - Optional webhook dispatch (`settings.webhook_url`) on successful submission.
+- Added queued webhook delivery job:
+  - `SendFormSubmissionWebhookJob`.
+- Added and expanded feature coverage in `PublicFormSubmissionTest` for:
+  - theme rendering
+  - custom fields persistence
+  - file upload storage
+  - webhook job dispatch
+- Verified public form suite is green (`16` tests, `56` assertions).
+
+## Completed In Current Continuation
+
+- Implemented HQ application creation flow for form onboarding:
+  - Added `HQService::createApplication(accountId, name)`.
+  - Added config key `hq.sync.create_application_url`.
+  - Updated form creation flow to auto-create application in HQ when `application_id` is omitted.
+  - Added unit + feature coverage for HQ create-application success/fallback behavior.
+- Added setup/environment and dedicated Capture DB configuration surface:
+  - Added `capture` DB connection in `config/database.php` (`CAPTURE_DB_*` env support).
+  - Added setup env keys to `.env.example` and setup notes in `README.md`.
+- Verified targeted suites are green (`17` tests, `57` assertions):
+  - `HQServiceTest`
+  - `FormManagementTest`
+
+## Completed In Current Continuation
+
 - Minimized PII exposure in enquiry notification emails:
   - Updated `NewEnquiryNotificationMail` subject to a generic value.
   - Masked sender name/email in template output.

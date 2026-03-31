@@ -30,6 +30,7 @@ class Note extends Model
             'is_pinned' => 'boolean',
             'tags' => 'array',
             'reminder_at' => 'datetime',
+            'content' => 'encrypted',
         ];
     }
 

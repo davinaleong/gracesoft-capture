@@ -2,9 +2,14 @@
 
 use App\Models\Enquiry;
 use App\Models\Form;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->actingAs(User::factory()->create());
+});
 
 test('inbox list page shows enquiry rows', function () {
     $form = Form::factory()->create(['name' => 'Support Form']);
@@ -68,7 +73,8 @@ test('inbox list shows account context badge when account is selected', function
 
     $this->get(route('inbox.index', ['account_id' => $form->account_id]))
         ->assertOk()
-        ->assertSee('Account: ' . $form->account_id);
+        ->assertSee('account_id_switcher')
+        ->assertSee($form->account_id);
 });
 
 test('inbox detail page shows full enquiry content', function () {

@@ -81,6 +81,8 @@ test('viewer cannot add reply to enquiry when access context is enforced', funct
 });
 
 test('inbox detail displays existing replies', function () {
+    $user = User::factory()->create();
+
     $form = Form::factory()->create();
 
     $enquiry = Enquiry::factory()->create([
@@ -100,7 +102,8 @@ test('inbox detail displays existing replies', function () {
         'metadata' => ['user_id' => 1],
     ]);
 
-    $this->get(route('inbox.show', $enquiry))
+    $this->actingAs($user)
+        ->get(route('inbox.show', $enquiry))
         ->assertOk()
         ->assertSee('Replies')
         ->assertSee('First reply content')

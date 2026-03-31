@@ -138,3 +138,32 @@ test('form update is blocked when hq application validation fails', function () 
 
     expect($form->fresh()->name)->toBe('Existing Name');
 });
+
+test('form creation can auto-create application in hq when application id is omitted', function () {
+    $service = \Mockery::mock(HQService::class);
+    $service->shouldReceive('fetchSubscriptionPlan')
+        ->once()
+        ->andReturn('growth');
+    $service->shouldReceive('createApplication')
+        ->once()
+        ->andReturn('8d36f926-203d-47b6-906c-f85a0a61ca57');
+    $service->shouldReceive('validateApplication')
+        ->once()
+        ->withArgs(function (string $accountId, string $applicationId): bool {
+            return $accountId === 'f31b9a08-8e44-4188-9d04-b7d17a6f319f'
+                && $applicationId === '8d36f926-203d-47b6-906c-f85a0a61ca57';
+        })
+        ->andReturn(true);
+    app()->instance(HQService::class, $service);
+
+    $response = $this->post(route('manage.forms.store'), [
+        'name' => 'Auto Create App Form',
+        'account_id' => 'f31b9a08-8e44-4188-9d04-b7d17a6f319f',
+        'notification_email' => 'owner@example.com',
+    ]);
+
+    $form = Form::query()->firstOrFail();
+
+    $response->assertRedirect(route('manage.forms.edit', $form));
+    expect($form->application_id)->toBe('8d36f926-203d-47b6-906c-f85a0a61ca57');
+});
