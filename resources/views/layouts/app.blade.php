@@ -44,7 +44,7 @@
 
                 <div class="flex flex-wrap items-center gap-2">
                     @if ($admin)
-                        <span class="rounded border border-red-200 bg-red-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-red-800">
+                        <span class="inline-flex h-9 items-center rounded border border-red-200 bg-red-50 px-2 text-xs font-semibold uppercase tracking-wide text-red-800">
                             Admin Session: {{ $admin->display_name }}
                         </span>
                         <form method="post" action="{{ route('admin.logout') }}">
@@ -54,7 +54,7 @@
                     @elseif ($user)
                         <x-layout.account-context-switcher />
 
-                        <span class="rounded border border-gs-purple-200 bg-gs-purple-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-gs-purple-700">
+                        <span class="inline-flex h-9 items-center rounded border border-gs-purple-200 bg-gs-purple-50 px-2 text-xs font-semibold uppercase tracking-wide text-gs-purple-700">
                             User Session: {{ $user->email }}
                         </span>
                         <form method="post" action="{{ route('logout') }}">

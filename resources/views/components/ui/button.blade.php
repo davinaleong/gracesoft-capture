@@ -7,7 +7,7 @@
 ])
 
 @php
-    $base = 'inline-flex items-center gap-2 rounded border font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+    $base = 'inline-flex items-center justify-center gap-2 rounded border font-semibold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
 
     $variantClasses = [
         'primary' => 'text-white bg-gs-purple-600 border-gs-purple-600 hover:bg-gs-purple-700 hover:border-gs-purple-700 focus-visible:ring-gs-purple-300',
@@ -18,9 +18,9 @@
     ];
 
     $sizeClasses = [
-        'sm' => 'px-2 py-1 text-sm',
-        'md' => 'px-3 py-2 text-sm',
-        'lg' => 'px-4 py-2.5 text-base',
+        'sm' => 'h-9 px-2 text-sm',
+        'md' => 'h-10 px-3 text-sm',
+        'lg' => 'h-11 px-4 text-base',
     ];
 
     $classes = trim($base . ' ' . ($variantClasses[$variant] ?? $variantClasses['primary']) . ' ' . ($sizeClasses[$size] ?? $sizeClasses['md']));
