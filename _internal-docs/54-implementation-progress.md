@@ -4,6 +4,30 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented Laravel policy layer for account-scoped authorization:
+  - Added policies for `Form`, `Enquiry`, `Note`, `Reply`, and `Insights` account access.
+  - Added shared account-authorization resolver for membership-role and admin-override checks.
+- Registered policy and gate mappings in `AppServiceProvider`:
+  - Model policies for forms/enquiries/notes/replies.
+  - Named gate `insights.view-account`.
+- Applied policy enforcement in write/read controllers:
+  - Forms management (`create/view/update/toggle`).
+  - Inbox enquiry view + status updates.
+  - Notes and replies creation on enquiry detail.
+  - Insights account access gate.
+- Added request-aware authorization helper in base controller to resolve active actor across user/admin guards.
+- Preserved rollout compatibility:
+  - Policy enforcement is active when `CAPTURE_ENFORCE_ACCESS_CONTEXT=true`.
+  - Existing non-enforced behavior remains unchanged when the flag is disabled.
+- Verified targeted regression suites are green (`19` tests, `75` assertions):
+  - `RoleAuthorizationTest`
+  - `FormManagementTest`
+  - `NotesModuleTest`
+  - `RepliesModuleTest`
+  - `InsightsModuleTest`
+
+## Completed In Current Continuation
+
 - Implemented owner notification flow for collaborator invitation lifecycle:
   - Added `SendCollaboratorOwnerNotificationJob` to notify active account owners.
   - Added `CollaboratorOwnerNotificationMail` and mail template for accepted/revoked events.

@@ -155,10 +155,10 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Authorization Rules
 
-* [ ] Implement Laravel Policies for Forms, Enquiries, Notes, Replies, Insights
+* [x] Implement Laravel Policies for Forms, Enquiries, Notes, Replies, Insights
 * [x] Enforce account-scoped access in query layer (global scope or repository layer)
 * [ ] Deny-by-default for all protected routes
-* [ ] Add gate checks for account-scoped data access
+* [x] Add gate checks for account-scoped data access
 * [x] Add role checks for collaborator capabilities
 * [x] Add dedicated admin guard/provider backed by `administrators` table
 * [x] Keep admin auth/session separate from user auth/session

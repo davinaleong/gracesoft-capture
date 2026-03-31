@@ -14,7 +14,7 @@ class EnquiryReplyController extends Controller
     public function store(Request $request, Enquiry $enquiry, AuditLogger $auditLogger): RedirectResponse
     {
         $this->authorizeAccountAccess($request, $enquiry->account_id);
-        $this->authorizeAnyRole($request, ['owner', 'member'], $enquiry->account_id);
+        $this->authorizeForRequest($request, 'createReply', $enquiry);
 
         $data = $request->validate([
             'content' => ['required', 'string', 'max:5000'],

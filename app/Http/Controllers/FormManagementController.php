@@ -29,6 +29,8 @@ class FormManagementController extends Controller
 
     public function create(): View
     {
+        $this->authorizeForRequest(request(), 'viewAny', Form::class);
+
         return view('forms.create');
     }
 
@@ -53,7 +55,7 @@ class FormManagementController extends Controller
             ])->withInput();
         }
 
-        $this->authorizeAnyRole($request, ['owner', 'member'], $data['account_id']);
+        $this->authorizeForRequest($request, 'create', [Form::class, $data['account_id']]);
 
         $form = Form::create([
             'name' => $data['name'],
@@ -82,6 +84,7 @@ class FormManagementController extends Controller
     public function edit(Request $request, Form $form, AuditLogger $auditLogger): View
     {
         $this->authorizeAccountAccess($request, $form->account_id);
+        $this->authorizeForRequest($request, 'view', $form);
 
         if ($this->isAdminOverride($request)) {
             $this->requireAdminAccessReason($request);
@@ -103,7 +106,7 @@ class FormManagementController extends Controller
     public function update(Request $request, Form $form, AuditLogger $auditLogger): RedirectResponse
     {
         $this->authorizeAccountAccess($request, $form->account_id);
-        $this->authorizeAnyRole($request, ['owner', 'member'], $form->account_id);
+        $this->authorizeForRequest($request, 'update', $form);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -143,7 +146,7 @@ class FormManagementController extends Controller
     public function toggleActive(Request $request, Form $form, AuditLogger $auditLogger): RedirectResponse
     {
         $this->authorizeAccountAccess($request, $form->account_id);
-        $this->authorizeAnyRole($request, ['owner', 'member'], $form->account_id);
+        $this->authorizeForRequest($request, 'toggleActive', $form);
 
         $form->update([
             'is_active' => ! $form->is_active,

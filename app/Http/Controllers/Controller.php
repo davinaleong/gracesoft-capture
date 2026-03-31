@@ -5,10 +5,35 @@ namespace App\Http\Controllers;
 use App\Models\AccountMembership;
 use App\Models\Administrator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 
 abstract class Controller
 {
+    protected function authorizationActor(Request $request): mixed
+    {
+        if ($request->attributes->get('access.is_admin', false)) {
+            return Auth::guard('admin')->user();
+        }
+
+        return Auth::guard('web')->user() ?? Auth::guard('admin')->user();
+    }
+
+    protected function authorizeForRequest(Request $request, string $ability, mixed $arguments = []): void
+    {
+        if (! (bool) config('capture.features.enforce_access_context', false)) {
+            return;
+        }
+
+        $actor = $this->authorizationActor($request);
+
+        if ($actor === null) {
+            abort(401);
+        }
+
+        Gate::forUser($actor)->authorize($ability, $arguments);
+    }
+
     protected function resolvedAccountId(Request $request): ?string
     {
         $accountId = $request->attributes->get('access.account_id');
