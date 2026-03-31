@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendCollaboratorOwnerNotificationJob;
 use App\Jobs\SendCollaboratorInvitationJob;
 use App\Models\AccountInvitation;
 use App\Models\AccountMembership;
@@ -202,6 +203,13 @@ class CollaboratorController extends Controller
             ['email' => $invitation->email]
         );
 
+        SendCollaboratorOwnerNotificationJob::dispatch(
+            $invitation->account_id,
+            'revoked',
+            $invitation->email,
+            $invitation->role,
+        );
+
         return back()->with('status', 'Invitation revoked.');
     }
 
@@ -307,6 +315,13 @@ class CollaboratorController extends Controller
             (string) $invitation->id,
             $invitation->account_id,
             ['email' => $invitation->email]
+        );
+
+        SendCollaboratorOwnerNotificationJob::dispatch(
+            $invitation->account_id,
+            'accepted',
+            $invitation->email,
+            $invitation->role,
         );
 
         return redirect()

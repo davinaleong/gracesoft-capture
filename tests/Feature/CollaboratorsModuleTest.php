@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\SendCollaboratorOwnerNotificationJob;
 use App\Jobs\SendCollaboratorInvitationJob;
 use App\Models\AccountInvitation;
 use App\Models\AccountMembership;
@@ -117,6 +118,8 @@ test('non owner sees owner-only restrictions banner', function () {
 });
 
 test('invited user can accept invitation from signed link', function () {
+    Queue::fake();
+
     $owner = User::factory()->create();
     $invitee = User::factory()->create([
         'email' => 'invitee@example.com',
@@ -158,6 +161,12 @@ test('invited user can accept invitation from signed link', function () {
     expect($membership)->not->toBeNull();
     expect($membership->role)->toBe('member');
     expect($invitation->fresh()->accepted_at)->not->toBeNull();
+
+    Queue::assertPushed(SendCollaboratorOwnerNotificationJob::class, function (SendCollaboratorOwnerNotificationJob $job) use ($accountId) {
+        return $job->accountId === $accountId
+            && $job->eventType === 'accepted'
+            && $job->invitationEmail === 'invitee@example.com';
+    });
 });
 
 test('owner can remove non-owner collaborator membership', function () {
@@ -184,6 +193,39 @@ test('owner can remove non-owner collaborator membership', function () {
         ->assertRedirect();
 
     expect($toRemove->fresh()->removed_at)->not->toBeNull();
+});
+
+test('owner revoke dispatches owner notification job', function () {
+    Queue::fake();
+
+    $owner = User::factory()->create();
+    $accountId = 'bb2c6ecf-1264-47cf-a3d8-a29bf6bf676d';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    $invitation = AccountInvitation::query()->create([
+        'account_id' => $accountId,
+        'email' => 'to-revoke@example.com',
+        'role' => 'member',
+        'invite_token' => hash('sha256', 'token-revoke'),
+        'invited_by_user_id' => $owner->id,
+        'expires_at' => now()->addHour(),
+    ]);
+
+    $this->actingAs($owner)
+        ->post(route('collaborators.revoke', $invitation))
+        ->assertRedirect();
+
+    Queue::assertPushed(SendCollaboratorOwnerNotificationJob::class, function (SendCollaboratorOwnerNotificationJob $job) use ($accountId) {
+        return $job->accountId === $accountId
+            && $job->eventType === 'revoked'
+            && $job->invitationEmail === 'to-revoke@example.com';
+    });
 });
 
 test('owner cannot remove owner collaborator membership', function () {

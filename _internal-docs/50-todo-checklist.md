@@ -170,7 +170,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [x] Limit who can invite collaborators (`owner` only by default)
 * [ ] Prevent privilege escalation (member cannot grant owner role)
 * [x] Require expiration and revocation support for invitations
-* [ ] Notify owner when invites are accepted/revoked
+* [x] Notify owner when invites are accepted/revoked
 * [x] Detect and block cross-account access attempts
 
 ---

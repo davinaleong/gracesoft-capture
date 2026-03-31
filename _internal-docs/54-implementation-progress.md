@@ -4,6 +4,17 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented owner notification flow for collaborator invitation lifecycle:
+  - Added `SendCollaboratorOwnerNotificationJob` to notify active account owners.
+  - Added `CollaboratorOwnerNotificationMail` and mail template for accepted/revoked events.
+  - Dispatched owner notifications from collaborator invitation `accept` and `revoke` actions.
+- Added/extended collaborator feature coverage:
+  - Acceptance flow now asserts owner-notification job dispatch.
+  - Revoke flow now asserts owner-notification job dispatch.
+- Verified collaborator suite is green (`13` tests, `52` assertions).
+
+## Completed In Current Continuation
+
 - Implemented remaining shared UI primitives across states, labels, and utility helpers:
   - `components.ui.empty-state`
   - `components.ui.loading`
