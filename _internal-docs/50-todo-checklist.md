@@ -268,7 +268,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Store Enquiry
 
 * [x] Insert into `enquiries`
-* [ ] Store minimal PII required for purpose (data minimization)
+* [x] Store minimal PII required for purpose (data minimization)
 
 ---
 
@@ -290,7 +290,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [ ] Setup email service (Postmark/SMTP)
 * [x] Create notification job for new enquiry
 * [x] Create invitation email job for collaborator invites
-* [ ] Email templates contain least-sensitive data necessary
+* [x] Email templates contain least-sensitive data necessary
 
 ---
 

@@ -4,6 +4,17 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Minimized PII exposure in enquiry notification emails:
+  - Updated `NewEnquiryNotificationMail` subject to a generic value.
+  - Masked sender name/email in template output.
+  - Rendered bounded subject/message previews instead of full raw values.
+- Added mail unit coverage:
+  - `NewEnquiryNotificationMailTest` verifies masked/minimized rendering and no raw email/name leakage.
+  - Re-verified `SendEnquiryNotificationJobTest`.
+- Synchronized checklist for least-sensitive email templates and submission PII-minimization status.
+
+## Completed In Current Continuation
+
 - Added explicit security rendering checks:
   - `SecurityRenderingTest` verifies CSRF hidden token is present on public form submission UI.
   - `SecurityRenderingTest` verifies inbox detail escapes potentially unsafe enquiry `subject` and `message` content.
