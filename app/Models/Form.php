@@ -31,9 +31,18 @@ class Form extends Model
             }
 
             if (! $form->public_token) {
-                $form->public_token = 'frm_' . Str::lower(Str::random(24));
+                $form->public_token = static::generateUniquePublicToken();
             }
         });
+    }
+
+    private static function generateUniquePublicToken(): string
+    {
+        do {
+            $token = 'frm_' . bin2hex(random_bytes(16));
+        } while (static::query()->where('public_token', $token)->exists());
+
+        return $token;
     }
 
     protected function casts(): array

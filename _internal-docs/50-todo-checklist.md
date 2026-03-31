@@ -185,7 +185,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Endpoints to implement
 
-* [ ] Validate application
+* [x] Validate application
   * `POST /hq/api/validate-application`
 * [x] Get subscription
   * `GET /hq/api/subscription`
@@ -198,7 +198,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Caching
 
-* [ ] Cache application validation (short TTL)
+* [x] Cache application validation (short TTL)
 * [x] Cache subscription plan
 
 ---
@@ -216,8 +216,8 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Token Generation
 
-* [ ] Generate secure public token (`frm_xxx`)
-* [ ] Ensure tokens are unguessable and non-sequential
+* [x] Generate secure public token (`frm_xxx`)
+* [x] Ensure tokens are unguessable and non-sequential
 
 ---
 
@@ -275,7 +275,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Trigger Side Effects
 
 * [x] Send notification email
-* [ ] Send analytics event to HQ (exclude raw PII unless strictly required)
+* [x] Send analytics event to HQ (exclude raw PII unless strictly required)
 
 ---
 
@@ -422,7 +422,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 # 🔐 13. Security Layer
 
-* [ ] Public token must be unguessable
+* [x] Public token must be unguessable
 * [x] Rate limiting (global + per form)
 * [x] Honeypot validation
 * [ ] CSRF, XSS, and output escaping checks
@@ -562,7 +562,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## HQ Sync and Plans
 
-* [ ] Analytics event sent
+* [x] Analytics event sent
 * [ ] Subscription fetched
 * [x] Starter restrictions enforced
 * [x] Pro features unlocked

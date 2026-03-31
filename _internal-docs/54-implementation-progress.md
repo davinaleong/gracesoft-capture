@@ -4,6 +4,48 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Hardened HQ analytics event verification to enforce data minimization:
+  - Extended `EnquiryNotificationDispatchTest` assertions to ensure analytics payload excludes raw PII (`name`, `email`, `subject`, `message`).
+  - Confirmed analytics event still carries account/application scoped telemetry fields.
+- Verified analytics sync tests are green:
+  - `EnquiryNotificationDispatchTest`
+  - `SyncAnalyticsEventToHQJobTest`
+
+## Completed In Current Continuation
+
+- Hardened form public token generation:
+  - Replaced ad-hoc token generation with cryptographically secure token generation (`random_bytes`).
+  - Enforced collision-safe issuance with uniqueness re-check loop.
+  - Standardized token format to `frm_` + 32 lowercase hex chars.
+- Added token generation coverage:
+  - `FormTokenGenerationTest` verifies secure token format.
+  - `FormTokenGenerationTest` verifies uniqueness across multiple generated forms.
+- Verified no regressions in related form flows:
+  - `PublicFormSubmissionTest`
+  - `FormManagementTest`
+
+## Completed In Current Continuation
+
+- Implemented HQ application validation integration with short TTL caching:
+  - Added `HQService::validateApplication(accountId, applicationId)`.
+  - Added resilient HQ payload parsing for validation flags (`valid`/`is_valid`/`allowed` variants).
+  - Added per-account/application cache key with configurable TTL.
+  - Added validation config surface in `config/hq.php`:
+    - `CAPTURE_HQ_VALIDATE_APPLICATION_ENABLED`
+    - `VALIDATE_APPLICATION_HQ_URL`
+    - `HQ_VALIDATE_APPLICATION_CACHE_TTL_SECONDS`
+- Enforced validation in forms management write paths:
+  - Blocks form create/update when HQ validation is enabled and application validation fails.
+  - Returns user-facing validation error on `application_id`.
+- Added/extended automated coverage:
+  - `HQServiceTest` for validation success/failure/disabled behavior + cache reuse.
+  - `FormManagementTest` for create/update rejection on failed validation.
+- Verified targeted suites are green (`14` tests, `48` assertions):
+  - `HQServiceTest`
+  - `FormManagementTest`
+
+## Completed In Current Continuation
+
 - Implemented Laravel policy layer for account-scoped authorization:
   - Added policies for `Form`, `Enquiry`, `Note`, `Reply`, and `Insights` account access.
   - Added shared account-authorization resolver for membership-role and admin-override checks.

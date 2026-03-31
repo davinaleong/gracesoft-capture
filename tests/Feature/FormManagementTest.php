@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Form;
+use App\Services\HQService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -86,4 +87,49 @@ test('starter plan form limit is enforced when creating forms', function () {
         ->assertSessionHasErrors('plan');
 
     expect(Form::query()->where('account_id', 'f53abf5e-0f3b-44fa-85f0-4e88967f8ef5')->count())->toBe(1);
+});
+
+test('form creation is blocked when hq application validation fails', function () {
+    $service = \Mockery::mock(HQService::class);
+    $service->shouldReceive('fetchSubscriptionPlan')
+        ->once()
+        ->andReturn('growth');
+    $service->shouldReceive('validateApplication')
+        ->once()
+        ->andReturn(false);
+    app()->instance(HQService::class, $service);
+
+    $this->from(route('manage.forms.create'))
+        ->post(route('manage.forms.store'), [
+            'name' => 'Blocked By HQ Validation',
+            'account_id' => 'e7269832-c31b-4afd-af8e-8d58e4f9586b',
+            'application_id' => '0f2fe87e-8c13-494f-9579-5275d6a34bc0',
+        ])
+        ->assertRedirect(route('manage.forms.create'))
+        ->assertSessionHasErrors('application_id');
+
+    $this->assertDatabaseCount('forms', 0);
+});
+
+test('form update is blocked when hq application validation fails', function () {
+    $service = \Mockery::mock(HQService::class);
+    $service->shouldReceive('validateApplication')
+        ->once()
+        ->andReturn(false);
+    app()->instance(HQService::class, $service);
+
+    $form = Form::factory()->create([
+        'name' => 'Existing Name',
+    ]);
+
+    $this->from(route('manage.forms.edit', $form))
+        ->put(route('manage.forms.update', $form), [
+            'name' => 'Should Not Persist',
+            'account_id' => $form->account_id,
+            'application_id' => $form->application_id,
+        ])
+        ->assertRedirect(route('manage.forms.edit', $form))
+        ->assertSessionHasErrors('application_id');
+
+    expect($form->fresh()->name)->toBe('Existing Name');
 });

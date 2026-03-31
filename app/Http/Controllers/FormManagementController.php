@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Form;
+use App\Services\HQService;
 use App\Support\AuditLogger;
 use App\Support\PlanGate;
 use Illuminate\Http\RedirectResponse;
@@ -34,7 +35,7 @@ class FormManagementController extends Controller
         return view('forms.create');
     }
 
-    public function store(Request $request, AuditLogger $auditLogger, PlanGate $planGate): RedirectResponse
+    public function store(Request $request, AuditLogger $auditLogger, PlanGate $planGate, HQService $hqService): RedirectResponse
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -52,6 +53,12 @@ class FormManagementController extends Controller
         if (! $this->isAdminOverride($request) && ! $planGate->formCreationAllowed($data['account_id'])) {
             return back()->withErrors([
                 'plan' => 'Your current plan has reached the maximum number of forms.',
+            ])->withInput();
+        }
+
+        if (! $hqService->validateApplication($data['account_id'], $data['application_id'])) {
+            return back()->withErrors([
+                'application_id' => 'The selected application could not be validated with HQ.',
             ])->withInput();
         }
 
@@ -103,7 +110,7 @@ class FormManagementController extends Controller
         ]);
     }
 
-    public function update(Request $request, Form $form, AuditLogger $auditLogger): RedirectResponse
+    public function update(Request $request, Form $form, AuditLogger $auditLogger, HQService $hqService): RedirectResponse
     {
         $this->authorizeAccountAccess($request, $form->account_id);
         $this->authorizeForRequest($request, 'update', $form);
@@ -117,6 +124,12 @@ class FormManagementController extends Controller
 
         if (! $this->isAdminOverride($request) && $this->resolvedAccountId($request) !== null && $data['account_id'] !== $form->account_id) {
             abort(403, 'You are not allowed to move a form to another account.');
+        }
+
+        if (! $hqService->validateApplication($data['account_id'], $data['application_id'])) {
+            return back()->withErrors([
+                'application_id' => 'The selected application could not be validated with HQ.',
+            ])->withInput();
         }
 
         $settings = $form->settings ?? [];

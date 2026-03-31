@@ -17,6 +17,12 @@ return [
         'analytics_url' => env('ANALYTICS_HQ_SYNC_URL'),
     ],
 
+    'validation' => [
+        'enabled' => (bool) env('CAPTURE_HQ_VALIDATE_APPLICATION_ENABLED', false),
+        'url' => env('VALIDATE_APPLICATION_HQ_URL'),
+        'cache_ttl_seconds' => (int) env('HQ_VALIDATE_APPLICATION_CACHE_TTL_SECONDS', 120),
+    ],
+
     'http' => [
         'timeout_seconds' => (int) env('CAPTURE_HQ_TIMEOUT_SECONDS', 5),
         'retry_times' => (int) env('CAPTURE_HQ_RETRY_TIMES', 1),

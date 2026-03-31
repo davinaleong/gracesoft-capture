@@ -34,6 +34,10 @@ test('submitting public form dispatches queued notification job', function () {
     Queue::assertPushed(SyncAnalyticsEventToHQJob::class, function (SyncAnalyticsEventToHQJob $job) use ($form) {
         return data_get($job->eventPayload, 'event') === 'enquiry.created'
             && data_get($job->eventPayload, 'account_id') === $form->account_id
-            && data_get($job->eventPayload, 'application_id') === $form->application_id;
+            && data_get($job->eventPayload, 'application_id') === $form->application_id
+            && ! array_key_exists('name', $job->eventPayload)
+            && ! array_key_exists('email', $job->eventPayload)
+            && ! array_key_exists('subject', $job->eventPayload)
+            && ! array_key_exists('message', $job->eventPayload);
     });
 });
