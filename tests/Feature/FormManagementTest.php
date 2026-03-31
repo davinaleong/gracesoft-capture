@@ -2,9 +2,14 @@
 
 use App\Models\Form;
 use App\Services\HQService;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->actingAs(User::factory()->create());
+});
 
 test('forms index displays created forms', function () {
     Form::factory()->create(['name' => 'Website Contact']);

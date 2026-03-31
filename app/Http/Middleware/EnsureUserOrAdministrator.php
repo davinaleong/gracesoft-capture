@@ -11,10 +11,6 @@ class EnsureUserOrAdministrator
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! (bool) config('capture.features.enforce_access_context', false)) {
-            return $next($request);
-        }
-
         if (Auth::guard('web')->check() || Auth::guard('admin')->check()) {
             return $next($request);
         }

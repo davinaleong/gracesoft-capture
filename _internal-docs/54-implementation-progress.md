@@ -4,6 +4,19 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Enforced deny-by-default access on protected `auth.any` routes:
+  - Updated `EnsureUserOrAdministrator` middleware to always require authenticated user/admin sessions.
+  - Removed fallback pass-through behavior when access-context enforcement is disabled.
+- Updated feature coverage to align with mandatory auth behavior:
+  - `FormManagementTest` now authenticates requests in setup.
+  - Added `ProtectedRoutesAuthTest` to assert guest redirects and authenticated access for protected routes.
+- Verified targeted auth hardening suites are green (`21` tests, `81` assertions):
+  - `ProtectedRoutesAuthTest`
+  - `FormManagementTest`
+  - `AuthSessionBoundaryTest`
+
+## Completed In Current Continuation
+
 - Hardened HQ analytics event verification to enforce data minimization:
   - Extended `EnquiryNotificationDispatchTest` assertions to ensure analytics payload excludes raw PII (`name`, `email`, `subject`, `message`).
   - Confirmed analytics event still carries account/application scoped telemetry fields.

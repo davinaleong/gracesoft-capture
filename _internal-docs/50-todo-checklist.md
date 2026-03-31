@@ -157,7 +157,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 * [x] Implement Laravel Policies for Forms, Enquiries, Notes, Replies, Insights
 * [x] Enforce account-scoped access in query layer (global scope or repository layer)
-* [ ] Deny-by-default for all protected routes
+* [x] Deny-by-default for all protected routes
 * [x] Add gate checks for account-scoped data access
 * [x] Add role checks for collaborator capabilities
 * [x] Add dedicated admin guard/provider backed by `administrators` table
