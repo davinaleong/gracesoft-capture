@@ -43,27 +43,27 @@
 
 ## 💬 Replies (Growth)
 
-* [ ] `components.replies.list`
-* [ ] `components.replies.item`
+* [x] `components.replies.list`
+* [x] `components.replies.item`
 
   * sender
   * timestamp
   * content
 
-* [ ] `components.replies.sender-badge`
+* [x] `components.replies.sender-badge`
 
   * user
   * collaborator
   * administrator
   * system
 
-* [ ] `components.replies.form`
+* [x] `components.replies.form`
 
   * textarea
   * send button
   * loading state
 
-* [ ] `components.replies.empty-state`
+* [x] `components.replies.empty-state`
 
 ---
 

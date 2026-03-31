@@ -4,6 +4,26 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented replies module backend and enquiry-detail UI integration:
+  - Added `replies` schema (`create_replies_table` migration) and `Reply` model.
+  - Added `EnquiryReplyController@store` with account/role enforcement and audit logging.
+  - Added inbox reply route: `POST /inbox/{enquiry}/replies`.
+  - Added `enquiry->replies` relation and eager-loading in inbox detail flow.
+  - Added replies UI components:
+    - `components.replies.list`
+    - `components.replies.item`
+    - `components.replies.sender-badge`
+    - `components.replies.form`
+    - `components.replies.empty-state`
+  - Integrated replies section into enquiry detail page.
+- Added feature coverage for replies behavior:
+  - owner can add reply
+  - viewer is denied under enforced access context
+  - replies render in enquiry detail page
+- Verified regressions remain green via `RepliesModuleTest` and `InboxModuleTest`.
+
+## Completed In Current Continuation
+
 - Implemented collaborators owner-only permission hint component:
   - Added `components.collaborators.owner-only-banner` with role-aware messaging.
   - Integrated banner into collaborators management view.

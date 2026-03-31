@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminPasswordResetController;
 use App\Http\Controllers\AdminSessionController;
 use App\Http\Controllers\FormManagementController;
 use App\Http\Controllers\EnquiryNoteController;
+use App\Http\Controllers\EnquiryReplyController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\IntegrationController;
@@ -103,6 +104,7 @@ Route::prefix('inbox')->middleware(['auth.any', 'access.context'])->name('inbox.
     Route::get('/{enquiry}', [InboxController::class, 'show'])->name('show');
     Route::post('/{enquiry}/status', [InboxController::class, 'updateStatus'])->name('status.update');
     Route::post('/{enquiry}/notes', [EnquiryNoteController::class, 'store'])->name('notes.store');
+    Route::post('/{enquiry}/replies', [EnquiryReplyController::class, 'store'])->name('replies.store');
 });
 
 Route::prefix('insights')->middleware(['auth.any', 'access.context'])->name('insights.')->group(function () {

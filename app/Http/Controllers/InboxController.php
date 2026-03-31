@@ -64,11 +64,19 @@ class InboxController extends Controller
             );
         }
 
-        $enquiry->load(['form', 'notes']);
+        $enquiry->load(['form', 'notes', 'replies']);
+
+        $canReply = true;
+
+        if ((bool) config('capture.features.enforce_access_context', false)) {
+            $role = $this->resolvedMembershipRole($request, $enquiry->account_id);
+            $canReply = $this->isAdminOverride($request) || in_array($role, ['owner', 'member'], true);
+        }
 
         return view('inbox.show', [
             'enquiry' => $enquiry,
             'notesEnabled' => $planGate->notesEnabled($enquiry->account_id),
+            'canReply' => $canReply,
         ]);
     }
 

@@ -7,6 +7,16 @@
         <x-enquiry.timeline :enquiry="$enquiry" />
     </x-ui.card>
 
+    <x-ui.card class="mb-4 space-y-4">
+        <h2 class="text-xl font-bold">Replies</h2>
+
+        <x-replies.form :enquiry="$enquiry" :can-reply="$canReply" />
+
+        <hr class="border-gray-200">
+
+        <x-replies.list :replies="$enquiry->replies" />
+    </x-ui.card>
+
     <x-ui.card class="space-y-3">
         <h2 class="text-xl font-bold">Update Status</h2>
         <div class="flex flex-wrap items-center gap-2">

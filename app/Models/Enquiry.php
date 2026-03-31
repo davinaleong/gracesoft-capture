@@ -56,4 +56,9 @@ class Enquiry extends Model
     {
         return $this->hasMany(Note::class);
     }
+
+    public function replies(): HasMany
+    {
+        return $this->hasMany(Reply::class);
+    }
 }
