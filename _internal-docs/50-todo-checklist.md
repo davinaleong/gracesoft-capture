@@ -232,13 +232,13 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Form UI (iframe)
 
-* [ ] Fields:
-  * [ ] name
-  * [ ] email
-  * [ ] subject
-  * [ ] message
-* [ ] Add honeypot field
-* [ ] Add privacy notice and consent checkbox (where required)
+* [x] Fields:
+  * [x] name
+  * [x] email
+  * [x] subject
+  * [x] message
+* [x] Add honeypot field
+* [x] Add privacy notice and consent checkbox (where required)
 
 ---
 

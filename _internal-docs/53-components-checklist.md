@@ -137,12 +137,12 @@
 
 ## 🧾 Form Embed UI `/form/{token}`
 
-* [ ] `components.form.wrapper`
-* [ ] `components.form.input`
-* [ ] `components.form.textarea`
-* [ ] `components.form.button`
-* [ ] `components.form.success-state`
-* [ ] `components.form.error-state`
+* [x] `components.form.wrapper`
+* [x] `components.form.input`
+* [x] `components.form.textarea`
+* [x] `components.form.button`
+* [x] `components.form.success-state`
+* [x] `components.form.error-state`
 * [x] `components.form.consent-notice` *(GDPR/PDPA)*
 
 ---

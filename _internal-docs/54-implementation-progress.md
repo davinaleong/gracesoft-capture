@@ -4,6 +4,21 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented public form embed layout and componentization:
+  - Added `layouts.embed` for iframe/public-form rendering context.
+  - Added reusable form embed components:
+    - `components.form.wrapper`
+    - `components.form.input`
+    - `components.form.textarea`
+    - `components.form.button`
+    - `components.form.success-state`
+    - `components.form.error-state`
+    - `components.form.consent-notice`
+  - Refactored `form` view to use `layouts.embed` and `components.form.*`.
+- Verified no behavior regressions via `PublicFormSubmissionTest`.
+
+## Completed In Current Continuation
+
 - Implemented insights componentization and completed funnel chart coverage:
   - Added reusable insights components:
     - `components.insights.card`
