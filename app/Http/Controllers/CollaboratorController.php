@@ -6,6 +6,7 @@ use App\Jobs\SendCollaboratorInvitationJob;
 use App\Models\AccountInvitation;
 use App\Models\AccountMembership;
 use App\Support\AuditLogger;
+use App\Support\PlanGate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,7 +52,7 @@ class CollaboratorController extends Controller
         ]);
     }
 
-    public function store(Request $request, AuditLogger $auditLogger): RedirectResponse
+    public function store(Request $request, AuditLogger $auditLogger, PlanGate $planGate): RedirectResponse
     {
         $user = Auth::guard('web')->user();
 
@@ -65,6 +66,12 @@ class CollaboratorController extends Controller
 
         $membership = $this->resolveMembership($user->id, $data['account_id']);
         $this->authorizeOwner($membership->role);
+
+        if (! $planGate->collaboratorInviteRoleAllowed($data['account_id'], $data['role'])) {
+            return back()->withErrors([
+                'role' => 'Your current plan does not allow inviting this collaborator role.',
+            ])->withInput();
+        }
 
         $existingMember = AccountMembership::query()
             ->where('account_id', $data['account_id'])

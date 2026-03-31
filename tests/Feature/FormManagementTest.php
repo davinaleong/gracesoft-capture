@@ -66,3 +66,24 @@ test('form active flag can be toggled', function () {
 
     expect($form->fresh()->is_active)->toBeTrue();
 });
+
+test('starter plan form limit is enforced when creating forms', function () {
+    config()->set('capture.features.default_plan', 'starter');
+    config()->set('capture.features.starter_form_limit', 1);
+    config()->set('capture.features.plan_enforcement_enabled', true);
+
+    Form::factory()->create([
+        'account_id' => 'f53abf5e-0f3b-44fa-85f0-4e88967f8ef5',
+    ]);
+
+    $this->from(route('manage.forms.create'))
+        ->post(route('manage.forms.store'), [
+            'name' => 'Second Starter Form',
+            'account_id' => 'f53abf5e-0f3b-44fa-85f0-4e88967f8ef5',
+            'application_id' => '5d6c5c75-1a3c-4ed5-bb4f-161245ad6a44',
+        ])
+        ->assertRedirect(route('manage.forms.create'))
+        ->assertSessionHasErrors('plan');
+
+    expect(Form::query()->where('account_id', 'f53abf5e-0f3b-44fa-85f0-4e88967f8ef5')->count())->toBe(1);
+});

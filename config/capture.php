@@ -3,7 +3,14 @@
 return [
     'features' => [
         'default_plan' => env('CAPTURE_DEFAULT_PLAN', 'growth'),
+        'plan_enforcement_enabled' => (bool) env('CAPTURE_PLAN_ENFORCEMENT_ENABLED', true),
         'plan_cache_ttl_seconds' => (int) env('CAPTURE_PLAN_CACHE_TTL_SECONDS', 300),
+        'starter_form_limit' => (int) env('CAPTURE_STARTER_FORM_LIMIT', 1),
+        'plan_invite_roles' => [
+            'starter' => ['viewer'],
+            'growth' => ['member', 'viewer'],
+            'pro' => ['owner', 'member', 'viewer'],
+        ],
         'notes_force_enabled' => (bool) env('CAPTURE_NOTES_FORCE_ENABLED', false),
         'insights_force_enabled' => (bool) env('CAPTURE_INSIGHTS_FORCE_ENABLED', false),
         'insights_allowed_plans' => ['pro'],

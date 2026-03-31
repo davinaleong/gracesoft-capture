@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Form;
 use App\Services\HQService;
 use Illuminate\Support\Facades\Cache;
 
@@ -44,6 +45,48 @@ class PlanGate
         $allowedPlans = (array) config('capture.features.insights_allowed_plans', ['pro']);
 
         return in_array($this->resolveAccountPlan($accountId), $allowedPlans, true);
+    }
+
+    public function formCreationAllowed(string $accountId): bool
+    {
+        if (! (bool) config('capture.features.plan_enforcement_enabled', true)) {
+            return true;
+        }
+
+        $plan = $this->resolveAccountPlan($accountId);
+
+        if ($plan !== 'starter') {
+            return true;
+        }
+
+        $limit = max((int) config('capture.features.starter_form_limit', 1), 1);
+        $current = Form::query()
+            ->where('account_id', $accountId)
+            ->count();
+
+        return $current < $limit;
+    }
+
+    public function collaboratorInviteRoleAllowed(string $accountId, string $role): bool
+    {
+        if (! (bool) config('capture.features.plan_enforcement_enabled', true)) {
+            return true;
+        }
+
+        $plan = $this->resolveAccountPlan($accountId);
+        $roleLimits = (array) config('capture.features.plan_invite_roles', [
+            'starter' => ['viewer'],
+            'growth' => ['member', 'viewer'],
+            'pro' => ['owner', 'member', 'viewer'],
+        ]);
+
+        $allowedRoles = $roleLimits[$plan] ?? ['member', 'viewer'];
+
+        if (! is_array($allowedRoles)) {
+            return false;
+        }
+
+        return in_array($role, $allowedRoles, true);
     }
 
     private function resolveAccountPlan(string $accountId): string

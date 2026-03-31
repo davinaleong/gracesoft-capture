@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Form;
 use App\Support\AuditLogger;
+use App\Support\PlanGate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -31,7 +32,7 @@ class FormManagementController extends Controller
         return view('forms.create');
     }
 
-    public function store(Request $request, AuditLogger $auditLogger): RedirectResponse
+    public function store(Request $request, AuditLogger $auditLogger, PlanGate $planGate): RedirectResponse
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -44,6 +45,12 @@ class FormManagementController extends Controller
 
         if (! $this->isAdminOverride($request) && $resolvedAccountId !== null && $data['account_id'] !== $resolvedAccountId) {
             abort(403, 'You can only create forms in your active account.');
+        }
+
+        if (! $this->isAdminOverride($request) && ! $planGate->formCreationAllowed($data['account_id'])) {
+            return back()->withErrors([
+                'plan' => 'Your current plan has reached the maximum number of forms.',
+            ])->withInput();
         }
 
         $this->authorizeAnyRole($request, ['owner', 'member'], $data['account_id']);

@@ -4,6 +4,24 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented concrete Starter/Growth plan enforcement controls:
+  - Added `PlanGate::formCreationAllowed()` for Starter form-cap limits.
+  - Added `PlanGate::collaboratorInviteRoleAllowed()` for plan-scoped collaborator invite role restrictions.
+  - Added plan-enforcement config surface:
+    - `CAPTURE_PLAN_ENFORCEMENT_ENABLED`
+    - `CAPTURE_STARTER_FORM_LIMIT`
+    - `plan_invite_roles` map (`starter/growth/pro`).
+- Applied plan gates in write paths:
+  - Form creation blocked when Starter limit is reached.
+  - Collaborator invite role blocked when current plan disallows requested role.
+- Added coverage for plan enforcement behavior:
+  - `PlanGateTest`: starter limit + growth invite-role restriction checks.
+  - `FormManagementTest`: starter form creation limit enforcement.
+  - `CollaboratorsModuleTest`: growth cannot invite owner, pro can invite owner.
+- Verified targeted plan enforcement suites are green.
+
+## Completed In Current Continuation
+
 - Implemented public form embed layout and componentization:
   - Added `layouts.embed` for iframe/public-form rendering context.
   - Added reusable form embed components:

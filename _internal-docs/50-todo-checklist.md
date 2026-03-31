@@ -474,16 +474,16 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ### Starter
 
-* [ ] Limit forms (optional)
-* [ ] Disable notes
-* [ ] Disable insights
+* [x] Limit forms (optional)
+* [x] Disable notes
+* [x] Disable insights
 
 ---
 
 ### Growth
 
-* [ ] Enable core features
-* [ ] Enable collaborator invites with role limits
+* [x] Enable core features
+* [x] Enable collaborator invites with role limits
 
 ---
 
@@ -564,8 +564,8 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 * [ ] Analytics event sent
 * [ ] Subscription fetched
-* [ ] Starter restrictions enforced
-* [ ] Pro features unlocked
+* [x] Starter restrictions enforced
+* [x] Pro features unlocked
 
 ---
 

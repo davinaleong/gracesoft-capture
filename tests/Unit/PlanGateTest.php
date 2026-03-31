@@ -1,8 +1,12 @@
 <?php
 
 use App\Support\PlanGate;
+use App\Models\Form;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     Cache::flush();
@@ -99,4 +103,38 @@ test('compliance views are disabled for non allowed plans when gating is enabled
     $gate = app(PlanGate::class);
 
     expect($gate->complianceViewsEnabled('b5a8a06a-b355-4b80-a7dd-b87d67eb85f8'))->toBeFalse();
+});
+
+test('starter plan form creation is blocked when limit is reached', function () {
+    config()->set('capture.features.plan_enforcement_enabled', true);
+    config()->set('capture.features.starter_form_limit', 1);
+
+    Http::fake([
+        'http://hq.test/api/v1/subscription*' => Http::response([
+            'plan' => 'starter',
+        ], 200),
+    ]);
+
+    Form::factory()->create([
+        'account_id' => '919f860f-6ba0-46e0-bd0b-b7ef9d09af89',
+    ]);
+
+    $gate = app(PlanGate::class);
+
+    expect($gate->formCreationAllowed('919f860f-6ba0-46e0-bd0b-b7ef9d09af89'))->toBeFalse();
+});
+
+test('growth plan restricts collaborator owner invites', function () {
+    config()->set('capture.features.plan_enforcement_enabled', true);
+
+    Http::fake([
+        'http://hq.test/api/v1/subscription*' => Http::response([
+            'plan' => 'growth',
+        ], 200),
+    ]);
+
+    $gate = app(PlanGate::class);
+
+    expect($gate->collaboratorInviteRoleAllowed('dabfd07b-a784-4ff7-b48f-a729f2caeffc', 'owner'))->toBeFalse();
+    expect($gate->collaboratorInviteRoleAllowed('dabfd07b-a784-4ff7-b48f-a729f2caeffc', 'member'))->toBeTrue();
 });

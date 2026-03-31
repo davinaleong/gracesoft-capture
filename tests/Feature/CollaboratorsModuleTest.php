@@ -279,3 +279,54 @@ test('repeated invalid invitation acceptance attempts trigger security alert', f
     expect(AuditLog::query()->where('action', 'collaborators.invite.accept.invalid')->count())->toBe(3);
     expect(AuditLog::query()->where('action', 'collaborators.invite.accept.alert')->count())->toBeGreaterThan(0);
 });
+
+test('growth plan cannot invite owner collaborators', function () {
+    config()->set('capture.features.default_plan', 'growth');
+    config()->set('capture.features.plan_enforcement_enabled', true);
+
+    $owner = User::factory()->create();
+    $accountId = 'f60427c5-1337-4ec5-a46f-9873f99a261a';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    $this->actingAs($owner)
+        ->from(route('collaborators.index', ['account_id' => $accountId]))
+        ->post(route('collaborators.store'), [
+            'account_id' => $accountId,
+            'email' => 'growth-owner@example.com',
+            'role' => 'owner',
+        ])
+        ->assertRedirect(route('collaborators.index', ['account_id' => $accountId]))
+        ->assertSessionHasErrors('role');
+
+    expect(AccountInvitation::query()->count())->toBe(0);
+});
+
+test('pro plan allows inviting owner collaborators', function () {
+    config()->set('capture.features.default_plan', 'pro');
+    config()->set('capture.features.plan_enforcement_enabled', true);
+
+    $owner = User::factory()->create();
+    $accountId = '1aa0f097-cf3a-4b43-9a45-8336728d6f52';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    $this->actingAs($owner)->post(route('collaborators.store'), [
+        'account_id' => $accountId,
+        'email' => 'pro-owner@example.com',
+        'role' => 'owner',
+    ])->assertRedirect(route('collaborators.index', ['account_id' => $accountId]));
+
+    expect(AccountInvitation::query()->count())->toBe(1);
+    expect(AccountInvitation::query()->first()?->role)->toBe('owner');
+});
