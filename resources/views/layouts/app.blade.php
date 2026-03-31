@@ -14,6 +14,7 @@
     @php
         $user = auth('web')->user();
         $admin = auth('admin')->user();
+        $showAdminLoginLinks = (bool) config('capture.features.show_admin_login_links', false);
     @endphp
 
     <main class="container mx-auto p-4 md:p-6 space-y-4">
@@ -49,7 +50,9 @@
                         </form>
                     @else
                         <x-ui.button tag="a" href="{{ route('login') }}" size="sm">User Login</x-ui.button>
-                        <x-ui.button tag="a" href="{{ route('admin.login') }}" size="sm" variant="danger">Admin Login</x-ui.button>
+                        @if ($showAdminLoginLinks)
+                            <x-ui.button tag="a" href="{{ route('admin.login') }}" size="sm" variant="danger">Admin Login</x-ui.button>
+                        @endif
                     @endif
                 </div>
             </div>

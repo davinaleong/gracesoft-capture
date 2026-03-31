@@ -103,3 +103,17 @@ test('suspended administrator cannot log in', function () {
 
     $this->assertGuest('admin');
 });
+
+test('admin login link is hidden on public auth pages by default', function () {
+    $this->get(route('login'))
+        ->assertOk()
+        ->assertDontSee('Admin Login');
+});
+
+test('admin login link can be shown on public auth pages when enabled', function () {
+    config()->set('capture.features.show_admin_login_links', true);
+
+    $this->get(route('login'))
+        ->assertOk()
+        ->assertSee('Admin Login');
+});

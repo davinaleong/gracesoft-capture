@@ -25,7 +25,9 @@
                 <x-ui.button type="submit">Sign In</x-ui.button>
                 <x-ui.button tag="a" href="{{ route('register') }}" variant="secondary">Create Account</x-ui.button>
                 <x-ui.button tag="a" href="{{ route('password.request') }}" variant="secondary">Forgot Password</x-ui.button>
-                <x-ui.button tag="a" href="{{ route('admin.login') }}" variant="secondary">Admin Login</x-ui.button>
+                @if (config('capture.features.show_admin_login_links', false))
+                    <x-ui.button tag="a" href="{{ route('admin.login') }}" variant="secondary">Admin Login</x-ui.button>
+                @endif
             </div>
         </form>
     </x-ui.card>

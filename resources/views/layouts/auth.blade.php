@@ -11,6 +11,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gs-black-50 text-gs-black-900">
+    @php
+        $showAdminLoginLinks = (bool) config('capture.features.show_admin_login_links', false);
+    @endphp
+
     <main class="container mx-auto min-h-screen px-4 py-6 md:px-6">
         <div class="mx-auto max-w-3xl space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
@@ -18,7 +22,9 @@
                 <div class="flex flex-wrap items-center gap-2">
                     <x-ui.button tag="a" href="{{ route('login') }}" size="sm" variant="secondary">User Login</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('register') }}" size="sm" variant="secondary">Register</x-ui.button>
-                    <x-ui.button tag="a" href="{{ route('admin.login') }}" size="sm" variant="danger">Admin Login</x-ui.button>
+                    @if ($showAdminLoginLinks)
+                        <x-ui.button tag="a" href="{{ route('admin.login') }}" size="sm" variant="danger">Admin Login</x-ui.button>
+                    @endif
                 </div>
             </div>
 

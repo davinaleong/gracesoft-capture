@@ -3,6 +3,7 @@
 return [
     'features' => [
         'default_plan' => env('CAPTURE_DEFAULT_PLAN', 'growth'),
+        'show_admin_login_links' => (bool) env('CAPTURE_SHOW_ADMIN_LOGIN_LINKS', false),
         'plan_enforcement_enabled' => (bool) env('CAPTURE_PLAN_ENFORCEMENT_ENABLED', true),
         'plan_cache_ttl_seconds' => (int) env('CAPTURE_PLAN_CACHE_TTL_SECONDS', 300),
         'starter_form_limit' => (int) env('CAPTURE_STARTER_FORM_LIMIT', 1),
