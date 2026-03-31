@@ -63,6 +63,40 @@ test('non owner cannot invite collaborator', function () {
     expect(AccountInvitation::query()->count())->toBe(0);
 });
 
+test('owner sees owner-only collaborator management banner', function () {
+    $owner = User::factory()->create();
+    $accountId = '2e7f3e3d-67e6-4e62-8f4d-9da8428f7194';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    $this->actingAs($owner)
+        ->get(route('collaborators.index', ['account_id' => $accountId]))
+        ->assertOk()
+        ->assertSee('You are an owner for this account.');
+});
+
+test('non owner sees owner-only restrictions banner', function () {
+    $member = User::factory()->create();
+    $accountId = 'd9b2ab4f-febb-4f9c-8d59-e58ce7ae52e3';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $member->id,
+        'role' => 'member',
+        'joined_at' => now(),
+    ]);
+
+    $this->actingAs($member)
+        ->get(route('collaborators.index', ['account_id' => $accountId]))
+        ->assertOk()
+        ->assertSee('Owner-only controls are disabled for your role.');
+});
+
 test('invited user can accept invitation from signed link', function () {
     $owner = User::factory()->create();
     $invitee = User::factory()->create([

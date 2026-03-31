@@ -4,6 +4,14 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented collaborators owner-only permission hint component:
+  - Added `components.collaborators.owner-only-banner` with role-aware messaging.
+  - Integrated banner into collaborators management view.
+  - Added feature coverage for owner vs non-owner banner visibility.
+- Verified collaborator module behavior remains green via `CollaboratorsModuleTest`.
+
+## Completed In Current Continuation
+
 - Implemented enquiry detail componentization for inbox detail view:
   - Added `components.enquiry.header` (name, email, subject, status, form context).
   - Added `components.enquiry.message-card` for submission content display.

@@ -82,7 +82,7 @@
 * [x] `components.collaborators.invite-status-badge`
 * [x] `components.collaborators.revoke-button`
 * [x] `components.collaborators.resend-button`
-* [ ] `components.collaborators.owner-only-banner` *(owner permission hint)*
+* [x] `components.collaborators.owner-only-banner` *(owner permission hint)*
 
 ---
 

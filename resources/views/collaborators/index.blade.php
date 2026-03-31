@@ -48,7 +48,7 @@
         <x-ui.card class="space-y-4 p-4">
             <div>
                 <h2 class="text-lg font-semibold text-gs-black-900">Invite Collaborator</h2>
-                <p class="text-sm text-gs-black-700">Only owners can invite or revoke collaborators.</p>
+                <x-collaborators.owner-only-banner :is-owner="$membership->role === 'owner'" />
             </div>
 
             <form method="post" action="{{ route('collaborators.store') }}" class="space-y-3">
