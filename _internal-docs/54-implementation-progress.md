@@ -4,6 +4,17 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented optional form domain validation via request headers:
+  - Added feature flag: `CAPTURE_ENFORCE_FORM_DOMAIN_VALIDATION`.
+  - Enforced Origin/Referer host validation against per-form `settings.allowed_domains` on public form view and submit.
+  - Supports exact and subdomain matches for configured domains.
+- Added feature coverage for domain validation behavior:
+  - blocks access from non-allowed origin domain
+  - allows submission from configured allowed domain
+- Verified public form suite is green (`8` tests, `33` assertions).
+
+## Completed In Current Continuation
+
 - Enforced deny-by-default access on protected `auth.any` routes:
   - Updated `EnsureUserOrAdministrator` middleware to always require authenticated user/admin sessions.
   - Removed fallback pass-through behavior when access-context enforcement is disabled.

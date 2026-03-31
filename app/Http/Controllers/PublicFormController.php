@@ -10,6 +10,7 @@ use App\Models\Form;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class PublicFormController extends Controller
 {
@@ -19,6 +20,8 @@ class PublicFormController extends Controller
             ->where('public_token', $token)
             ->where('is_active', true)
             ->firstOrFail();
+
+        $this->assertDomainAllowed(request(), $form);
 
         return response()->view('form', [
             'form' => $form,
@@ -31,6 +34,8 @@ class PublicFormController extends Controller
             ->where('public_token', $token)
             ->where('is_active', true)
             ->firstOrFail();
+
+        $this->assertDomainAllowed($request, $form);
 
         $requireConsent = (bool) config('capture.features.require_form_consent', false);
 
@@ -95,5 +100,58 @@ class PublicFormController extends Controller
         return redirect()
             ->route('forms.show', $form->public_token)
             ->with('status', 'Thanks, your message has been sent.');
+    }
+
+    private function assertDomainAllowed(Request $request, Form $form): void
+    {
+        if (! (bool) config('capture.features.enforce_form_domain_validation', false)) {
+            return;
+        }
+
+        $allowedDomains = collect((array) data_get($form->settings, 'allowed_domains', []))
+            ->map(fn ($domain): string => Str::lower(trim((string) $domain)))
+            ->filter(fn (string $domain): bool => $domain !== '')
+            ->values();
+
+        if ($allowedDomains->isEmpty()) {
+            return;
+        }
+
+        $originHost = $this->extractHost((string) $request->headers->get('Origin', ''));
+        $refererHost = $this->extractHost((string) $request->headers->get('Referer', ''));
+        $requestHost = Str::lower((string) $request->getHost());
+
+        $candidateHosts = collect([$originHost, $refererHost])
+            ->filter(fn (?string $host): bool => is_string($host) && $host !== '' && $host !== $requestHost)
+            ->values();
+
+        if ($candidateHosts->isEmpty()) {
+            abort(403, 'Form access domain cannot be validated.');
+        }
+
+        $matches = $candidateHosts->contains(function (string $host) use ($allowedDomains): bool {
+            return $allowedDomains->contains(function (string $allowedDomain) use ($host): bool {
+                return $host === $allowedDomain || Str::endsWith($host, '.' . $allowedDomain);
+            });
+        });
+
+        if (! $matches) {
+            abort(403, 'Form access is not allowed from this domain.');
+        }
+    }
+
+    private function extractHost(string $url): ?string
+    {
+        if ($url === '') {
+            return null;
+        }
+
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if (! is_string($host) || $host === '') {
+            return null;
+        }
+
+        return Str::lower($host);
     }
 }

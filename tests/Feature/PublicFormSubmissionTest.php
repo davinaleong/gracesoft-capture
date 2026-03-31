@@ -129,3 +129,44 @@ test('consent can be required by configuration', function () {
         ->assertRedirect(route('forms.show', $form->public_token))
         ->assertSessionHasErrors('consent_accepted');
 });
+
+test('public form is blocked when domain validation is enabled and origin is not allowed', function () {
+    config(['capture.features.enforce_form_domain_validation' => true]);
+
+    $form = Form::factory()->create([
+        'settings' => [
+            'allowed_domains' => ['trusted.example.com'],
+        ],
+    ]);
+
+    $this->withHeader('Origin', 'https://evil.example.com')
+        ->get(route('forms.show', $form->public_token))
+        ->assertForbidden();
+});
+
+test('public form submission is allowed when domain validation matches configured domain', function () {
+    config(['capture.features.enforce_form_domain_validation' => true]);
+
+    $form = Form::factory()->create([
+        'settings' => [
+            'allowed_domains' => ['trusted.example.com'],
+        ],
+    ]);
+
+    $payload = [
+        'name' => 'Allowed Domain User',
+        'email' => 'allowed@example.com',
+        'subject' => 'Domain check',
+        'message' => 'Submitted from allowed domain.',
+        'website' => '',
+    ];
+
+    $this->withHeader('Origin', 'https://app.trusted.example.com')
+        ->post(route('forms.submit', $form->public_token), $payload)
+        ->assertRedirect(route('forms.show', $form->public_token));
+
+    $this->assertDatabaseHas('enquiries', [
+        'form_id' => $form->id,
+        'email' => 'allowed@example.com',
+    ]);
+});

@@ -20,6 +20,7 @@ return [
         'harden_admin_sessions' => (bool) env('CAPTURE_HARDEN_ADMIN_SESSIONS', true),
         'admin_session_idle_timeout_minutes' => (int) env('CAPTURE_ADMIN_SESSION_IDLE_TIMEOUT_MINUTES', 20),
         'require_form_consent' => (bool) env('CAPTURE_REQUIRE_FORM_CONSENT', false),
+        'enforce_form_domain_validation' => (bool) env('CAPTURE_ENFORCE_FORM_DOMAIN_VALIDATION', false),
         'consent_policy_version' => env('CAPTURE_CONSENT_POLICY_VERSION', 'v1'),
         'data_retention_days' => (int) env('APP_DATA_RETENTION_DAYS', 365),
         'admin_compliance_plan_gate_enabled' => (bool) env('CAPTURE_ADMIN_COMPLIANCE_PLAN_GATE_ENABLED', false),

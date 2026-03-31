@@ -428,7 +428,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 * [ ] CSRF, XSS, and output escaping checks
 * [ ] Encrypt sensitive fields at rest where applicable
 * [ ] Rotate secrets and integration keys on schedule
-* [ ] Optional domain validation via headers
+* [x] Optional domain validation via headers
 
 ---
 
