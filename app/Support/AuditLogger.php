@@ -32,7 +32,7 @@ class AuditLogger
             'target_type' => $targetType,
             'target_id' => $targetId,
             'access_reason' => $request->input('access_reason'),
-            'metadata' => $metadata,
+            'metadata' => $this->redactMetadata($metadata),
             'ip_address' => $request->ip(),
             'user_agent' => (string) $request->userAgent(),
             'created_at' => now(),
@@ -60,7 +60,7 @@ class AuditLogger
             'target_type' => $targetType,
             'target_id' => $targetId,
             'access_reason' => $request->input('access_reason'),
-            'metadata' => $metadata,
+            'metadata' => $this->redactMetadata($metadata),
             'ip_address' => $request->ip(),
             'user_agent' => (string) $request->userAgent(),
             'created_at' => now(),
@@ -84,5 +84,54 @@ class AuditLogger
         }
 
         return ['system', 'system', null];
+    }
+
+    /**
+     * @param array<string, mixed> $metadata
+     * @return array<string, mixed>
+     */
+    private function redactMetadata(array $metadata): array
+    {
+        $redactKeys = collect((array) config('capture.features.audit_metadata_redact_keys', []))
+            ->map(fn ($key): string => strtolower((string) $key))
+            ->filter()
+            ->values()
+            ->all();
+
+        if ($redactKeys === []) {
+            return $metadata;
+        }
+
+        return $this->redactMetadataRecursively($metadata, $redactKeys);
+    }
+
+    /**
+     * @param array<string, mixed> $metadata
+     * @param array<int, string> $redactKeys
+     * @return array<string, mixed>
+     */
+    private function redactMetadataRecursively(array $metadata, array $redactKeys): array
+    {
+        $sanitized = [];
+
+        foreach ($metadata as $key => $value) {
+            $normalizedKey = strtolower((string) $key);
+
+            if (in_array($normalizedKey, $redactKeys, true)) {
+                $sanitized[$key] = '[redacted]';
+
+                continue;
+            }
+
+            if (is_array($value)) {
+                $sanitized[$key] = $this->redactMetadataRecursively($value, $redactKeys);
+
+                continue;
+            }
+
+            $sanitized[$key] = $value;
+        }
+
+        return $sanitized;
     }
 }

@@ -436,9 +436,9 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Data Governance
 
-* [ ] Build data inventory and classify personal data fields
+* [x] Build data inventory and classify personal data fields
 * [x] Define lawful basis and purpose for each collected field
-* [ ] Enforce data minimization in forms, analytics, and logs
+* [x] Enforce data minimization in forms, analytics, and logs
 * [x] Define and enforce retention and deletion schedules
 
 ---

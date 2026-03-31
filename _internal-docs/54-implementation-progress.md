@@ -4,6 +4,21 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented data minimization controls across forms, analytics, and logs:
+  - Added `CAPTURE_STORE_SUBMISSION_REQUEST_METADATA` (default off) to avoid persisting request IP/user-agent on submissions unless explicitly enabled.
+  - Added recursive sensitive-key redaction for audit and data-access log metadata via `capture.features.audit_metadata_redact_keys`.
+  - Added unit tests validating metadata redaction behavior in both audit log stores.
+- Extended form submission coverage for minimization behavior:
+  - default mode stores no request metadata
+  - opt-in mode stores request metadata as expected
+- Added data inventory and classification reference:
+  - `_internal-docs/55-data-inventory.md`
+- Verified minimization suites are green (`14` tests, `50` assertions):
+  - `PublicFormSubmissionTest`
+  - `AuditLoggerTest`
+
+## Completed In Current Continuation
+
 - Added explicit privilege-escalation coverage for collaborator invites:
   - `CollaboratorsModuleTest` now asserts members cannot issue `owner` role invitations.
 - Verified collaborator suite remains green (`14` tests, `54` assertions).

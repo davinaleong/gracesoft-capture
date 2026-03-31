@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Form;
+use App\Models\Enquiry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -211,4 +212,45 @@ test('public form ignores invalid success redirect url and falls back to form pa
 
     $this->post(route('forms.submit', $form->public_token), $payload)
         ->assertRedirect(route('forms.show', $form->public_token));
+});
+
+test('submission does not store request metadata by default', function () {
+    $form = Form::factory()->create();
+
+    $payload = [
+        'name' => 'Minimal Metadata',
+        'email' => 'minimal@example.com',
+        'subject' => 'Metadata check',
+        'message' => 'Request metadata should not be persisted by default.',
+        'website' => '',
+    ];
+
+    $this->post(route('forms.submit', $form->public_token), $payload)
+        ->assertRedirect(route('forms.show', $form->public_token));
+
+    $enquiry = Enquiry::query()->latest('id')->firstOrFail();
+
+    expect($enquiry->metadata)->toBeNull();
+});
+
+test('submission can store request metadata when explicitly enabled', function () {
+    config(['capture.features.store_submission_request_metadata' => true]);
+
+    $form = Form::factory()->create();
+
+    $payload = [
+        'name' => 'Metadata Enabled',
+        'email' => 'metadata@example.com',
+        'subject' => 'Metadata enabled',
+        'message' => 'Request metadata should be persisted in this mode.',
+        'website' => '',
+    ];
+
+    $this->withHeader('User-Agent', 'Pest Metadata Agent')
+        ->post(route('forms.submit', $form->public_token), $payload)
+        ->assertRedirect(route('forms.show', $form->public_token));
+
+    $enquiry = Enquiry::query()->latest('id')->firstOrFail();
+
+    expect((array) $enquiry->metadata)->toHaveKeys(['ip_address', 'user_agent']);
 });

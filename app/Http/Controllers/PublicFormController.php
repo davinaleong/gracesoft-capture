@@ -48,6 +48,15 @@ class PublicFormController extends Controller
             'consent_accepted' => $requireConsent ? ['required', 'accepted'] : ['sometimes', 'accepted'],
         ]);
 
+        $metadata = null;
+
+        if ((bool) config('capture.features.store_submission_request_metadata', false)) {
+            $metadata = [
+                'ip_address' => $request->ip(),
+                'user_agent' => (string) $request->userAgent(),
+            ];
+        }
+
         $enquiry = Enquiry::create([
             'form_id' => $form->id,
             'account_id' => $form->account_id,
@@ -57,10 +66,7 @@ class PublicFormController extends Controller
             'subject' => $data['subject'],
             'message' => $data['message'],
             'status' => 'new',
-            'metadata' => [
-                'ip_address' => $request->ip(),
-                'user_agent' => (string) $request->userAgent(),
-            ],
+            'metadata' => $metadata,
         ]);
 
         if (($data['consent_accepted'] ?? false) === '1' || ($data['consent_accepted'] ?? false) === true || ($data['consent_accepted'] ?? false) === 'on') {
