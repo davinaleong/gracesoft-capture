@@ -55,6 +55,42 @@ test('note can be added from inbox detail when notes are enabled', function () {
         ->assertSee('Follow-up requested by customer via call.');
 });
 
+test('note metadata can be stored and rendered on inbox detail', function () {
+    config()->set('capture.features.notes_force_enabled', true);
+
+    $form = Form::factory()->create();
+
+    $enquiry = Enquiry::factory()->create([
+        'form_id' => $form->id,
+        'account_id' => $form->account_id,
+        'application_id' => $form->application_id,
+    ]);
+
+    $this->post(route('inbox.notes.store', $enquiry), [
+        'user_id' => 'f61e75f2-7305-4f0c-a15f-041c560917ac',
+        'content' => 'Escalated to specialist team.',
+        'visibility' => 'external',
+        'is_pinned' => '1',
+        'tags' => 'priority, escalation',
+        'reminder_at' => '2026-04-03',
+    ])->assertRedirect(route('inbox.show', $enquiry));
+
+    $note = Note::query()->first();
+
+    expect($note)->not->toBeNull();
+    expect($note->visibility)->toBe('external');
+    expect($note->is_pinned)->toBeTrue();
+    expect($note->tags)->toBe(['priority', 'escalation']);
+    expect($note->reminder_at?->format('Y-m-d'))->toBe('2026-04-03');
+
+    $this->get(route('inbox.show', $enquiry))
+        ->assertOk()
+        ->assertSee('Pinned Notes')
+        ->assertSee('External')
+        ->assertSee('#priority')
+        ->assertSee('Reminder: 2026-04-03');
+});
+
 test('note creation is blocked when notes are not enabled', function () {
     config()->set('capture.features.notes_force_enabled', false);
     config()->set('capture.features.default_plan', 'growth');

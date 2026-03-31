@@ -18,7 +18,20 @@ class Note extends Model
         'enquiry_id',
         'user_id',
         'content',
+        'visibility',
+        'is_pinned',
+        'tags',
+        'reminder_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_pinned' => 'boolean',
+            'tags' => 'array',
+            'reminder_at' => 'datetime',
+        ];
+    }
 
     protected static function booted(): void
     {

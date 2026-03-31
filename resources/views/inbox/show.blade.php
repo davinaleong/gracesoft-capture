@@ -50,38 +50,15 @@
         <h2 class="text-xl font-bold">Notes</h2>
 
         @if ($notesEnabled && $canManageNotes)
-            <form method="post" action="{{ route('inbox.notes.store', $enquiry) }}">
-                @csrf
-                <div class="grid grid-cols-1 gap-4">
-                    <x-ui.field for="user_id" label="User ID (HQ)" required>
-                        <x-ui.input id="user_id" name="user_id" :value="old('user_id')" required />
-                    </x-ui.field>
-
-                    <x-ui.field for="content" label="Note" required>
-                        <x-ui.textarea id="content" name="content" rows="4" required>{{ old('content') }}</x-ui.textarea>
-                    </x-ui.field>
-                </div>
-
-                <div class="mt-4 flex items-center gap-2">
-                    <x-ui.button type="submit">Add Note</x-ui.button>
-                </div>
-            </form>
+            <x-notes.form :enquiry="$enquiry" />
         @elseif ($notesEnabled)
             <x-enquiry.access-denied-state message="Your role is read-only for notes in this account." />
         @else
-            <x-ui.alert variant="info">Notes are available on the Pro plan only.</x-ui.alert>
+            <x-notes.upgrade-banner />
         @endif
 
         <hr class="border-gray-200">
 
-        @forelse ($enquiry->notes as $note)
-            <article class="rounded border border-gray-200 bg-white p-3">
-                <p class="mb-1"><strong>User:</strong> {{ $note->user_id }}</p>
-                <p class="mb-1"><strong>Added:</strong> {{ $note->created_at?->format('Y-m-d H:i') }}</p>
-                <p>{{ $note->content }}</p>
-            </article>
-        @empty
-            <p class="text-gs-black-600">No notes yet.</p>
-        @endforelse
+        <x-notes.list :notes="$enquiry->notes" />
     </x-ui.card>
 @endsection

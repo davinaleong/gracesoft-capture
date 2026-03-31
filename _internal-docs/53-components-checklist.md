@@ -4,7 +4,7 @@
 
 * [x] `layouts.app`
 * [ ] `layouts.auth`
-* [ ] `layouts.embed` *(for iframe form — minimal)*
+* [x] `layouts.embed` *(for iframe form — minimal)*
 * [ ] `components.layout.account-context-switcher` *(active workspace/account context)*
 
 ---
@@ -88,27 +88,27 @@
 
 ## 🧠 Notes (Pro)
 
-* [ ] `components.notes.list`
-* [ ] `components.notes.item`
+* [x] `components.notes.list`
+* [x] `components.notes.item`
 
   * author
   * timestamp
   * tags
   * pinned badge
 
-* [ ] `components.notes.form`
+* [x] `components.notes.form`
 
   * textarea
   * tag input
   * reminder date
 
-* [ ] `components.notes.visibility-badge`
+* [x] `components.notes.visibility-badge`
 
   * internal
   * external
 
-* [ ] `components.notes.pinned-section`
-* [ ] `components.notes.upgrade-banner` 🔒
+* [x] `components.notes.pinned-section`
+* [x] `components.notes.upgrade-banner` 🔒
 
 ---
 

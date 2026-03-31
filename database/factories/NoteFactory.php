@@ -22,6 +22,10 @@ class NoteFactory extends Factory
             'enquiry_id' => Enquiry::factory(),
             'user_id' => fake()->uuid(),
             'content' => fake()->paragraph(),
+            'visibility' => 'internal',
+            'is_pinned' => false,
+            'tags' => null,
+            'reminder_at' => null,
         ];
     }
 }

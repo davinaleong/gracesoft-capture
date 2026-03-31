@@ -4,6 +4,24 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented full Notes module componentization on enquiry detail:
+  - Added `components.notes.list`
+  - Added `components.notes.item`
+  - Added `components.notes.form`
+  - Added `components.notes.visibility-badge`
+  - Added `components.notes.pinned-section`
+  - Added `components.notes.upgrade-banner`
+  - Refactored notes section in `inbox/show` to use `x-notes.*` components.
+- Expanded Notes data model and persistence for richer context:
+  - Added notes metadata columns: `visibility`, `is_pinned`, `tags`, `reminder_at`.
+  - Added optional note-input handling in `EnquiryNoteController@store` for metadata fields.
+  - Added Note model casts/fillable updates for metadata fields.
+- Added notes metadata feature coverage:
+  - `NotesModuleTest`: verifies metadata persistence and rendering (pinned section, visibility badge, tags, reminder date).
+- Verified targeted notes/replies suites are green (`9` tests, `42` assertions).
+
+## Completed In Current Continuation
+
 - Implemented concrete Starter/Growth plan enforcement controls:
   - Added `PlanGate::formCreationAllowed()` for Starter form-cap limits.
   - Added `PlanGate::collaboratorInviteRoleAllowed()` for plan-scoped collaborator invite role restrictions.
