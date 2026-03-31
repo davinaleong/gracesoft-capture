@@ -4,6 +4,18 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Added explicit privilege-escalation coverage for collaborator invites:
+  - `CollaboratorsModuleTest` now asserts members cannot issue `owner` role invitations.
+- Verified collaborator suite remains green (`14` tests, `54` assertions).
+- Synchronized delivery checklist parent/status items with implemented behavior:
+  - modules scaffold status
+  - form create/store + public route validation parent markers
+  - enquiry notification job
+  - HQ/subscription/phase status markers
+  - advanced phase notes/insights status markers
+
+## Completed In Current Continuation
+
 - Implemented optional post-submit redirect for public forms:
   - Added feature flag: `CAPTURE_ENABLE_FORM_SUCCESS_REDIRECT`.
   - Added support for per-form `settings.success_redirect_url` on successful submission.

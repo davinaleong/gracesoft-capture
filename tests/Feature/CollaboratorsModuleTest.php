@@ -64,6 +64,28 @@ test('non owner cannot invite collaborator', function () {
     expect(AccountInvitation::query()->count())->toBe(0);
 });
 
+test('member cannot grant owner role invitation', function () {
+    Queue::fake();
+
+    $member = User::factory()->create();
+    $accountId = '0d68c9a9-f8b8-4c89-94f0-fd8e8030c2fe';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $member->id,
+        'role' => 'member',
+        'joined_at' => now(),
+    ]);
+
+    $this->actingAs($member)->post(route('collaborators.store'), [
+        'account_id' => $accountId,
+        'email' => 'owner-invite-attempt@example.com',
+        'role' => 'owner',
+    ])->assertForbidden();
+
+    expect(AccountInvitation::query()->count())->toBe(0);
+});
+
 test('owner sees owner-only collaborator management banner', function () {
     $owner = User::factory()->create();
     $accountId = '2e7f3e3d-67e6-4e62-8f4d-9da8428f7194';

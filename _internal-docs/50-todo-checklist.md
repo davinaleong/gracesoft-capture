@@ -28,7 +28,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Base Structure
 
-* [ ] Create modules:
+* [x] Create modules:
   * [x] Forms
   * [x] Enquiries
   * [x] Inbox
@@ -168,7 +168,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Security-First Collaboration
 
 * [x] Limit who can invite collaborators (`owner` only by default)
-* [ ] Prevent privilege escalation (member cannot grant owner role)
+* [x] Prevent privilege escalation (member cannot grant owner role)
 * [x] Require expiration and revocation support for invitations
 * [x] Notify owner when invites are accepted/revoked
 * [x] Detect and block cross-account access attempts
@@ -207,9 +207,9 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Create Form
 
-* [ ] UI: Create Form
+* [x] UI: Create Form
 * [ ] Call HQ to create application
-* [ ] Store `application_id` and `account_id`
+* [x] Store `application_id` and `account_id`
 * [x] Restrict create/edit/delete form actions by membership role
 
 ---
@@ -224,7 +224,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## Public Form Route
 
 * [x] `GET /form/{token}`
-* [ ] Validate:
+* [x] Validate:
   * [x] form exists
   * [x] is_active
 
@@ -288,7 +288,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 # 🔔 7. Notifications
 
 * [ ] Setup email service (Postmark/SMTP)
-* [ ] Create notification job for new enquiry
+* [x] Create notification job for new enquiry
 * [x] Create invitation email job for collaborator invites
 * [ ] Email templates contain least-sensitive data necessary
 
@@ -563,7 +563,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## HQ Sync and Plans
 
 * [x] Analytics event sent
-* [ ] Subscription fetched
+* [x] Subscription fetched
 * [x] Starter restrictions enforced
 * [x] Pro features unlocked
 
@@ -601,16 +601,16 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Phase 3 (Platform Integration)
 
-* [ ] HQ integration
-* [ ] Analytics events
-* [ ] Plan enforcement
+* [x] HQ integration
+* [x] Analytics events
+* [x] Plan enforcement
 
 ---
 
 ## Phase 4 (Advanced)
 
-* [ ] Insights
-* [ ] Notes
+* [x] Insights
+* [x] Notes
 * [x] Admin monitoring and compliance workflows
 
 ---
