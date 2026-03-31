@@ -4,6 +4,20 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented shared plan-gating and security state components:
+  - Added `components.upgrade.banner`
+  - Added `components.upgrade.modal`
+  - Added `components.upgrade.badge`
+  - Added `components.security.access-denied`
+  - Added `components.security.cross-tenant-warning`
+- Refactored existing feature components to consume shared primitives:
+  - `components.insights.upgrade-banner` now uses `x-upgrade.banner`
+  - `components.notes.upgrade-banner` now uses `x-upgrade.banner`
+  - `components.enquiry.access-denied-state` now uses `x-security.access-denied`
+- Synchronized shared UI checklist status for existing reusable primitives (`ui.card`, `ui.button`, `ui.input`, `ui.textarea`, `ui.select`, `ui.badge`, `ui.alert`).
+
+## Completed In Current Continuation
+
 - Implemented Feedback module componentization for support-to-HQ flow:
   - Added `components.feedback.button`
   - Added `components.feedback.modal`

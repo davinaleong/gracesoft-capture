@@ -2,4 +2,6 @@
     'message' => 'You do not have permission to perform this action.',
 ])
 
-<x-security.access-denied :message="$message" />
+<x-ui.alert variant="error" {{ $attributes }}>
+    {{ $message }}
+</x-ui.alert>

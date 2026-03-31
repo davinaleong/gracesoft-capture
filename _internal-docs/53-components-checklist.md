@@ -157,11 +157,11 @@
 
 ## 🔒 Plan Gating and Security States
 
-* [ ] `components.upgrade.banner`
-* [ ] `components.upgrade.modal`
-* [ ] `components.upgrade.badge`
-* [ ] `components.security.access-denied`
-* [ ] `components.security.cross-tenant-warning`
+* [x] `components.upgrade.banner`
+* [x] `components.upgrade.modal`
+* [x] `components.upgrade.badge`
+* [x] `components.security.access-denied`
+* [x] `components.security.cross-tenant-warning`
 
 ---
 
@@ -256,12 +256,12 @@ This is your internal control system.
 
 ## 🧱 UI Basics
 
-* [ ] `components.ui.card`
-* [ ] `components.ui.button`
-* [ ] `components.ui.input`
-* [ ] `components.ui.textarea`
-* [ ] `components.ui.select`
-* [ ] `components.ui.badge`
+* [x] `components.ui.card`
+* [x] `components.ui.button`
+* [x] `components.ui.input`
+* [x] `components.ui.textarea`
+* [x] `components.ui.select`
+* [x] `components.ui.badge`
 * [ ] `components.ui.modal`
 * [ ] `components.ui.dropdown`
 
@@ -272,7 +272,7 @@ This is your internal control system.
 * [ ] `components.ui.empty-state`
 * [ ] `components.ui.loading`
 * [ ] `components.ui.toast`
-* [ ] `components.ui.alert`
+* [x] `components.ui.alert`
 * [ ] `components.ui.access-denied`
 
 ---
