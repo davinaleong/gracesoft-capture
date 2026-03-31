@@ -38,6 +38,8 @@
                             <x-ui.button type="submit" size="sm" variant="danger">Admin Logout</x-ui.button>
                         </form>
                     @elseif ($user)
+                        <x-layout.account-context-switcher />
+
                         <span class="rounded border border-gs-purple-200 bg-gs-purple-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-gs-purple-700">
                             User Session: {{ $user->email }}
                         </span>

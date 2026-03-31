@@ -4,6 +4,17 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Added dedicated authentication layout and migrated auth screens:
+  - Added `layouts.auth` with auth-focused shell and cross-auth navigation shortcuts.
+  - Migrated all user/admin auth views to extend `layouts.auth`.
+- Added `components.layout.account-context-switcher` and integrated it into `layouts.app` user session header.
+- Verified auth and inbox flows remain green after layout/context updates:
+  - `AuthSessionBoundaryTest`
+  - `AuthRecoveryAndVerificationTest`
+  - `InboxModuleTest`
+
+## Completed In Current Continuation
+
 - Implemented additional shared UI primitives for reuse across modules:
   - Added `components.ui.modal`
   - Added `components.ui.dropdown`

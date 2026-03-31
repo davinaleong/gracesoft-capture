@@ -3,9 +3,9 @@
 ## 🧱 Layout and Structure
 
 * [x] `layouts.app`
-* [ ] `layouts.auth`
+* [x] `layouts.auth`
 * [x] `layouts.embed` *(for iframe form — minimal)*
-* [ ] `components.layout.account-context-switcher` *(active workspace/account context)*
+* [x] `components.layout.account-context-switcher` *(active workspace/account context)*
 
 ---
 
