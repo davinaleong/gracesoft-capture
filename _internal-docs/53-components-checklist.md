@@ -262,8 +262,8 @@ This is your internal control system.
 * [x] `components.ui.textarea`
 * [x] `components.ui.select`
 * [x] `components.ui.badge`
-* [ ] `components.ui.modal`
-* [ ] `components.ui.dropdown`
+* [x] `components.ui.modal`
+* [x] `components.ui.dropdown`
 
 ---
 
@@ -273,7 +273,7 @@ This is your internal control system.
 * [ ] `components.ui.loading`
 * [ ] `components.ui.toast`
 * [x] `components.ui.alert`
-* [ ] `components.ui.access-denied`
+* [x] `components.ui.access-denied`
 
 ---
 

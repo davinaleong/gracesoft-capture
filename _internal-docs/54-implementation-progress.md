@@ -4,6 +4,17 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented additional shared UI primitives for reuse across modules:
+  - Added `components.ui.modal`
+  - Added `components.ui.dropdown`
+  - Added `components.ui.access-denied`
+- Consolidated modal implementations:
+  - Refactored `components.feedback.modal` to build on `x-ui.modal`.
+  - Refactored `components.upgrade.modal` to build on `x-ui.modal`.
+- Synchronized component checklist entries for newly added shared UI primitives.
+
+## Completed In Current Continuation
+
 - Implemented shared plan-gating and security state components:
   - Added `components.upgrade.banner`
   - Added `components.upgrade.modal`
