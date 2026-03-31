@@ -4,6 +4,22 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented Integration page (install UX) with account-scoped form listings:
+  - Added `IntegrationController@index` and `GET /integrations` route behind `auth.any` + `access.context`.
+  - Added integrations dashboard view showing form name, app domain, and iframe embed code snippet.
+  - Added quick "Send Test Enquiry" action opening the public form for test submissions.
+  - Added navigation link to Integrations in the main app layout.
+  - Componentized the page with dedicated Blade components:
+    - `components.integration.card`
+    - `components.integration.embed-code`
+    - `components.integration.copy-button`
+    - `components.integration.test-button`
+- Added feature coverage for integration behavior:
+  - account-scoped form visibility
+  - embed snippet rendering and test action visibility
+
+## Completed In Current Continuation
+
 - Implemented Insights module with account-scoped metrics and Pro-plan gating:
   - Added `InsightsService` to compute total enquiries, enquiries-per-day, conversion rate, and average first response time.
   - Added `InsightsController@index` and `GET /insights` route behind `auth.any` + `access.context`.

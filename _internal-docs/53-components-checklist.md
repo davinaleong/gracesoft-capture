@@ -128,10 +128,10 @@
 
 ## 🔌 Integration Page `/integrations`
 
-* [ ] `components.integration.card`
-* [ ] `components.integration.embed-code`
-* [ ] `components.integration.copy-button`
-* [ ] `components.integration.test-button`
+* [x] `components.integration.card`
+* [x] `components.integration.embed-code`
+* [x] `components.integration.copy-button`
+* [x] `components.integration.test-button`
 
 ---
 

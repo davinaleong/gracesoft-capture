@@ -22,6 +22,7 @@
                 <nav class="flex flex-wrap items-center gap-2 md:gap-3">
                     <x-ui.button tag="a" href="{{ route('manage.forms.index') }}" variant="secondary" size="sm">Forms</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('inbox.index') }}" variant="secondary" size="sm">Inbox</x-ui.button>
+                    <x-ui.button tag="a" href="{{ route('integrations.index') }}" variant="secondary" size="sm">Integrations</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('collaborators.index') }}" variant="secondary" size="sm">Collaborators</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('admin.compliance.index') }}" variant="secondary" size="sm">Compliance</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('support.create') }}" variant="secondary" size="sm">Contact Support</x-ui.button>

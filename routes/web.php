@@ -9,6 +9,7 @@ use App\Http\Controllers\FormManagementController;
 use App\Http\Controllers\EnquiryNoteController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InboxController;
+use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\PublicFormController;
 use App\Http\Controllers\UserEmailVerificationController;
@@ -106,6 +107,10 @@ Route::prefix('inbox')->middleware(['auth.any', 'access.context'])->name('inbox.
 
 Route::prefix('insights')->middleware(['auth.any', 'access.context'])->name('insights.')->group(function () {
     Route::get('/', [InsightsController::class, 'index'])->name('index');
+});
+
+Route::prefix('integrations')->middleware(['auth.any', 'access.context'])->name('integrations.')->group(function () {
+    Route::get('/', [IntegrationController::class, 'index'])->name('index');
 });
 
 Route::prefix('settings/collaborators')->middleware(['auth', 'access.context'])->name('collaborators.')->group(function () {

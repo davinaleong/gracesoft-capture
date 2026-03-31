@@ -35,7 +35,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
   * [x] Notifications
   * [x] Collaborators
   * [x] Insights
-  * [ ] Integration
+  * [x] Integration
   * [x] Compliance
   * [x] Admin Monitoring
 
@@ -394,11 +394,11 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 # 🔌 12. Integration Page (Install UX)
 
-* [ ] Route: `/integrations`
-* [ ] Show:
-  * [ ] form name
-  * [ ] domain
-  * [ ] embed code
+* [x] Route: `/integrations`
+* [x] Show:
+  * [x] form name
+  * [x] domain
+  * [x] embed code
 
 ---
 
@@ -416,7 +416,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Test Feature
 
-* [ ] Send test enquiry button
+* [x] Send test enquiry button
 
 ---
 
