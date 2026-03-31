@@ -20,6 +20,6 @@
             <x-ui.button type="submit">Send Reply</x-ui.button>
         </form>
     @else
-        <x-ui.alert variant="error">Your role is read-only for replies in this account.</x-ui.alert>
+        <x-enquiry.access-denied-state message="Your role is read-only for replies in this account." />
     @endif
 </div>

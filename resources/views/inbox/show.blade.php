@@ -49,7 +49,7 @@
     <x-ui.card class="mt-4 space-y-4">
         <h2 class="text-xl font-bold">Notes</h2>
 
-        @if ($notesEnabled)
+        @if ($notesEnabled && $canManageNotes)
             <form method="post" action="{{ route('inbox.notes.store', $enquiry) }}">
                 @csrf
                 <div class="grid grid-cols-1 gap-4">
@@ -66,6 +66,8 @@
                     <x-ui.button type="submit">Add Note</x-ui.button>
                 </div>
             </form>
+        @elseif ($notesEnabled)
+            <x-enquiry.access-denied-state message="Your role is read-only for notes in this account." />
         @else
             <x-ui.alert variant="info">Notes are available on the Pro plan only.</x-ui.alert>
         @endif

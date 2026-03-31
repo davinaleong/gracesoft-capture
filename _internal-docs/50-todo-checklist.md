@@ -379,9 +379,9 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## UI
 
-* [ ] Charts:
+* [x] Charts:
   * [x] volume over time
-  * [ ] funnel
+  * [x] funnel
   * [x] response time
 
 ---
@@ -490,7 +490,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ### Pro
 
 * [x] Enable notes
-* [ ] Enable insights
+* [x] Enable insights
 * [x] Enable advanced audit and compliance views
 
 ---

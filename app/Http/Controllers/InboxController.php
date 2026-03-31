@@ -67,16 +67,20 @@ class InboxController extends Controller
         $enquiry->load(['form', 'notes', 'replies']);
 
         $canReply = true;
+        $canManageNotes = true;
 
         if ((bool) config('capture.features.enforce_access_context', false)) {
             $role = $this->resolvedMembershipRole($request, $enquiry->account_id);
-            $canReply = $this->isAdminOverride($request) || in_array($role, ['owner', 'member'], true);
+            $canWrite = $this->isAdminOverride($request) || in_array($role, ['owner', 'member'], true);
+            $canReply = $canWrite;
+            $canManageNotes = $canWrite;
         }
 
         return view('inbox.show', [
             'enquiry' => $enquiry,
             'notesEnabled' => $planGate->notesEnabled($enquiry->account_id),
             'canReply' => $canReply,
+            'canManageNotes' => $canManageNotes,
         ]);
     }
 

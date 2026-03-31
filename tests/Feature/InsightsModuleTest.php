@@ -53,6 +53,7 @@ test('insights page renders account scoped metrics', function () {
         ->assertOk()
         ->assertSee('Insights')
         ->assertSee('Total enquiries')
+        ->assertSee('Conversion funnel')
         ->assertSee('3')
         ->assertSee($accountId);
 });

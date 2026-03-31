@@ -4,6 +4,29 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented insights componentization and completed funnel chart coverage:
+  - Added reusable insights components:
+    - `components.insights.card`
+    - `components.insights.metric`
+    - `components.insights.chart-line`
+    - `components.insights.chart-funnel`
+    - `components.insights.upgrade-banner`
+  - Refactored insights page to use the new insights component set.
+  - Extended `InsightsService` summary payload with funnel stages (`total`, `contacted`, `closed`).
+  - Added `Conversion funnel` visualization to the insights dashboard.
+- Added feature assertion coverage for funnel rendering in `InsightsModuleTest`.
+
+## Completed In Current Continuation
+
+- Implemented enquiry detail access-denied state for read-only collaborators:
+  - Added `components.enquiry.access-denied-state` reusable component.
+  - Integrated denied-state rendering in replies form for read-only roles.
+  - Added denied-state rendering in notes section for read-only roles when notes are plan-enabled.
+  - Extended inbox detail permissions payload with `canManageNotes`.
+- Added feature coverage proving denied-state visibility for viewer role in enquiry detail.
+
+## Completed In Current Continuation
+
 - Implemented replies module backend and enquiry-detail UI integration:
   - Added `replies` schema (`create_replies_table` migration) and `Reply` model.
   - Added `EnquiryReplyController@store` with account/role enforcement and audit logging.

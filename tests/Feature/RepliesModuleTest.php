@@ -106,3 +106,34 @@ test('inbox detail displays existing replies', function () {
         ->assertSee('First reply content')
         ->assertSee('Internal');
 });
+
+test('viewer sees access denied states for replies and notes in enquiry detail', function () {
+    config()->set('capture.features.enforce_access_context', true);
+    config()->set('capture.features.default_plan', 'pro');
+
+    $viewer = User::factory()->create();
+    $accountId = 'e7779bf1-c4a2-4ef7-8f9e-0b16d35c507d';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $viewer->id,
+        'role' => 'viewer',
+        'joined_at' => now(),
+    ]);
+
+    $form = Form::factory()->create([
+        'account_id' => $accountId,
+    ]);
+
+    $enquiry = Enquiry::factory()->create([
+        'form_id' => $form->id,
+        'account_id' => $accountId,
+        'application_id' => $form->application_id,
+    ]);
+
+    $this->actingAs($viewer)
+        ->get(route('inbox.show', ['enquiry' => $enquiry, 'account_id' => $accountId]))
+        ->assertOk()
+        ->assertSee('Your role is read-only for replies in this account.')
+        ->assertSee('Your role is read-only for notes in this account.');
+});

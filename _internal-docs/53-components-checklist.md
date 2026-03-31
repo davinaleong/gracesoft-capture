@@ -37,7 +37,7 @@
 
 * [x] `components.enquiry.timeline` ⭐
 * [x] `components.enquiry.message-card`
-* [ ] `components.enquiry.access-denied-state` *(for non-member/non-owner)*
+* [x] `components.enquiry.access-denied-state` *(for non-member/non-owner)*
 
 ---
 
@@ -114,15 +114,15 @@
 
 ## 📊 Insights (Pro)
 
-* [ ] `components.insights.card`
-* [ ] `components.insights.metric`
+* [x] `components.insights.card`
+* [x] `components.insights.metric`
 
   * total enquiries
   * conversion rate
 
-* [ ] `components.insights.chart-line`
-* [ ] `components.insights.chart-funnel`
-* [ ] `components.insights.upgrade-banner`
+* [x] `components.insights.chart-line`
+* [x] `components.insights.chart-funnel`
+* [x] `components.insights.upgrade-banner`
 
 ---
 

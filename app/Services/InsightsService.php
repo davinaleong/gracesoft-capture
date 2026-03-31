@@ -24,6 +24,10 @@ class InsightsService
             ->whereNotNull('contacted_at')
             ->count();
 
+        $closedCount = (clone $baseQuery)
+            ->whereNotNull('closed_at')
+            ->count();
+
         $conversionRatePercent = $totalEnquiries > 0
             ? round(($respondedCount / $totalEnquiries) * 100, 1)
             : 0.0;
@@ -66,6 +70,8 @@ class InsightsService
 
         return [
             'total_enquiries' => $totalEnquiries,
+            'responded_enquiries' => $respondedCount,
+            'closed_enquiries' => $closedCount,
             'conversion_rate_percent' => $conversionRatePercent,
             'avg_first_response_minutes' => $avgFirstResponseMinutes,
             'daily_enquiries' => collect($dailyBuckets)
@@ -75,6 +81,11 @@ class InsightsService
                 ])
                 ->values()
                 ->all(),
+            'funnel' => [
+                ['label' => 'Total', 'count' => $totalEnquiries],
+                ['label' => 'Contacted', 'count' => $respondedCount],
+                ['label' => 'Closed', 'count' => $closedCount],
+            ],
         ];
     }
 }
