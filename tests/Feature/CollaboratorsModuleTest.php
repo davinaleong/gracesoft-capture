@@ -80,6 +80,25 @@ test('owner sees owner-only collaborator management banner', function () {
         ->assertSee('You are an owner for this account.');
 });
 
+test('collaborators page shows invite ui controls', function () {
+    $owner = User::factory()->create();
+    $accountId = '93b873de-c8ec-4cd1-8626-4d4f2ee0083f';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    $this->actingAs($owner)
+        ->get(route('collaborators.index', ['account_id' => $accountId]))
+        ->assertOk()
+        ->assertSee('Invite Collaborator')
+        ->assertSee('Send Invitation')
+        ->assertSee('invite-collaborator-form');
+});
+
 test('non owner sees owner-only restrictions banner', function () {
     $member = User::factory()->create();
     $accountId = 'd9b2ab4f-febb-4f9c-8d59-e58ce7ae52e3';

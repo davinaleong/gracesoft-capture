@@ -38,7 +38,7 @@ class UserSessionController extends Controller
         $request->session()->regenerate();
         $request->session()->put('auth.guard_context', 'web');
 
-        return redirect()->route('manage.forms.index')->with('status', 'Account created successfully.');
+        return redirect()->route('verification.notice')->with('status', 'Account created. Please verify your email address.');
     }
 
     public function create(): View

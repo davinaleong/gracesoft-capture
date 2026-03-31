@@ -20,7 +20,7 @@
     <main class="container mx-auto p-4 md:p-6 space-y-4">
         <x-ui.card class="p-3 md:p-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <nav class="flex flex-wrap items-center gap-2 md:gap-3">
+                <nav class="hidden items-center gap-2 md:flex md:gap-3">
                     <x-ui.button tag="a" href="{{ route('manage.forms.index') }}" variant="secondary" size="sm">Forms</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('inbox.index') }}" variant="secondary" size="sm">Inbox</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('integrations.index') }}" variant="secondary" size="sm">Integrations</x-ui.button>
@@ -28,6 +28,19 @@
                     <x-ui.button tag="a" href="{{ route('admin.compliance.index') }}" variant="secondary" size="sm">Compliance</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('support.create') }}" variant="secondary" size="sm">Contact Support</x-ui.button>
                 </nav>
+
+                <div class="md:hidden">
+                    <x-ui.dropdown label="Menu" class="w-full">
+                        <div class="flex min-w-40 flex-col gap-1">
+                            <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('manage.forms.index') }}">Forms</a>
+                            <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('inbox.index') }}">Inbox</a>
+                            <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('integrations.index') }}">Integrations</a>
+                            <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('collaborators.index') }}">Collaborators</a>
+                            <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('admin.compliance.index') }}">Compliance</a>
+                            <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('support.create') }}">Contact Support</a>
+                        </div>
+                    </x-ui.dropdown>
+                </div>
 
                 <div class="flex flex-wrap items-center gap-2">
                     @if ($admin)

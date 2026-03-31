@@ -6,13 +6,36 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
+test('root route redirects guests to user login page', function () {
+    $this->get('/')
+        ->assertRedirect(route('login'));
+});
+
+test('root route redirects authenticated users to forms dashboard', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user, 'web')
+        ->get('/')
+        ->assertRedirect(route('manage.forms.index'));
+});
+
+test('root route redirects authenticated admins to compliance dashboard', function () {
+    $admin = Administrator::factory()->create([
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($admin, 'admin')
+        ->get('/')
+        ->assertRedirect(route('admin.compliance.index'));
+});
+
 test('user can register and starts authenticated session', function () {
     $this->post(route('register.store'), [
         'name' => 'New User',
         'email' => 'new.user@example.com',
         'password' => 'strong-pass-123',
         'password_confirmation' => 'strong-pass-123',
-    ])->assertRedirect(route('manage.forms.index'));
+    ])->assertRedirect(route('verification.notice'));
 
     $this->assertAuthenticated('web');
     $this->assertDatabaseHas('users', [

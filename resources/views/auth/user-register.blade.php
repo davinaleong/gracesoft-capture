@@ -1,7 +1,7 @@
 @extends('layouts.auth')
 
 @section('content')
-    <x-ui.card class="max-w-xl">
+    <x-ui.card class="max-w-lg">
         <h1 class="mb-2 text-xl font-semibold">Create User Account</h1>
         <p class="mb-4 text-sm text-gs-black-700">Register your user identity to access form management and inbox tools.</p>
 

@@ -79,7 +79,9 @@ test('user receives verification email on registration and can verify', function
         'email' => 'verify.user@example.com',
         'password' => 'verify-user-pass',
         'password_confirmation' => 'verify-user-pass',
-    ])->assertRedirect(route('manage.forms.index'));
+    ])->assertRedirect(route('verification.notice'));
+
+    $this->assertAuthenticated('web');
 
     $user = User::query()->where('email', 'verify.user@example.com')->firstOrFail();
 
@@ -95,6 +97,7 @@ test('user receives verification email on registration and can verify', function
         ->assertRedirect(route('manage.forms.index'));
 
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
+    $this->assertAuthenticated('web');
 });
 
 test('administrator can verify email through signed verification route', function () {

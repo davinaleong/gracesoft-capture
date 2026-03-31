@@ -16,10 +16,19 @@ use App\Http\Controllers\PublicFormController;
 use App\Http\Controllers\UserEmailVerificationController;
 use App\Http\Controllers\UserPasswordResetController;
 use App\Http\Controllers\UserSessionController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    if (Auth::guard('admin')->check()) {
+        return redirect()->route('admin.compliance.index');
+    }
+
+    if (Auth::guard('web')->check()) {
+        return redirect()->route('manage.forms.index');
+    }
+
+    return redirect()->route('login');
 });
 
 Route::get('/components', function () {

@@ -18,7 +18,7 @@
     <main class="container mx-auto min-h-screen px-4 py-6 md:px-6">
         <div class="mx-auto max-w-3xl space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
-                <h1 class="text-lg font-semibold">GraceSoft Capture</h1>
+                <img src="{{ asset('wm.svg') }}" alt="GraceSoft" style="width: 150px; height: auto;">
                 <div class="flex flex-wrap items-center gap-2">
                     <x-ui.button tag="a" href="{{ route('login') }}" size="sm" variant="secondary">User Login</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('register') }}" size="sm" variant="secondary">Register</x-ui.button>
