@@ -2,34 +2,9 @@
 
 @section('content')
     <x-ui.card class="mb-4 space-y-4">
-        <h1 class="text-2xl font-bold">{{ $enquiry->subject }}</h1>
-
-        <dl class="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div>
-                <dt class="text-sm font-semibold text-gs-black-700">Name</dt>
-                <dd>{{ $enquiry->name }}</dd>
-            </div>
-            <div>
-                <dt class="text-sm font-semibold text-gs-black-700">Email</dt>
-                <dd>{{ $enquiry->email }}</dd>
-            </div>
-            <div>
-                <dt class="text-sm font-semibold text-gs-black-700">Status</dt>
-                <dd>{{ ucfirst($enquiry->status) }}</dd>
-            </div>
-            <div>
-                <dt class="text-sm font-semibold text-gs-black-700">Form</dt>
-                <dd>{{ $enquiry->form?->name }}</dd>
-            </div>
-            <div class="md:col-span-2">
-                <dt class="text-sm font-semibold text-gs-black-700">Received</dt>
-                <dd>{{ $enquiry->created_at?->format('Y-m-d H:i') }}</dd>
-            </div>
-            <div class="md:col-span-2">
-                <dt class="text-sm font-semibold text-gs-black-700">Message</dt>
-                <dd class="mt-1 rounded border border-gray-200 bg-gray-50 p-3">{{ $enquiry->message }}</dd>
-            </div>
-        </dl>
+        <x-enquiry.header :enquiry="$enquiry" />
+        <x-enquiry.message-card :enquiry="$enquiry" />
+        <x-enquiry.timeline :enquiry="$enquiry" />
     </x-ui.card>
 
     <x-ui.card class="space-y-3">

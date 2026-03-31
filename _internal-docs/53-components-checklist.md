@@ -28,15 +28,15 @@
 
 ### Detail Page `/enquiries/{uuid}`
 
-* [ ] `components.enquiry.header`
+* [x] `components.enquiry.header`
 
   * name
   * email
   * subject
   * status
 
-* [ ] `components.enquiry.timeline` ⭐
-* [ ] `components.enquiry.message-card`
+* [x] `components.enquiry.timeline` ⭐
+* [x] `components.enquiry.message-card`
 * [ ] `components.enquiry.access-denied-state` *(for non-member/non-owner)*
 
 ---

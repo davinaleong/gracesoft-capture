@@ -4,6 +4,15 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented enquiry detail componentization for inbox detail view:
+  - Added `components.enquiry.header` (name, email, subject, status, form context).
+  - Added `components.enquiry.message-card` for submission content display.
+  - Added `components.enquiry.timeline` for received/contacted/closed lifecycle timestamps.
+  - Refactored `inbox/show` to use new enquiry components.
+- Verified no behavioral regressions via `InboxModuleTest`.
+
+## Completed In Current Continuation
+
 - Implemented inbox list componentization and search UX:
   - Added reusable list-page components:
     - `components.inbox.table`
