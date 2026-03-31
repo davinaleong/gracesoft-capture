@@ -299,12 +299,12 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 ## List View
 
 * [x] Route: `/inbox`
-* [ ] Show:
-  * [ ] name
-  * [ ] email
-  * [ ] subject
-  * [ ] status
-  * [ ] date
+* [x] Show:
+  * [x] name
+  * [x] email
+  * [x] subject
+  * [x] status
+  * [x] date
 * [x] Restrict rows to active account context
 
 ---

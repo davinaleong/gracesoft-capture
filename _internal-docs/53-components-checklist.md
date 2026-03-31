@@ -13,16 +13,16 @@
 
 ### List Page `/inbox`
 
-* [ ] `components.inbox.table`
-* [ ] `components.inbox.row`
-* [ ] `components.inbox.filters`
+* [x] `components.inbox.table`
+* [x] `components.inbox.row`
+* [x] `components.inbox.filters`
 
   * status filter
-  * search input
+  * [x] search input
 
-* [ ] `components.inbox.status-badge`
-* [ ] `components.inbox.account-context-badge`
-* [ ] `components.inbox.empty-state`
+* [x] `components.inbox.status-badge`
+* [x] `components.inbox.account-context-badge`
+* [x] `components.inbox.empty-state`
 
 ---
 

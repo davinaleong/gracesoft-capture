@@ -14,11 +14,19 @@ class InboxController extends Controller
     public function index(Request $request): View
     {
         $status = $request->string('status')->toString();
+        $search = trim($request->string('search')->toString());
 
         $query = Enquiry::query()
             ->with('form')
             ->when(in_array($status, ['new', 'contacted', 'closed'], true), function ($query) use ($status) {
                 $query->where('status', $status);
+            })
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($innerQuery) use ($search) {
+                    $innerQuery->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('subject', 'like', "%{$search}%");
+                });
             })
             ->latest();
 
@@ -35,6 +43,8 @@ class InboxController extends Controller
         return view('inbox.index', [
             'enquiries' => $enquiries,
             'selectedStatus' => $status,
+            'search' => $search,
+            'accountId' => $resolvedAccountId,
         ]);
     }
 

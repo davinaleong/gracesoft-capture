@@ -4,6 +4,22 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented inbox list componentization and search UX:
+  - Added reusable list-page components:
+    - `components.inbox.table`
+    - `components.inbox.row`
+    - `components.inbox.filters`
+    - `components.inbox.status-badge`
+    - `components.inbox.account-context-badge`
+    - `components.inbox.empty-state`
+  - Refactored `inbox/index` to use new components and account-context badge rendering.
+  - Added search filtering in `InboxController@index` (`name`, `email`, `subject`).
+- Added feature coverage for inbox list enhancements:
+  - search query filtering behavior
+  - account-context badge rendering when account context is selected
+
+## Completed In Current Continuation
+
 - Implemented Integration page (install UX) with account-scoped form listings:
   - Added `IntegrationController@index` and `GET /integrations` route behind `auth.any` + `access.context`.
   - Added integrations dashboard view showing form name, app domain, and iframe embed code snippet.

@@ -25,6 +25,52 @@ test('inbox list page shows enquiry rows', function () {
         ->assertSee('Need support');
 });
 
+test('inbox list page can filter by search query', function () {
+    $form = Form::factory()->create(['name' => 'Support Form']);
+
+    Enquiry::factory()->create([
+        'form_id' => $form->id,
+        'account_id' => $form->account_id,
+        'application_id' => $form->application_id,
+        'name' => 'Alice Searchmatch',
+        'email' => 'alice@example.com',
+        'subject' => 'Need migration help',
+        'status' => 'new',
+    ]);
+
+    Enquiry::factory()->create([
+        'form_id' => $form->id,
+        'account_id' => $form->account_id,
+        'application_id' => $form->application_id,
+        'name' => 'Bob Different',
+        'email' => 'bob@example.com',
+        'subject' => 'Billing issue',
+        'status' => 'new',
+    ]);
+
+    $this->get(route('inbox.index', ['search' => 'migration']))
+        ->assertOk()
+        ->assertSee('Alice Searchmatch')
+        ->assertDontSee('Bob Different');
+});
+
+test('inbox list shows account context badge when account is selected', function () {
+    $form = Form::factory()->create([
+        'account_id' => 'e9d203ef-1000-4902-bb37-646e65bf1ff1',
+    ]);
+
+    Enquiry::factory()->create([
+        'form_id' => $form->id,
+        'account_id' => $form->account_id,
+        'application_id' => $form->application_id,
+        'name' => 'Context User',
+    ]);
+
+    $this->get(route('inbox.index', ['account_id' => $form->account_id]))
+        ->assertOk()
+        ->assertSee('Account: ' . $form->account_id);
+});
+
 test('inbox detail page shows full enquiry content', function () {
     $form = Form::factory()->create();
 
