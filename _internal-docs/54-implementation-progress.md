@@ -4,6 +4,17 @@ Last Updated: 2026-03-31 (latest pass)
 
 ## Completed In Current Continuation
 
+- Implemented Insights module with account-scoped metrics and Pro-plan gating:
+  - Added `InsightsService` to compute total enquiries, enquiries-per-day, conversion rate, and average first response time.
+  - Added `InsightsController@index` and `GET /insights` route behind `auth.any` + `access.context`.
+  - Added `PlanGate::insightsEnabled()` with config toggles (`CAPTURE_INSIGHTS_FORCE_ENABLED`, `insights_allowed_plans`).
+  - Added insights dashboard view with selectable lookback windows (7/14/30 days) and daily trend bars.
+- Added feature coverage for insights behavior:
+  - account-scoped rendering and metric isolation
+  - non-Pro access denial when gate is enforced
+
+## Completed In Current Continuation
+
 - Implemented collaborator invitation abuse alerting for repeated invalid acceptance attempts:
   - Added cache-window counter tracking by invitation/reason/IP.
   - Added structured audit event for invalid attempts (`collaborators.invite.accept.invalid`).

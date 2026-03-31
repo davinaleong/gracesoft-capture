@@ -34,7 +34,7 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
   * [x] Inbox
   * [x] Notifications
   * [x] Collaborators
-  * [ ] Insights
+  * [x] Insights
   * [ ] Integration
   * [x] Compliance
   * [x] Admin Monitoring
@@ -357,38 +357,38 @@ Progress Log: `_internal-docs/54-implementation-progress.md`
 
 ## Queries
 
-* [ ] Total enquiries
-* [ ] Enquiries per day
-* [ ] Conversion rate
-* [ ] Avg response time
+* [x] Total enquiries
+* [x] Enquiries per day
+* [x] Conversion rate
+* [x] Avg response time
 
 ---
 
 ## Service Layer
 
-* [ ] Create `InsightsService`
+* [x] Create `InsightsService`
 
 ---
 
 ## API / Controller
 
-* [ ] `GET /insights`
-* [ ] Enforce account-level isolation for all metrics
+* [x] `GET /insights`
+* [x] Enforce account-level isolation for all metrics
 
 ---
 
 ## UI
 
 * [ ] Charts:
-  * [ ] volume over time
+  * [x] volume over time
   * [ ] funnel
-  * [ ] response time
+  * [x] response time
 
 ---
 
 ## Plan Gating
 
-* [ ] Only show for Pro
+* [x] Only show for Pro
 
 ---
 

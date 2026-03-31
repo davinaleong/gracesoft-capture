@@ -35,6 +35,17 @@ class PlanGate
         return in_array($this->resolveAccountPlan($accountId), $allowedPlans, true);
     }
 
+    public function insightsEnabled(string $accountId): bool
+    {
+        if ((bool) config('capture.features.insights_force_enabled', false)) {
+            return true;
+        }
+
+        $allowedPlans = (array) config('capture.features.insights_allowed_plans', ['pro']);
+
+        return in_array($this->resolveAccountPlan($accountId), $allowedPlans, true);
+    }
+
     private function resolveAccountPlan(string $accountId): string
     {
         if ($accountId === '') {
