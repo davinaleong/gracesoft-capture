@@ -48,7 +48,7 @@ Last Updated: 2026-03-31 (latest pass)
   - Updated form creation flow to auto-create application in HQ when `application_id` is omitted.
   - Added unit + feature coverage for HQ create-application success/fallback behavior.
 - Added setup/environment and dedicated Capture DB configuration surface:
-  - Added `capture` DB connection in `config/database.php` (`CAPTURE_DB_*` env support).
+  - Added `capture` DB connection in `config/database.php` aligned to Laravel default `DB_*` env keys.
   - Added setup env keys to `.env.example` and setup notes in `README.md`.
 - Verified targeted suites are green (`17` tests, `57` assertions):
   - `HQServiceTest`

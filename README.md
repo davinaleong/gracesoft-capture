@@ -96,7 +96,7 @@ Setup-focused environment values:
 - `APP_DATA_RETENTION_DAYS`
 - `INVITE_TOKEN_TTL_HOURS`
 - `ADMIN_AUDIT_LOG_ENABLED`
-- `CAPTURE_DB_*` (optional dedicated Capture DB connection)
+- `DB_*` (uses Laravel default database connection settings)
 
 ## Operations Commands
 
