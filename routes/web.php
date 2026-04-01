@@ -14,9 +14,11 @@ use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\PublicFormController;
 use App\Http\Controllers\SsoController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\UserEmailVerificationController;
 use App\Http\Controllers\UserPasswordResetController;
 use App\Http\Controllers\UserSessionController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +49,10 @@ Route::get('/support', [FeedbackController::class, 'create'])->name('support.cre
 Route::post('/support', [FeedbackController::class, 'store'])->name('support.store');
 
 Route::post('/sso/login', [SsoController::class, 'login'])->name('sso.login');
+
+Route::post('/billing/webhooks/stripe', [StripeWebhookController::class, 'handle'])
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->name('billing.webhooks.stripe');
 
 Route::middleware('guest:web')->group(function () {
     Route::get('/register', [UserSessionController::class, 'register'])->name('register');

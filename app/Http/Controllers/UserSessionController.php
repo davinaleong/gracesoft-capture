@@ -6,6 +6,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Services\AccountProvisioningService;
 use Illuminate\View\View;
 
 class UserSessionController extends Controller
@@ -15,7 +16,7 @@ class UserSessionController extends Controller
         return view('auth.user-register');
     }
 
-    public function storeRegistration(Request $request): RedirectResponse
+    public function storeRegistration(Request $request, AccountProvisioningService $provisioningService): RedirectResponse
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -34,9 +35,12 @@ class UserSessionController extends Controller
 
         $user->sendEmailVerificationNotification();
 
+        $account = $provisioningService->provisionForUser($user);
+
         Auth::guard('web')->login($user);
         $request->session()->regenerate();
         $request->session()->put('auth.guard_context', 'web');
+        $request->session()->put('active_account_id', $account->id);
 
         return redirect()->route('verification.notice')->with('status', 'Account created. Please verify your email address.');
     }

@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Form;
+use App\Models\Subscription;
 use App\Services\HQService;
 use Illuminate\Support\Facades\Cache;
 
@@ -99,6 +100,17 @@ class PlanGate
             'capture:plan:' . $accountId,
             now()->addSeconds((int) config('capture.features.plan_cache_ttl_seconds', 300)),
             function () use ($accountId): string {
+                $localPlan = Subscription::query()
+                    ->join('plans', 'plans.id', '=', 'subscriptions.plan_id')
+                    ->where('subscriptions.account_id', $accountId)
+                    ->orderByRaw("case when subscriptions.status in ('active', 'trialing', 'past_due') then 0 else 1 end")
+                    ->orderByDesc('subscriptions.updated_at')
+                    ->value('plans.slug');
+
+                if (is_string($localPlan) && $localPlan !== '') {
+                    return $localPlan;
+                }
+
                 return $this->hqService->fetchSubscriptionPlan($accountId)
                     ?? (string) config('capture.features.default_plan', 'growth');
             }
