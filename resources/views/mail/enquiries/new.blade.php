@@ -1,7 +1,11 @@
-<p>A new enquiry was submitted.</p>
-<p><strong>Form:</strong> {{ $enquiry->form?->name ?? 'N/A' }}</p>
-<p><strong>Name:</strong> {{ $maskedName }}</p>
-<p><strong>Email:</strong> {{ $maskedEmail }}</p>
-<p><strong>Subject:</strong> {{ $subjectPreview }}</p>
-<p><strong>Message Preview:</strong></p>
-<p>{{ $messagePreview }}</p>
+<x-mail::message>
+# A new support request has been submitted.
+
+**From:** {{ $maskedName }} &lt;{{ $maskedEmail }}&gt;
+
+**Subject:** {{ $subjectPreview }}
+
+<x-mail::panel>
+{{ $messagePreview }}
+</x-mail::panel>
+</x-mail::message>

@@ -13,6 +13,8 @@ class NewEnquiryNotificationMail extends Mailable
 {
     use Queueable;
 
+    public $theme = 'support-alert';
+
     public function __construct(public Enquiry $enquiry)
     {
     }
@@ -27,7 +29,7 @@ class NewEnquiryNotificationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mail.enquiries.new',
+            markdown: 'mail.enquiries.new',
             with: [
                 'maskedName' => $this->maskedName(),
                 'maskedEmail' => $this->maskedEmail(),
