@@ -14,6 +14,7 @@ use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\PublicFormController;
 use App\Http\Controllers\SsoController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\UserEmailVerificationController;
 use App\Http\Controllers\UserPasswordResetController;
@@ -53,6 +54,11 @@ Route::post('/sso/login', [SsoController::class, 'login'])->name('sso.login');
 Route::post('/billing/webhooks/stripe', [StripeWebhookController::class, 'handle'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('billing.webhooks.stripe');
+
+Route::prefix('billing')->middleware('auth:web')->name('billing.')->group(function () {
+    Route::post('/checkout', [BillingController::class, 'checkout'])->name('checkout');
+    Route::post('/portal', [BillingController::class, 'portal'])->name('portal');
+});
 
 Route::middleware('guest:web')->group(function () {
     Route::get('/register', [UserSessionController::class, 'register'])->name('register');

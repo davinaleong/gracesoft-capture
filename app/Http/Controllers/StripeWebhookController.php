@@ -156,7 +156,7 @@ class StripeWebhookController extends Controller
             return false;
         }
 
-        if (abs(now()->timestamp - (int) $timestamp) > 300) {
+        if (abs(now()->timestamp - (int) $timestamp) > (int) config('services.stripe.webhook_tolerance_seconds', 300)) {
             return false;
         }
 
