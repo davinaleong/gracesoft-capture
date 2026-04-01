@@ -22,7 +22,6 @@ test('submitting support form dispatches feedback sync job', function () {
         'email' => 'alyssa@example.com',
         'subject' => 'Need help with inbox',
         'message' => 'Could you help me with status transitions?',
-        'account_id' => '3175f367-228d-4d4f-bd57-c34600a76fa1',
     ];
 
     $this->post(route('support.store'), $payload)
@@ -34,7 +33,7 @@ test('submitting support form dispatches feedback sync job', function () {
             && data_get($job->feedbackPayload, 'email') === $payload['email']
             && data_get($job->feedbackPayload, 'subject') === $payload['subject']
             && data_get($job->feedbackPayload, 'message') === $payload['message']
-            && data_get($job->feedbackPayload, 'account_id') === $payload['account_id'];
+            && data_get($job->feedbackPayload, 'account_id') === null;
     });
 });
 

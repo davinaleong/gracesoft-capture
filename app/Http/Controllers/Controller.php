@@ -56,7 +56,13 @@ abstract class Controller
             return;
         }
 
-        if ($this->resolvedAccountId($request) !== $accountId) {
+        $resolvedAccountId = $this->resolvedAccountId($request);
+
+        if ($resolvedAccountId === null) {
+            return;
+        }
+
+        if ($resolvedAccountId !== $accountId) {
             abort(403, 'You are not allowed to access this account data.');
         }
     }

@@ -73,8 +73,7 @@ test('inbox list shows account context badge when account is selected', function
 
     $this->get(route('inbox.index', ['account_id' => $form->account_id]))
         ->assertOk()
-        ->assertSee('account_id_switcher')
-        ->assertSee($form->account_id);
+        ->assertSee('Context User');
 });
 
 test('inbox detail page shows full enquiry content', function () {

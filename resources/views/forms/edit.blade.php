@@ -13,10 +13,6 @@
                     <x-ui.input id="name" name="name" :value="old('name', $form->name)" required />
                 </x-ui.field>
 
-                <x-ui.field for="account_id" label="Account ID" required>
-                    <x-ui.input id="account_id" name="account_id" :value="old('account_id', $form->account_id)" required />
-                </x-ui.field>
-
                 <x-ui.field for="application_id" label="Application ID" required>
                     <x-ui.input id="application_id" name="application_id" :value="old('application_id', $form->application_id)" required />
                 </x-ui.field>

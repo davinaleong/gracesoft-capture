@@ -103,6 +103,16 @@ test('owner sees owner-only collaborator management banner', function () {
         ->assertSee('You are an owner for this account.');
 });
 
+    test('collaborators page is accessible when user has no account membership', function () {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+        ->get(route('collaborators.index'))
+        ->assertOk()
+        ->assertSee('No account membership found for your user yet.')
+        ->assertSee('Not selected');
+    });
+
 test('collaborators page shows invite ui controls', function () {
     $owner = User::factory()->create();
     $accountId = '93b873de-c8ec-4cd1-8626-4d4f2ee0083f';
@@ -120,6 +130,25 @@ test('collaborators page shows invite ui controls', function () {
         ->assertSee('Invite Collaborator')
         ->assertSee('Send Invitation')
         ->assertSee('invite-collaborator-form');
+});
+
+test('collaborators page recovers from stale active account context', function () {
+    $owner = User::factory()->create();
+    $accountId = '4bf7658f-ac8d-49dd-9028-fdca0d74f438';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    $this->actingAs($owner)
+        ->withSession(['active_account_id' => '12195187-507b-45ea-952e-f32f0bf6cd95'])
+        ->get(route('collaborators.index'))
+        ->assertOk()
+        ->assertSee('Invite Collaborator')
+        ->assertSee($accountId);
 });
 
 test('non owner sees owner-only restrictions banner', function () {

@@ -1,6 +1,5 @@
 @props([
     'action' => route('support.store'),
-    'accountId' => null,
 ])
 
 <form method="post" action="{{ $action }}" class="space-y-4">
@@ -23,9 +22,6 @@
             <x-ui.textarea id="message" name="message" rows="5" required>{{ old('message') }}</x-ui.textarea>
         </x-ui.field>
 
-        <x-ui.field for="account_id" label="Account ID (optional)" class="md:col-span-2">
-            <x-ui.input id="account_id" name="account_id" :value="old('account_id', $accountId)" />
-        </x-ui.field>
     </div>
 
     <div class="flex items-center gap-2">

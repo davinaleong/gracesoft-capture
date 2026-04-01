@@ -5,13 +5,21 @@
         <x-ui.card class="space-y-4 p-4">
             <div>
                 <h2 class="text-lg font-semibold text-gs-black-900">Invite Collaborator</h2>
-                <p class="text-sm text-gs-black-700">Invite by email and choose role access for account {{ $accountId }}.</p>
-                <x-collaborators.owner-only-banner :is-owner="$membership->role === 'owner'" />
+                <p class="text-sm text-gs-black-700">
+                    @if ($accountId)
+                        Invite by email and choose role access for account {{ $accountId }}.
+                    @else
+                        No account membership found for your user yet.
+                    @endif
+                </p>
+                <x-collaborators.owner-only-banner :is-owner="$membership?->role === 'owner'" />
             </div>
 
             <form method="post" action="{{ route('collaborators.store') }}" class="space-y-3" id="invite-collaborator-form">
                 @csrf
-                <input type="hidden" name="account_id" value="{{ $accountId }}">
+                @if ($accountId)
+                    <input type="hidden" name="account_id" value="{{ $accountId }}">
+                @endif
 
                 <div>
                     <label class="mb-1 block text-sm text-gs-black-800" for="invite_email">Email</label>
@@ -27,7 +35,7 @@
                     </x-ui.select>
                 </div>
 
-                <x-ui.button type="submit" :disabled="$membership->role !== 'owner'">Send Invitation</x-ui.button>
+                <x-ui.button type="submit" :disabled="! $accountId || $membership?->role !== 'owner'">Send Invitation</x-ui.button>
             </form>
 
             <div class="space-y-2">
@@ -42,12 +50,12 @@
                         <div class="flex items-center gap-2">
                             <form method="post" action="{{ route('collaborators.resend', $invitation) }}">
                                 @csrf
-                                <x-ui.button type="submit" size="sm" variant="secondary" :disabled="$membership->role !== 'owner'">Resend</x-ui.button>
+                                <x-ui.button type="submit" size="sm" variant="secondary" :disabled="$membership?->role !== 'owner'">Resend</x-ui.button>
                             </form>
 
                             <form method="post" action="{{ route('collaborators.revoke', $invitation) }}">
                                 @csrf
-                                <x-ui.button type="submit" size="sm" variant="danger" :disabled="$membership->role !== 'owner'">Revoke</x-ui.button>
+                                <x-ui.button type="submit" size="sm" variant="danger" :disabled="$membership?->role !== 'owner'">Revoke</x-ui.button>
                             </form>
                         </div>
                     </div>
@@ -60,7 +68,7 @@
         <x-ui.card class="space-y-3 p-4">
             <div>
                 <h2 class="text-lg font-semibold text-gs-black-900">Collaborators</h2>
-                <p class="text-sm text-gs-black-700">Account: {{ $accountId }}</p>
+                <p class="text-sm text-gs-black-700">Account: {{ $accountId ?? 'Not selected' }}</p>
             </div>
 
             <x-ui.table>
@@ -84,7 +92,7 @@
                                 @if ($entry->role !== 'owner')
                                     <form method="post" action="{{ route('collaborators.remove', $entry) }}">
                                         @csrf
-                                        <x-ui.button type="submit" size="sm" variant="danger" :disabled="$membership->role !== 'owner'">Remove</x-ui.button>
+                                        <x-ui.button type="submit" size="sm" variant="danger" :disabled="$membership?->role !== 'owner'">Remove</x-ui.button>
                                     </form>
                                 @else
                                     <span class="text-xs text-gs-black-600">Protected</span>

@@ -21,7 +21,6 @@ class FeedbackController extends Controller
             'email' => ['required', 'email', 'max:255'],
             'subject' => ['required', 'string', 'max:180'],
             'message' => ['required', 'string', 'max:5000'],
-            'account_id' => ['nullable', 'uuid'],
         ]);
 
         SyncFeedbackToHQJob::dispatch([
@@ -29,7 +28,7 @@ class FeedbackController extends Controller
             'email' => $data['email'],
             'subject' => $data['subject'],
             'message' => $data['message'],
-            'account_id' => $data['account_id'] ?? null,
+            'account_id' => null,
             'app_name' => config('hq.credentials.app_name'),
             'occurred_at' => now()->toIso8601String(),
         ]);

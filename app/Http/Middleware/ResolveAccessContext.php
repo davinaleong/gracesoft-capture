@@ -12,8 +12,6 @@ class ResolveAccessContext
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $enforce = (bool) config('capture.features.enforce_access_context', false);
-
         $isAdmin = Auth::guard('admin')->check();
         $isAdminOverride = $isAdmin && $this->adminOverrideRequested($request);
 
@@ -35,13 +33,9 @@ class ResolveAccessContext
         $user = Auth::guard('web')->user();
 
         if (! $user) {
-            if (! $enforce) {
-                $request->attributes->set('access.account_id', $this->extractAccountId($request));
+            $request->attributes->set('access.account_id', $this->extractAccountId($request));
 
-                return $next($request);
-            }
-
-            abort(401);
+            return $next($request);
         }
 
         $accountId = $this->extractAccountId($request);
@@ -51,18 +45,11 @@ class ResolveAccessContext
         }
 
         if ($accountId === '') {
-            $accountId = (string) AccountMembership::query()
-                ->where('user_id', $user->getAuthIdentifier())
-                ->whereNull('removed_at')
-                ->value('account_id');
+            $accountId = $this->firstMembershipAccountId($user->getAuthIdentifier());
         }
 
         if ($accountId === '') {
-            if (! $enforce) {
-                return $next($request);
-            }
-
-            abort(403, 'No account membership found for the authenticated user.');
+            return $next($request);
         }
 
         $hasMembership = AccountMembership::query()
@@ -72,17 +59,30 @@ class ResolveAccessContext
             ->exists();
 
         if (! $hasMembership) {
-            if (! $enforce) {
+            $fallbackAccountId = $this->firstMembershipAccountId($user->getAuthIdentifier());
+
+            if ($fallbackAccountId !== '') {
+                $request->session()->put('active_account_id', $fallbackAccountId);
+                $request->attributes->set('access.account_id', $fallbackAccountId);
+
                 return $next($request);
             }
 
-            abort(403, 'You are not allowed to access this account.');
+            return $next($request);
         }
 
         $request->session()->put('active_account_id', $accountId);
         $request->attributes->set('access.account_id', $accountId);
 
         return $next($request);
+    }
+
+    private function firstMembershipAccountId(mixed $userId): string
+    {
+        return (string) AccountMembership::query()
+            ->where('user_id', $userId)
+            ->whereNull('removed_at')
+            ->value('account_id');
     }
 
     private function adminOverrideRequested(Request $request): bool

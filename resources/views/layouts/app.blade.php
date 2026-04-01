@@ -24,8 +24,6 @@
                     <x-ui.button tag="a" href="{{ route('manage.forms.index') }}" variant="secondary" size="sm">Forms</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('inbox.index') }}" variant="secondary" size="sm">Inbox</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('integrations.index') }}" variant="secondary" size="sm">Integrations</x-ui.button>
-                    <x-ui.button tag="a" href="{{ route('collaborators.index') }}" variant="secondary" size="sm">Collaborators</x-ui.button>
-                    <x-ui.button tag="a" href="{{ route('admin.compliance.index') }}" variant="secondary" size="sm">Compliance</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('support.create') }}" variant="secondary" size="sm">Contact Support</x-ui.button>
                 </nav>
 
@@ -35,8 +33,6 @@
                             <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('manage.forms.index') }}">Forms</a>
                             <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('inbox.index') }}">Inbox</a>
                             <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('integrations.index') }}">Integrations</a>
-                            <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('collaborators.index') }}">Collaborators</a>
-                            <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('admin.compliance.index') }}">Compliance</a>
                             <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('support.create') }}">Contact Support</a>
                         </div>
                     </x-ui.dropdown>
@@ -52,8 +48,6 @@
                             <x-ui.button type="submit" size="sm" variant="danger">Admin Logout</x-ui.button>
                         </form>
                     @elseif ($user)
-                        <x-layout.account-context-switcher />
-
                         <span class="inline-flex h-9 items-center rounded border border-gs-purple-200 bg-gs-purple-50 px-2 text-xs font-semibold uppercase tracking-wide text-gs-purple-700">
                             User Session: {{ $user->email }}
                         </span>

@@ -5,7 +5,7 @@
 ])
 
 @php
-    $containerClass = trim('w-full ' . $maxWidth . ' rounded border border-gray-200 p-0 backdrop:bg-black/40');
+    $containerClass = trim('fixed inset-0 m-auto h-fit max-h-[calc(100vh-2rem)] w-full overflow-y-auto rounded border border-gray-200 p-0 backdrop:bg-black/40 ' . $maxWidth);
 @endphp
 
 <dialog @if ($id) id="{{ $id }}" @endif {{ $attributes->class([$containerClass]) }}>

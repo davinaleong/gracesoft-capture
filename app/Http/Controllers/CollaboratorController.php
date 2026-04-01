@@ -26,7 +26,14 @@ class CollaboratorController extends Controller
 
         $accountId = $this->resolvedAccountId($request);
 
-        abort_unless(is_string($accountId) && $accountId !== '', 403, 'No account context selected.');
+        if (! is_string($accountId) || $accountId === '') {
+            return view('collaborators.index', [
+                'accountId' => null,
+                'membership' => null,
+                'memberships' => collect(),
+                'invitations' => collect(),
+            ]);
+        }
 
         $membership = $this->resolveMembership($user->id, $accountId);
 

@@ -8,6 +8,7 @@ use App\Support\AuditLogger;
 use App\Support\PlanGate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class FormManagementController extends Controller
@@ -15,13 +16,6 @@ class FormManagementController extends Controller
     public function index(Request $request): View
     {
         $query = Form::query()->latest();
-        $resolvedAccountId = $this->resolvedAccountId($request);
-
-        if (! $this->isAdminOverride($request) && $resolvedAccountId !== null) {
-            $query->where('account_id', $resolvedAccountId);
-        } elseif ($resolvedAccountId !== null) {
-            $query->where('account_id', $resolvedAccountId);
-        }
 
         return view('forms.index', [
             'forms' => $query->paginate(15)->withQueryString(),
@@ -39,15 +33,17 @@ class FormManagementController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
-            'account_id' => ['required', 'uuid'],
+            'account_id' => ['nullable', 'uuid'],
             'application_id' => ['nullable', 'uuid'],
             'notification_email' => ['nullable', 'email', 'max:255'],
         ]);
 
+        $accountId = $this->resolveOperationalAccountId($request, $data['account_id'] ?? null);
+
         $applicationId = (string) ($data['application_id'] ?? '');
 
         if ($applicationId === '') {
-            $applicationId = (string) $hqService->createApplication($data['account_id'], $data['name']);
+            $applicationId = (string) $hqService->createApplication($accountId, $data['name']);
 
             if ($applicationId === '') {
                 return back()->withErrors([
@@ -56,29 +52,23 @@ class FormManagementController extends Controller
             }
         }
 
-        $resolvedAccountId = $this->resolvedAccountId($request);
-
-        if (! $this->isAdminOverride($request) && $resolvedAccountId !== null && $data['account_id'] !== $resolvedAccountId) {
-            abort(403, 'You can only create forms in your active account.');
-        }
-
-        if (! $this->isAdminOverride($request) && ! $planGate->formCreationAllowed($data['account_id'])) {
+        if (! $this->isAdminOverride($request) && ! $planGate->formCreationAllowed($accountId)) {
             return back()->withErrors([
                 'plan' => 'Your current plan has reached the maximum number of forms.',
             ])->withInput();
         }
 
-        if (! $hqService->validateApplication($data['account_id'], $applicationId)) {
+        if (! $hqService->validateApplication($accountId, $applicationId)) {
             return back()->withErrors([
                 'application_id' => 'The selected application could not be validated with HQ.',
             ])->withInput();
         }
 
-        $this->authorizeForRequest($request, 'create', [Form::class, $data['account_id']]);
+        $this->authorizeForRequest($request, 'create', [Form::class, $accountId]);
 
         $form = Form::create([
             'name' => $data['name'],
-            'account_id' => $data['account_id'],
+            'account_id' => $accountId,
             'application_id' => $applicationId,
             'is_active' => true,
             'settings' => [
@@ -129,16 +119,14 @@ class FormManagementController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
-            'account_id' => ['required', 'uuid'],
+            'account_id' => ['nullable', 'uuid'],
             'application_id' => ['required', 'uuid'],
             'notification_email' => ['nullable', 'email', 'max:255'],
         ]);
 
-        if (! $this->isAdminOverride($request) && $this->resolvedAccountId($request) !== null && $data['account_id'] !== $form->account_id) {
-            abort(403, 'You are not allowed to move a form to another account.');
-        }
+        $accountId = $this->resolveOperationalAccountId($request, $data['account_id'] ?? $form->account_id);
 
-        if (! $hqService->validateApplication($data['account_id'], $data['application_id'])) {
+        if (! $hqService->validateApplication($accountId, $data['application_id'])) {
             return back()->withErrors([
                 'application_id' => 'The selected application could not be validated with HQ.',
             ])->withInput();
@@ -149,7 +137,7 @@ class FormManagementController extends Controller
 
         $form->update([
             'name' => $data['name'],
-            'account_id' => $data['account_id'],
+            'account_id' => $accountId,
             'application_id' => $data['application_id'],
             'settings' => $settings,
         ]);
@@ -192,5 +180,26 @@ class FormManagementController extends Controller
         return redirect()
             ->route('manage.forms.index')
             ->with('status', $form->is_active ? 'Form activated.' : 'Form deactivated.');
+    }
+
+    private function resolveOperationalAccountId(Request $request, mixed $candidate): string
+    {
+        $resolved = $this->resolvedAccountId($request);
+
+        if (is_string($resolved) && $resolved !== '') {
+            return $resolved;
+        }
+
+        if (is_string($candidate) && $candidate !== '') {
+            return $candidate;
+        }
+
+        $fallback = (string) config('capture.features.default_account_id', '');
+
+        if ($fallback !== '' && Str::isUuid($fallback)) {
+            return $fallback;
+        }
+
+        return '00000000-0000-0000-0000-000000000001';
     }
 }
