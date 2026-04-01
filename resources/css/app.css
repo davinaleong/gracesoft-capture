@@ -11,18 +11,18 @@
 }
 
 @theme {
-    /* GraceSoft purple scale */
-    --color-gs-purple-50: #f2f1fb;
-    --color-gs-purple-100: #e4e2f7;
-    --color-gs-purple-200: #c9c5ef;
-    --color-gs-purple-300: #a79fe4;
-    --color-gs-purple-400: #7c71d6;
-    --color-gs-purple-500: #5a4cc7;
-    --color-gs-purple-600: #372aac; /* Brand Color */
-    --color-gs-purple-700: #2e2392;
-    --color-gs-purple-800: #251c78;
-    --color-gs-purple-900: #1c155e;
-    --color-gs-purple-950: #120e3f;
+    /* GraceSoft primary scale */
+    --color-gs-purple-50: #eff6ff;
+    --color-gs-purple-100: #dbeafe;
+    --color-gs-purple-200: #bfdbfe;
+    --color-gs-purple-300: #93c5fd;
+    --color-gs-purple-400: #60a5fa;
+    --color-gs-purple-500: #3b82f6;
+    --color-gs-purple-600: #2563eb; /* Brand Color */
+    --color-gs-purple-700: #1d4ed8;
+    --color-gs-purple-800: #1e40af;
+    --color-gs-purple-900: #1e3a8a;
+    --color-gs-purple-950: #172554;
 
     /* GraceSoft neutral (black) scale */
     --color-gs-black-50: #f5f5f5;
@@ -69,7 +69,7 @@
     --gs-neutral-900: var(--color-gs-black-900);
     --gs-neutral-950: var(--color-gs-black-950);
 
-    --gs-brand-primary: var(--gs-primary-600); /* #372aac */
+    --gs-brand-primary: var(--gs-primary-600); /* #2563eb */
     --gs-brand-neutral: var(--gs-neutral-950); /* #000000 */
 
     /* Semantic aliases */
@@ -107,7 +107,7 @@
 
     /* Shadows */
     --gs-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
-    --gs-shadow-md: 0 8px 18px rgba(46, 35, 146, 0.05);
+    --gs-shadow-md: 0 8px 18px rgba(37, 99, 235, 0.08);
 }
 
 @layer base {

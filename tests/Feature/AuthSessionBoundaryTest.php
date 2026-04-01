@@ -6,9 +6,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('root route redirects guests to user login page', function () {
+test('root route shows landing page for guests', function () {
     $this->get('/')
-        ->assertRedirect(route('login'));
+    ->assertOk()
+    ->assertSee('Capture every support request before it slips through');
 });
 
 test('root route redirects authenticated users to forms dashboard', function () {

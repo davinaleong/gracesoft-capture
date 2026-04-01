@@ -10,7 +10,7 @@ body *:not(html):not(style):not(br):not(tr):not(code) {
 
 body {
     -webkit-text-size-adjust: none;
-    background-color: #372aac;
+    background-color: #2563EB;
     color: #ffffff;
     height: 100%;
     line-height: 1.4;
@@ -81,7 +81,7 @@ img {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 100%;
-    background-color: #372aac;
+    background-color: #2563EB;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -126,9 +126,9 @@ img {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 100%;
-    background-color: #372aac;
-    border-bottom: 1px solid #372aac;
-    border-top: 1px solid #372aac;
+    background-color: #2563EB;
+    border-bottom: 1px solid #2563EB;
+    border-top: 1px solid #2563EB;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -241,11 +241,11 @@ img {
 
 .button-blue,
 .button-primary {
-    background-color: #372aac;
-    border-bottom: 8px solid #372aac;
-    border-left: 18px solid #372aac;
-    border-right: 18px solid #372aac;
-    border-top: 8px solid #372aac;
+    background-color: #2563EB;
+    border-bottom: 8px solid #2563EB;
+    border-left: 18px solid #2563EB;
+    border-right: 18px solid #2563EB;
+    border-top: 8px solid #2563EB;
 }
 
 .button-green,
@@ -297,3 +297,4 @@ img {
 .break-all {
     word-break: break-all;
 }
+

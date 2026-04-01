@@ -33,7 +33,7 @@ Route::get('/', function () {
         return redirect()->route('manage.forms.index');
     }
 
-    return redirect()->route('login');
+    return view('landing');
 });
 
 Route::get('/components', function () {
