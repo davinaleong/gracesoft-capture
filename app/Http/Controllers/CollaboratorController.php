@@ -6,6 +6,8 @@ use App\Jobs\SendCollaboratorOwnerNotificationJob;
 use App\Jobs\SendCollaboratorInvitationJob;
 use App\Models\AccountInvitation;
 use App\Models\AccountMembership;
+use App\Models\Plan;
+use App\Models\Subscription;
 use App\Support\AuditLogger;
 use App\Support\PlanGate;
 use Illuminate\Http\RedirectResponse;
@@ -32,6 +34,8 @@ class CollaboratorController extends Controller
                 'membership' => null,
                 'memberships' => collect(),
                 'invitations' => collect(),
+                'planSnapshot' => null,
+                'inviteSeatLimitReached' => false,
             ]);
         }
 
@@ -52,11 +56,15 @@ class CollaboratorController extends Controller
             ->orderByDesc('id')
             ->get();
 
+        $planSnapshot = $this->resolvePlanSnapshot($accountId, $memberships->count());
+
         return view('collaborators.index', [
             'accountId' => $accountId,
             'membership' => $membership,
             'memberships' => $memberships,
             'invitations' => $invitations,
+            'planSnapshot' => $planSnapshot,
+            'inviteSeatLimitReached' => $this->inviteSeatLimitReached($planSnapshot),
         ]);
     }
 
@@ -74,6 +82,12 @@ class CollaboratorController extends Controller
 
         $membership = $this->resolveMembership($user->id, $data['account_id']);
         $this->authorizeOwner($membership->role);
+
+        if ($this->inviteSeatLimitReached($this->resolvePlanSnapshot($data['account_id'], $this->activeCollaboratorsCount($data['account_id'])))) {
+            return back()->withErrors([
+                'role' => 'Your plan has reached collaborator seat capacity.',
+            ])->withInput();
+        }
 
         if (! $planGate->collaboratorInviteRoleAllowed($data['account_id'], $data['role'])) {
             return back()->withErrors([
@@ -394,5 +408,63 @@ class CollaboratorController extends Controller
                 $metadata
             );
         }
+    }
+
+    /**
+     * @return array<string, int|string|null>
+     */
+    private function resolvePlanSnapshot(string $accountId, int $activeCollaborators): array
+    {
+        $plan = Subscription::query()
+            ->join('plans', 'plans.id', '=', 'subscriptions.plan_id')
+            ->where('subscriptions.account_id', $accountId)
+            ->orderByRaw("case when subscriptions.status in ('active', 'trialing', 'past_due') then 0 else 1 end")
+            ->orderByDesc('subscriptions.updated_at')
+            ->select('plans.slug', 'plans.name', 'plans.max_users')
+            ->first();
+
+        if (! $plan) {
+            $defaultSlug = (string) config('capture.features.default_plan', 'growth');
+            $plan = Plan::query()->where('slug', $defaultSlug)->select('slug', 'name', 'max_users')->first();
+        }
+
+        $maxUsers = is_numeric($plan?->max_users) ? (int) $plan->max_users : null;
+        $usagePercent = $maxUsers !== null && $maxUsers > 0
+            ? min(100, (int) round(($activeCollaborators / $maxUsers) * 100))
+            : null;
+
+        return [
+            'slug' => is_string($plan?->slug) ? $plan->slug : (string) config('capture.features.default_plan', 'growth'),
+            'name' => is_string($plan?->name) ? $plan->name : ucfirst((string) config('capture.features.default_plan', 'growth')),
+            'max_users' => $maxUsers,
+            'active_collaborators' => $activeCollaborators,
+            'usage_percent' => $usagePercent,
+        ];
+    }
+
+    /**
+     * @param array<string, int|string|null>|null $planSnapshot
+     */
+    private function inviteSeatLimitReached(?array $planSnapshot): bool
+    {
+        if (! is_array($planSnapshot)) {
+            return false;
+        }
+
+        $maxUsers = $planSnapshot['max_users'] ?? null;
+        $activeCollaborators = $planSnapshot['active_collaborators'] ?? 0;
+
+        return is_int($maxUsers)
+            && $maxUsers > 0
+            && is_int($activeCollaborators)
+            && $activeCollaborators >= $maxUsers;
+    }
+
+    private function activeCollaboratorsCount(string $accountId): int
+    {
+        return AccountMembership::query()
+            ->where('account_id', $accountId)
+            ->whereNull('removed_at')
+            ->count();
     }
 }

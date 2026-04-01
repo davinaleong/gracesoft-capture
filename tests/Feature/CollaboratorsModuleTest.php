@@ -2,9 +2,12 @@
 
 use App\Jobs\SendCollaboratorOwnerNotificationJob;
 use App\Jobs\SendCollaboratorInvitationJob;
+use App\Models\Account;
 use App\Models\AccountInvitation;
 use App\Models\AccountMembership;
 use App\Models\AuditLog;
+use App\Models\Plan;
+use App\Models\Subscription;
 use App\Support\SecurityEventMetrics;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -128,8 +131,124 @@ test('collaborators page shows invite ui controls', function () {
         ->get(route('collaborators.index', ['account_id' => $accountId]))
         ->assertOk()
         ->assertSee('Invite Collaborator')
+        ->assertSee('Plan Capacity')
         ->assertSee('Send Invitation')
         ->assertSee('invite-collaborator-form');
+});
+
+test('collaborators page shows plan-aware seat meter for active subscription plan', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $account = Account::factory()->create(['owner_user_id' => $owner->id]);
+    $accountId = $account->id;
+    $growth = Plan::query()->where('slug', 'growth')->firstOrFail();
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $member->id,
+        'role' => 'member',
+        'joined_at' => now(),
+    ]);
+
+    Subscription::factory()->create([
+        'account_id' => $accountId,
+        'plan_id' => $growth->id,
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($owner)
+        ->get(route('collaborators.index', ['account_id' => $accountId]))
+        ->assertOk()
+        ->assertSee('Plan Capacity: Growth')
+        ->assertSee('You are using 2 of 5 collaborator seats.');
+});
+
+test('collaborator invite form is disabled when seat capacity is reached', function () {
+    $owner = User::factory()->create();
+    $account = Account::factory()->create(['owner_user_id' => $owner->id]);
+    $pro = Plan::query()->where('slug', 'pro')->firstOrFail();
+
+    Subscription::factory()->create([
+        'account_id' => $account->id,
+        'plan_id' => $pro->id,
+        'status' => 'active',
+    ]);
+
+    AccountMembership::query()->create([
+        'account_id' => $account->id,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    foreach (range(1, 19) as $index) {
+        $member = User::factory()->create();
+
+        AccountMembership::query()->create([
+            'account_id' => $account->id,
+            'user_id' => $member->id,
+            'role' => 'member',
+            'joined_at' => now()->subMinutes($index),
+        ]);
+    }
+
+    $this->actingAs($owner)
+        ->get(route('collaborators.index', ['account_id' => $account->id]))
+        ->assertOk()
+        ->assertSee('You are using 20 of 20 collaborator seats.')
+        ->assertSee('All collaborator seats are currently used for your plan.');
+});
+
+test('owner cannot invite collaborator when seat capacity is reached', function () {
+    Queue::fake();
+
+    $owner = User::factory()->create();
+    $account = Account::factory()->create(['owner_user_id' => $owner->id]);
+    $growth = Plan::query()->where('slug', 'growth')->firstOrFail();
+
+    Subscription::factory()->create([
+        'account_id' => $account->id,
+        'plan_id' => $growth->id,
+        'status' => 'active',
+    ]);
+
+    AccountMembership::query()->create([
+        'account_id' => $account->id,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    foreach (range(1, 4) as $index) {
+        $member = User::factory()->create();
+
+        AccountMembership::query()->create([
+            'account_id' => $account->id,
+            'user_id' => $member->id,
+            'role' => 'member',
+            'joined_at' => now()->subMinutes($index),
+        ]);
+    }
+
+    $this->actingAs($owner)
+        ->from(route('collaborators.index', ['account_id' => $account->id]))
+        ->post(route('collaborators.store'), [
+            'account_id' => $account->id,
+            'email' => 'capacity-blocked@example.com',
+            'role' => 'member',
+        ])
+        ->assertRedirect(route('collaborators.index', ['account_id' => $account->id]))
+        ->assertSessionHasErrors('role');
+
+    expect(AccountInvitation::query()->count())->toBe(0);
+    Queue::assertNothingPushed();
 });
 
 test('collaborators page recovers from stale active account context', function () {

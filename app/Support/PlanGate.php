@@ -4,15 +4,10 @@ namespace App\Support;
 
 use App\Models\Form;
 use App\Models\Subscription;
-use App\Services\HQService;
 use Illuminate\Support\Facades\Cache;
 
 class PlanGate
 {
-    public function __construct(private readonly HQService $hqService)
-    {
-    }
-
     public function notesEnabled(string $accountId): bool
     {
         if ((bool) config('capture.features.notes_force_enabled', false)) {
@@ -111,8 +106,7 @@ class PlanGate
                     return $localPlan;
                 }
 
-                return $this->hqService->fetchSubscriptionPlan($accountId)
-                    ?? (string) config('capture.features.default_plan', 'growth');
+                return (string) config('capture.features.default_plan', 'growth');
             }
         );
     }

@@ -23,6 +23,11 @@ return new class extends Migration
         });
 
         $now = now();
+        $envOrNull = static function (string $key): ?string {
+            $value = trim((string) env($key, ''));
+
+            return $value !== '' ? $value : null;
+        };
 
         DB::table('plans')->insert([
             [
@@ -41,8 +46,8 @@ return new class extends Migration
                 'id' => (string) Str::uuid(),
                 'name' => 'Growth',
                 'slug' => 'growth',
-                'stripe_price_id' => env('STRIPE_GROWTH_PRICE_ID'),
-                'stripe_product_id' => env('STRIPE_GROWTH_PRODUCT_ID'),
+                'stripe_price_id' => $envOrNull('STRIPE_GROWTH_PRICE_ID'),
+                'stripe_product_id' => $envOrNull('STRIPE_GROWTH_PRODUCT_ID'),
                 'max_users' => 5,
                 'max_items' => 500,
                 'max_replies' => 2000,
@@ -53,8 +58,8 @@ return new class extends Migration
                 'id' => (string) Str::uuid(),
                 'name' => 'Pro',
                 'slug' => 'pro',
-                'stripe_price_id' => env('STRIPE_PRO_PRICE_ID'),
-                'stripe_product_id' => env('STRIPE_PRO_PRODUCT_ID'),
+                'stripe_price_id' => $envOrNull('STRIPE_PRO_PRICE_ID'),
+                'stripe_product_id' => $envOrNull('STRIPE_PRO_PRODUCT_ID'),
                 'max_users' => 20,
                 'max_items' => 5000,
                 'max_replies' => 20000,

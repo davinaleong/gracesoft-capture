@@ -18,6 +18,7 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\UserEmailVerificationController;
 use App\Http\Controllers\UserPasswordResetController;
+use App\Http\Controllers\UserSecuritySettingsController;
 use App\Http\Controllers\UserSessionController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Auth;
@@ -85,6 +86,12 @@ Route::middleware('auth:web')->group(function () {
     Route::get('/email/verify/{id}/{hash}', [UserEmailVerificationController::class, 'verify'])
         ->middleware('signed')
         ->name('verification.verify');
+
+    Route::prefix('settings/security')->name('settings.security.')->group(function () {
+        Route::get('/', [UserSecuritySettingsController::class, 'index'])->name('index');
+        Route::put('/password', [UserSecuritySettingsController::class, 'updatePassword'])->name('password.update');
+        Route::post('/two-factor/toggle', [UserSecuritySettingsController::class, 'toggleTwoFactor'])->name('two-factor.toggle');
+    });
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {

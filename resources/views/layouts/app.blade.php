@@ -30,6 +30,7 @@
                         <x-ui.button tag="a" href="{{ route('manage.forms.index') }}" variant="secondary" size="sm">Forms</x-ui.button>
                         <x-ui.button tag="a" href="{{ route('inbox.index') }}" variant="secondary" size="sm">Inbox</x-ui.button>
                         <x-ui.button tag="a" href="{{ route('integrations.index') }}" variant="secondary" size="sm">Integrations</x-ui.button>
+                        <x-ui.button tag="a" href="{{ route('collaborators.index') }}" variant="secondary" size="sm">Collaborators</x-ui.button>
                         <x-ui.button tag="a" href="{{ route('support.create') }}" variant="secondary" size="sm">Contact Support</x-ui.button>
                     </nav>
                 </div>
@@ -40,6 +41,7 @@
                             <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('manage.forms.index') }}">Forms</a>
                             <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('inbox.index') }}">Inbox</a>
                             <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('integrations.index') }}">Integrations</a>
+                            <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('collaborators.index') }}">Collaborators</a>
                             <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('support.create') }}">Contact Support</a>
                         </div>
                     </x-ui.dropdown>
@@ -55,9 +57,9 @@
                             <x-ui.button type="submit" size="sm" variant="danger">Admin Logout</x-ui.button>
                         </form>
                     @elseif ($user)
-                        <span class="inline-flex h-9 items-center rounded border border-gs-purple-200 bg-gs-purple-50 px-2 text-xs font-semibold uppercase tracking-wide text-gs-purple-700">
+                        <a href="{{ route('settings.security.index') }}" class="inline-flex h-9 items-center rounded border border-gs-purple-200 bg-gs-purple-50 px-2 text-xs font-semibold uppercase tracking-wide text-gs-purple-700 hover:bg-gs-purple-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gs-purple-300">
                             User Session: {{ $user->email }}
-                        </span>
+                        </a>
                         <form method="post" action="{{ route('logout') }}">
                             @csrf
                             <x-ui.button type="submit" size="sm" variant="neutral">Logout</x-ui.button>
