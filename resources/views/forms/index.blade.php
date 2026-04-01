@@ -47,7 +47,13 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="p-4 text-center text-gs-black-600">No forms created yet.</td>
+                        <td colspan="6" class="p-6 text-center text-gs-black-600">
+                            <p class="font-semibold text-gs-black-800">No forms created yet.</p>
+                            <p class="mt-1 text-sm">Create your first form to start collecting enquiries.</p>
+                            <div class="mt-3">
+                                <x-ui.button tag="a" href="{{ route('manage.forms.create') }}" size="sm" class="px-4">Create Your First Form</x-ui.button>
+                            </div>
+                        </td>
                     </tr>
                 @endforelse
             </tbody>

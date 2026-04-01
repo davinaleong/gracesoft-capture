@@ -33,6 +33,17 @@
         </x-insights.card>
     </div>
 
+    @if ((int) ($summary['total_enquiries'] ?? 0) === 0)
+        <x-ui.card class="mb-4 border border-gs-purple-200 bg-gs-purple-50">
+            <h2 class="text-base font-semibold text-gs-black-900">No insights data yet</h2>
+            <p class="mt-1 text-sm text-gs-black-700">Insights populate after enquiries are received and processed. Create a form, publish it, and submit a few test enquiries to generate trend data.</p>
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+                <x-ui.button tag="a" href="{{ route('manage.forms.create') }}" size="sm" class="px-4">Create Form</x-ui.button>
+                <x-ui.button tag="a" href="{{ route('inbox.index') }}" size="sm" variant="secondary">Go to Inbox</x-ui.button>
+            </div>
+        </x-ui.card>
+    @endif
+
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <x-insights.card>
             <x-insights.chart-line title="Enquiries per day" :points="$summary['daily_enquiries']" />
