@@ -120,7 +120,32 @@ Route::post('/billing/webhooks/stripe', [StripeWebhookController::class, 'handle
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('billing.webhooks.stripe');
 
-Route::get('/billing/success', function () {
+Route::get('/billing/success', function (\Illuminate\Http\Request $request, StripeBillingService $stripeBillingService) {
+    $sessionId = trim((string) $request->query('session_id', ''));
+
+    if (Auth::guard('web')->check()) {
+        if ($sessionId !== '') {
+            try {
+                $session = $stripeBillingService->getCheckoutSessionById($sessionId);
+                $status = (string) data_get($session, 'status', '');
+                $paymentStatus = (string) data_get($session, 'payment_status', '');
+
+                if ($status === 'complete' && in_array($paymentStatus, ['paid', 'no_payment_required'], true)) {
+                    return redirect()->route('manage.forms.index')
+                        ->with('status', 'Payment successful. Your billing update is active.');
+                }
+            } catch (\Throwable $exception) {
+                Log::warning('Unable to verify Stripe checkout success session.', [
+                    'session_id' => $sessionId,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        return redirect()->route('manage.forms.index')
+            ->with('status', 'Checkout completed. Your billing update is being finalized.');
+    }
+
     return view('billing.success');
 })->name('billing.success');
 

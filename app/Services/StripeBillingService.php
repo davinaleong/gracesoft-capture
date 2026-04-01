@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Account;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class StripeBillingService
@@ -76,20 +77,27 @@ class StripeBillingService
         return $customerId;
     }
 
-    public function createCheckoutSession(Account $account, string $priceId): string
+    public function createCheckoutSession(Account $account, string $priceId, ?string $planSlug = null): string
     {
         $customerId = $this->ensureCustomer($account);
+        $successUrl = $this->buildSuccessUrl($planSlug);
+        $cancelUrl = $this->buildCancelUrl($planSlug);
 
         $response = $this->request()
             ->withHeaders(['Idempotency-Key' => 'checkout:' . $account->id . ':' . $priceId . ':' . now()->format('YmdHi')])
             ->post('/v1/checkout/sessions', [
                 'mode' => 'subscription',
                 'customer' => $customerId,
-                'success_url' => (string) config('services.stripe.checkout_success_url'),
-                'cancel_url' => (string) config('services.stripe.checkout_cancel_url'),
+                'client_reference_id' => $account->id,
+                'success_url' => $successUrl,
+                'cancel_url' => $cancelUrl,
                 'line_items[0][price]' => $priceId,
                 'line_items[0][quantity]' => 1,
                 'allow_promotion_codes' => 'true',
+                'metadata[account_id]' => $account->id,
+                'metadata[plan_slug]' => $planSlug ?? '',
+                'subscription_data[metadata][account_id]' => $account->id,
+                'subscription_data[metadata][plan_slug]' => $planSlug ?? '',
             ]);
 
         if (! $response->successful()) {
@@ -103,6 +111,32 @@ class StripeBillingService
         }
 
         return $url;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getCheckoutSessionById(string $sessionId): array
+    {
+        $sessionId = trim($sessionId);
+
+        if ($sessionId === '') {
+            throw new RuntimeException('Stripe checkout session id is required.');
+        }
+
+        $response = $this->request()->get('/v1/checkout/sessions/' . $sessionId);
+
+        if (! $response->successful()) {
+            throw new RuntimeException('Unable to fetch Stripe checkout session details.');
+        }
+
+        $session = $response->json();
+
+        if (! is_array($session)) {
+            throw new RuntimeException('Stripe checkout session response is invalid.');
+        }
+
+        return $session;
     }
 
     public function createPortalSession(Account $account): string
@@ -176,5 +210,89 @@ class StripeBillingService
             ->withToken($secret)
             ->baseUrl($baseUrl)
             ->timeout((int) config('capture.features.stripe_timeout_seconds', 10));
+    }
+
+    private function buildSuccessUrl(?string $planSlug): string
+    {
+        $baseUrl = (string) config('services.stripe.checkout_success_url');
+
+        return $this->appendQuery($baseUrl, array_filter([
+            'session_id' => '{CHECKOUT_SESSION_ID}',
+            'plan' => $planSlug,
+        ], static fn (mixed $value): bool => is_string($value) && $value !== ''));
+    }
+
+    private function buildCancelUrl(?string $planSlug): string
+    {
+        $baseUrl = (string) config('services.stripe.checkout_cancel_url');
+
+        if (! is_string($planSlug) || $planSlug === '') {
+            return $baseUrl;
+        }
+
+        return $this->appendQuery($baseUrl, [
+            'plan' => $planSlug,
+        ]);
+    }
+
+    /**
+     * @param array<string, string> $query
+     */
+    private function appendQuery(string $url, array $query): string
+    {
+        if ($url === '' || $query === []) {
+            return $url;
+        }
+
+        $parts = parse_url($url);
+
+        if (! is_array($parts)) {
+            return $url;
+        }
+
+        $existingQuery = [];
+
+        if (isset($parts['query']) && is_string($parts['query'])) {
+            parse_str($parts['query'], $existingQuery);
+        }
+
+        $mergedQuery = array_merge($existingQuery, $query);
+        $rebuiltQuery = http_build_query($mergedQuery);
+
+        $rebuiltUrl = '';
+
+        if (isset($parts['scheme'])) {
+            $rebuiltUrl .= $parts['scheme'] . '://';
+        }
+
+        if (isset($parts['user'])) {
+            $rebuiltUrl .= $parts['user'];
+
+            if (isset($parts['pass'])) {
+                $rebuiltUrl .= ':' . $parts['pass'];
+            }
+
+            $rebuiltUrl .= '@';
+        }
+
+        if (isset($parts['host'])) {
+            $rebuiltUrl .= $parts['host'];
+        }
+
+        if (isset($parts['port'])) {
+            $rebuiltUrl .= ':' . $parts['port'];
+        }
+
+        $rebuiltUrl .= $parts['path'] ?? '';
+
+        if ($rebuiltQuery !== '') {
+            $rebuiltUrl .= '?' . $rebuiltQuery;
+        }
+
+        if (isset($parts['fragment'])) {
+            $rebuiltUrl .= '#' . $parts['fragment'];
+        }
+
+        return Str::replace('%7BCHECKOUT_SESSION_ID%7D', '{CHECKOUT_SESSION_ID}', $rebuiltUrl);
     }
 }

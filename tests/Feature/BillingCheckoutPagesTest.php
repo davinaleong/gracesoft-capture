@@ -11,6 +11,15 @@ test('billing success page is accessible', function () {
         ->assertSee('Payment successful');
 });
 
+test('billing success redirects authenticated users to forms dashboard with status', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user, 'web')
+        ->get(route('billing.success'))
+        ->assertRedirect(route('manage.forms.index'))
+        ->assertSessionHas('status');
+});
+
 test('billing cancel page is accessible', function () {
     $this->get(route('billing.cancel'))
         ->assertOk()

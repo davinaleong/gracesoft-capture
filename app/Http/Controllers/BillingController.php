@@ -30,7 +30,7 @@ class BillingController extends Controller
             ]);
         }
 
-        $checkoutUrl = $stripeBillingService->createCheckoutSession($account, $priceId);
+        $checkoutUrl = $stripeBillingService->createCheckoutSession($account, $priceId, (string) $plan->slug);
 
         return redirect()->away($checkoutUrl);
     }

@@ -53,6 +53,25 @@ test('owner can start stripe checkout for paid plan', function () {
         ->assertRedirect('https://checkout.stripe.test/session_abc');
 
     expect($account->fresh()->stripe_customer_id)->toBe('cus_test_123');
+
+    Http::assertSent(function (\Illuminate\Http\Client\Request $request) use ($account): bool {
+        if ($request->url() !== 'https://stripe.test/v1/checkout/sessions') {
+            return false;
+        }
+
+        parse_str($request->body(), $payload);
+
+        return ($payload['mode'] ?? null) === 'subscription'
+            && ($payload['line_items'][0]['price'] ?? null) === 'price_growth_123'
+            && ($payload['line_items'][0]['quantity'] ?? null) == 1
+            && ($payload['metadata']['account_id'] ?? null) === $account->id
+            && ($payload['metadata']['plan_slug'] ?? null) === 'growth'
+            && ($payload['subscription_data']['metadata']['account_id'] ?? null) === $account->id
+            && ($payload['subscription_data']['metadata']['plan_slug'] ?? null) === 'growth'
+            && str_contains((string) ($payload['success_url'] ?? ''), 'session_id={CHECKOUT_SESSION_ID}')
+            && str_contains((string) ($payload['success_url'] ?? ''), 'plan=growth')
+            && str_contains((string) ($payload['cancel_url'] ?? ''), 'plan=growth');
+    });
 });
 
 test('non owner cannot start billing checkout', function () {
