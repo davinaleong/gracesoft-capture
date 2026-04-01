@@ -56,6 +56,7 @@
 </head>
 <body class="bg-white text-gs-black-900 antialiased">
     @php
+        $webUser = auth('web')->user();
         $showAdminLoginLinks = (bool) config('capture.features.show_admin_login_links', false);
         $plans = isset($plans) ? $plans : collect();
         $stripePrices = isset($stripePrices) && is_array($stripePrices) ? $stripePrices : [];
@@ -112,9 +113,13 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
-                    <x-ui.button tag="a" href="{{ route('login') }}" variant="secondary" size="sm">User Login</x-ui.button>
-                    <x-ui.button tag="a" href="{{ route('register') }}" size="sm">Start Free</x-ui.button>
-                    @if ($showAdminLoginLinks)
+                    @if ($webUser)
+                        <x-ui.button tag="a" href="{{ route('manage.forms.index') }}" variant="secondary" size="sm">Go to Dashboard</x-ui.button>
+                    @else
+                        <x-ui.button tag="a" href="{{ route('login') }}" variant="secondary" size="sm">User Login</x-ui.button>
+                        <x-ui.button tag="a" href="{{ route('register') }}" size="sm">Start Free</x-ui.button>
+                    @endif
+                    @if ($showAdminLoginLinks && ! $webUser)
                         <x-ui.button tag="a" href="{{ route('admin.login') }}" variant="danger" size="sm">Admin</x-ui.button>
                     @endif
                 </div>

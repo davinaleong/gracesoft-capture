@@ -1,6 +1,10 @@
 <?php
 
+use App\Models\Account;
+use App\Models\AccountMembership;
 use App\Models\Form;
+use App\Models\Plan;
+use App\Models\Subscription;
 use App\Services\HQService;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,6 +22,60 @@ test('forms index displays created forms', function () {
     $this->get(route('manage.forms.index'))
         ->assertOk()
         ->assertSee('Website Contact');
+});
+
+test('dashboard shows plan switching controls for workspace owners', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $account = Account::factory()->create([
+        'owner_user_id' => $user->id,
+    ]);
+
+    AccountMembership::query()->create([
+        'account_id' => $account->id,
+        'user_id' => $user->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    $growth = Plan::query()->where('slug', 'growth')->first();
+    $pro = Plan::query()->where('slug', 'pro')->first();
+
+    expect($growth)->not->toBeNull();
+    expect($pro)->not->toBeNull();
+
+    Subscription::factory()->create([
+        'account_id' => $account->id,
+        'plan_id' => $growth->id,
+        'status' => 'active',
+    ]);
+
+    $this->get(route('manage.forms.index'))
+        ->assertOk()
+        ->assertSee('Subscription')
+        ->assertSee('Current plan:')
+        ->assertSee('Growth')
+        ->assertSee('Switch to Pro');
+});
+
+test('dashboard hides plan switching controls for non owners', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $account = Account::factory()->create();
+
+    AccountMembership::query()->create([
+        'account_id' => $account->id,
+        'user_id' => $user->id,
+        'role' => 'member',
+        'joined_at' => now(),
+    ]);
+
+    $this->get(route('manage.forms.index'))
+        ->assertOk()
+        ->assertSee('Only workspace owners can change subscription plans from the dashboard.')
+        ->assertDontSee('Switch to Pro');
 });
 
 test('form can be created from management module', function () {

@@ -33,10 +33,6 @@ Route::get('/', function (StripeBillingService $stripeBillingService) {
         return redirect()->route('admin.compliance.index');
     }
 
-    if (Auth::guard('web')->check()) {
-        return redirect()->route('manage.forms.index');
-    }
-
     $plans = Plan::query()
         ->whereIn('slug', ['free', 'growth', 'pro'])
         ->orderByRaw("CASE slug WHEN 'free' THEN 1 WHEN 'growth' THEN 2 WHEN 'pro' THEN 3 ELSE 99 END")

@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountMembership;
 use App\Models\Form;
+use App\Models\Plan;
+use App\Models\Subscription;
 use App\Services\HQService;
 use App\Support\AuditLogger;
 use App\Support\PlanGate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -16,9 +20,37 @@ class FormManagementController extends Controller
     public function index(Request $request): View
     {
         $query = Form::query()->latest();
+        $billingAccountId = $this->resolveBillingAccountId($request);
+
+        $billingRole = is_string($billingAccountId) && $billingAccountId !== ''
+            ? $this->resolvedMembershipRole($request, $billingAccountId)
+            : null;
+
+        if (! is_string($billingRole) || $billingRole === '') {
+            $billingRole = $this->fallbackMembershipRole($billingAccountId);
+        }
+
+        $currentSubscription = is_string($billingAccountId) && $billingAccountId !== ''
+            ? Subscription::query()
+                ->with('plan')
+                ->where('account_id', $billingAccountId)
+                ->orderByRaw("case when status in ('active', 'trialing', 'past_due') then 0 else 1 end")
+                ->orderByDesc('updated_at')
+                ->first()
+            : null;
+
+        $paidPlans = Plan::query()
+            ->whereIn('slug', ['growth', 'pro'])
+            ->orderByRaw("CASE slug WHEN 'growth' THEN 1 WHEN 'pro' THEN 2 ELSE 99 END")
+            ->get();
 
         return view('forms.index', [
             'forms' => $query->paginate(15)->withQueryString(),
+            'billingAccountId' => $billingAccountId,
+            'billingRole' => $billingRole,
+            'canManageBilling' => $this->isAdminOverride($request) || $billingRole === 'owner',
+            'currentSubscription' => $currentSubscription,
+            'paidPlans' => $paidPlans,
         ]);
     }
 
@@ -190,5 +222,60 @@ class FormManagementController extends Controller
         }
 
         return '00000000-0000-0000-0000-000000000001';
+    }
+
+    private function resolveBillingAccountId(Request $request): ?string
+    {
+        $resolvedAccountId = $this->resolvedAccountId($request);
+
+        if (is_string($resolvedAccountId) && $resolvedAccountId !== '') {
+            return $resolvedAccountId;
+        }
+
+        $sessionAccountId = (string) $request->session()->get('active_account_id', '');
+
+        if ($sessionAccountId !== '' && Str::isUuid($sessionAccountId)) {
+            return $sessionAccountId;
+        }
+
+        $user = Auth::guard('web')->user();
+
+        if (! $user) {
+            return null;
+        }
+
+        $ownerAccountId = (string) AccountMembership::query()
+            ->where('user_id', $user->getAuthIdentifier())
+            ->where('role', 'owner')
+            ->whereNull('removed_at')
+            ->value('account_id');
+
+        if ($ownerAccountId !== '') {
+            return $ownerAccountId;
+        }
+
+        $memberAccountId = (string) AccountMembership::query()
+            ->where('user_id', $user->getAuthIdentifier())
+            ->whereNull('removed_at')
+            ->value('account_id');
+
+        return $memberAccountId !== '' ? $memberAccountId : null;
+    }
+
+    private function fallbackMembershipRole(?string $accountId): ?string
+    {
+        $user = Auth::guard('web')->user();
+
+        if (! $user || ! is_string($accountId) || $accountId === '') {
+            return null;
+        }
+
+        $role = AccountMembership::query()
+            ->where('user_id', $user->getAuthIdentifier())
+            ->where('account_id', $accountId)
+            ->whereNull('removed_at')
+            ->value('role');
+
+        return is_string($role) && $role !== '' ? $role : null;
     }
 }

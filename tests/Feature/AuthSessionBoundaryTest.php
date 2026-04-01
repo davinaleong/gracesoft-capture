@@ -12,12 +12,14 @@ test('root route shows landing page for guests', function () {
     ->assertSee('Capture every support request before it slips through');
 });
 
-test('root route redirects authenticated users to forms dashboard', function () {
+test('root route is accessible to authenticated users for landing checkout flow', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user, 'web')
         ->get('/')
-        ->assertRedirect(route('manage.forms.index'));
+    ->assertOk()
+    ->assertSee('Pricing plans')
+    ->assertSee('Upgrade to Growth');
 });
 
 test('root route redirects authenticated admins to compliance dashboard', function () {
