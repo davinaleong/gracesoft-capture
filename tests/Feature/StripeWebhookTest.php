@@ -156,6 +156,68 @@ test('stripe webhook processes duplicate event only once', function () {
     expect(Subscription::query()->where('stripe_subscription_id', 'sub_dup_123')->firstOrFail()->status)->toBe('past_due');
 });
 
+test('stripe price webhook syncs plan price and product mapping', function () {
+    $growth = Plan::query()->where('slug', 'growth')->firstOrFail();
+
+    $payload = [
+        'id' => 'evt_price_sync_123',
+        'object' => 'event',
+        'type' => 'price.updated',
+        'data' => [
+            'object' => [
+                'id' => 'price_growth_live_123',
+                'object' => 'price',
+                'lookup_key' => 'growth',
+                'metadata' => [
+                    'capture_plan_slug' => 'growth',
+                ],
+                'product' => [
+                    'id' => 'prod_growth_live_123',
+                    'object' => 'product',
+                    'name' => 'Growth',
+                ],
+            ],
+        ],
+    ];
+
+    $this->postJson(route('billing.webhooks.stripe'), $payload, [
+        'Stripe-Signature' => stripeSignature($payload, 'whsec_test_secret'),
+    ])->assertOk();
+
+    $growth->refresh();
+
+    expect($growth->stripe_price_id)->toBe('price_growth_live_123');
+    expect($growth->stripe_product_id)->toBe('prod_growth_live_123');
+});
+
+test('stripe product webhook syncs plan product mapping', function () {
+    $pro = Plan::query()->where('slug', 'pro')->firstOrFail();
+
+    $payload = [
+        'id' => 'evt_product_sync_123',
+        'object' => 'event',
+        'type' => 'product.updated',
+        'data' => [
+            'object' => [
+                'id' => 'prod_pro_live_123',
+                'object' => 'product',
+                'name' => 'Pro',
+                'metadata' => [
+                    'capture_plan_slug' => 'pro',
+                ],
+            ],
+        ],
+    ];
+
+    $this->postJson(route('billing.webhooks.stripe'), $payload, [
+        'Stripe-Signature' => stripeSignature($payload, 'whsec_test_secret'),
+    ])->assertOk();
+
+    $pro->refresh();
+
+    expect($pro->stripe_product_id)->toBe('prod_pro_live_123');
+});
+
 function stripeSignature(array $payload, string $secret): string
 {
     $timestamp = now()->timestamp;

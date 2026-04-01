@@ -1,6 +1,8 @@
 <?php
 
 use App\Jobs\RunDataRetentionCleanupJob;
+use App\Services\StripeBillingService;
+use App\Services\StripeCatalogSyncService;
 use App\Services\DataRetentionService;
 use App\Support\SecurityEventMetrics;
 use Illuminate\Support\Facades\Log;
@@ -95,6 +97,22 @@ Artisan::command('capture:secrets:rotation:check', function () {
 
     return 0;
 })->purpose('Check whether secret rotation is within configured policy interval.');
+
+Artisan::command('capture:stripe:catalog:sync', function (StripeCatalogSyncService $stripeCatalogSyncService, StripeBillingService $stripeBillingService) {
+    $result = $stripeCatalogSyncService->syncFromStripe($stripeBillingService);
+
+    $this->info('Stripe catalog sync completed.');
+    $this->table(
+        ['Metric', 'Value'],
+        [
+            ['total_prices', (string) ($result['total'] ?? 0)],
+            ['synced_plans', (string) ($result['synced'] ?? 0)],
+            ['skipped_prices', (string) ($result['skipped'] ?? 0)],
+        ]
+    );
+
+    return 0;
+})->purpose('Sync Stripe recurring prices/products into local paid plan mappings.');
 
 Schedule::command('capture:retention:cleanup')
     ->dailyAt('02:10')

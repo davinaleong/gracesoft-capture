@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\Plan;
 use App\Models\StripeWebhookEvent;
 use App\Models\Subscription;
+use App\Services\StripeCatalogSyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -18,6 +19,10 @@ use UnexpectedValueException;
 
 class StripeWebhookController extends Controller
 {
+    public function __construct(private readonly StripeCatalogSyncService $stripeCatalogSyncService)
+    {
+    }
+
     public function handle(Request $request): JsonResponse
     {
         $payload = $request->getContent();
@@ -59,6 +64,10 @@ class StripeWebhookController extends Controller
             match ($type) {
                 'invoice.paid' => $this->handleInvoicePaid($payload),
                 'customer.subscription.updated', 'customer.subscription.deleted' => $this->handleSubscriptionUpdated($payload),
+                'product.created', 'product.updated' => $this->stripeCatalogSyncService->syncProduct((array) Arr::get($payload, 'data.object', [])),
+                'price.created', 'price.updated' => $this->stripeCatalogSyncService->syncPrice((array) Arr::get($payload, 'data.object', [])),
+                'product.deleted' => $this->stripeCatalogSyncService->clearDeletedProduct((string) Arr::get($payload, 'data.object.id', '')),
+                'price.deleted' => $this->stripeCatalogSyncService->clearDeletedPrice((string) Arr::get($payload, 'data.object.id', '')),
                 default => null,
             };
 

@@ -9,6 +9,47 @@ use RuntimeException;
 
 class StripeBillingService
 {
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function listActiveRecurringPricesWithProducts(): array
+    {
+        $prices = [];
+        $startingAfter = null;
+
+        do {
+            $query = [
+                'active' => 'true',
+                'type' => 'recurring',
+                'limit' => 100,
+                'expand[]' => 'data.product',
+            ];
+
+            if (is_string($startingAfter) && $startingAfter !== '') {
+                $query['starting_after'] = $startingAfter;
+            }
+
+            $response = $this->request()->get('/v1/prices', $query);
+
+            if (! $response->successful()) {
+                throw new RuntimeException('Unable to fetch Stripe prices catalog.');
+            }
+
+            $batch = $response->json('data', []);
+
+            foreach ($batch as $item) {
+                if (is_array($item)) {
+                    $prices[] = $item;
+                }
+            }
+
+            $startingAfter = (string) data_get($batch, (count($batch) - 1) . '.id', '');
+            $hasMore = (bool) $response->json('has_more', false);
+        } while ($hasMore && $startingAfter !== '');
+
+        return $prices;
+    }
+
     public function ensureCustomer(Account $account): string
     {
         if (is_string($account->stripe_customer_id) && $account->stripe_customer_id !== '') {
