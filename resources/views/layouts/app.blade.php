@@ -20,12 +20,19 @@
     <main class="container mx-auto p-4 md:p-6 space-y-4">
         <x-ui.card class="p-3 md:p-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <nav class="hidden items-center gap-2 md:flex md:gap-3">
-                    <x-ui.button tag="a" href="{{ route('manage.forms.index') }}" variant="secondary" size="sm">Forms</x-ui.button>
-                    <x-ui.button tag="a" href="{{ route('inbox.index') }}" variant="secondary" size="sm">Inbox</x-ui.button>
-                    <x-ui.button tag="a" href="{{ route('integrations.index') }}" variant="secondary" size="sm">Integrations</x-ui.button>
-                    <x-ui.button tag="a" href="{{ route('support.create') }}" variant="secondary" size="sm">Contact Support</x-ui.button>
-                </nav>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('manage.forms.index') }}" class="inline-flex items-center gap-2 rounded px-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gs-purple-300">
+                        <img src="{{ asset('wm.svg') }}" alt="GraceSoft Capture" class="h-4 w-auto" />
+                        <img src="{{ asset('beta.svg') }}" alt="Beta" class="h-3 w-auto" />
+                    </a>
+
+                    <nav class="hidden items-center gap-2 md:flex md:gap-3">
+                        <x-ui.button tag="a" href="{{ route('manage.forms.index') }}" variant="secondary" size="sm">Forms</x-ui.button>
+                        <x-ui.button tag="a" href="{{ route('inbox.index') }}" variant="secondary" size="sm">Inbox</x-ui.button>
+                        <x-ui.button tag="a" href="{{ route('integrations.index') }}" variant="secondary" size="sm">Integrations</x-ui.button>
+                        <x-ui.button tag="a" href="{{ route('support.create') }}" variant="secondary" size="sm">Contact Support</x-ui.button>
+                    </nav>
+                </div>
 
                 <div class="md:hidden">
                     <x-ui.dropdown label="Menu" class="w-full">
