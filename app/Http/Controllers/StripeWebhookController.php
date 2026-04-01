@@ -4,12 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\Plan;
+use App\Models\StripeWebhookEvent;
 use App\Models\Subscription;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Stripe\Event;
+use Stripe\Exception\SignatureVerificationException;
+use Stripe\Webhook;
+use UnexpectedValueException;
 
 class StripeWebhookController extends Controller
 {
@@ -17,20 +22,51 @@ class StripeWebhookController extends Controller
     {
         $payload = $request->getContent();
 
-        if (! $this->hasValidSignature($request, $payload)) {
+        try {
+            $event = $this->verifiedEvent($request, $payload);
+        } catch (UnexpectedValueException|SignatureVerificationException) {
             return response()->json(['message' => 'Invalid webhook signature.'], 401);
         }
 
-        $event = $request->json()->all();
-        $type = (string) Arr::get($event, 'type', '');
-
-        match ($type) {
-            'invoice.paid' => $this->handleInvoicePaid($event),
-            'customer.subscription.updated', 'customer.subscription.deleted' => $this->handleSubscriptionUpdated($event),
-            default => null,
-        };
+        $this->handleIdempotentEvent($event);
 
         return response()->json(['ok' => true]);
+    }
+
+    private function handleIdempotentEvent(Event $event): void
+    {
+        DB::transaction(function () use ($event): void {
+            $record = StripeWebhookEvent::query()
+                ->where('event_id', $event->id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($record?->processed_at !== null) {
+                return;
+            }
+
+            if (! $record) {
+                $record = StripeWebhookEvent::query()->create([
+                    'event_id' => $event->id,
+                    'event_type' => $event->type,
+                    'processed_at' => null,
+                ]);
+            }
+
+            $payload = $event->toArray();
+            $type = (string) Arr::get($payload, 'type', '');
+
+            match ($type) {
+                'invoice.paid' => $this->handleInvoicePaid($payload),
+                'customer.subscription.updated', 'customer.subscription.deleted' => $this->handleSubscriptionUpdated($payload),
+                default => null,
+            };
+
+            $record->forceFill([
+                'event_type' => $event->type,
+                'processed_at' => now(),
+            ])->save();
+        });
     }
 
     private function handleInvoicePaid(array $event): void
@@ -130,39 +166,15 @@ class StripeWebhookController extends Controller
         });
     }
 
-    private function hasValidSignature(Request $request, string $payload): bool
+    private function verifiedEvent(Request $request, string $payload): Event
     {
         $secret = (string) config('services.stripe.webhook_secret', '');
-
-        if ($secret === '') {
-            return false;
-        }
+        abort_if($secret === '', 500, 'Stripe webhook secret is not configured.');
 
         $header = (string) $request->header('Stripe-Signature', '');
+        $tolerance = (int) config('services.stripe.webhook_tolerance_seconds', 300);
 
-        if ($header === '') {
-            return false;
-        }
-
-        $parts = collect(explode(',', $header))
-            ->map(fn (string $part): array => array_pad(explode('=', trim($part), 2), 2, ''))
-            ->filter(fn (array $pair): bool => $pair[0] !== '' && $pair[1] !== '')
-            ->mapWithKeys(fn (array $pair): array => [$pair[0] => $pair[1]]);
-
-        $timestamp = $parts->get('t');
-        $signature = $parts->get('v1');
-
-        if (! is_string($timestamp) || ! ctype_digit($timestamp) || ! is_string($signature) || $signature === '') {
-            return false;
-        }
-
-        if (abs(now()->timestamp - (int) $timestamp) > (int) config('services.stripe.webhook_tolerance_seconds', 300)) {
-            return false;
-        }
-
-        $expected = hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
-
-        return hash_equals($expected, $signature);
+        return Webhook::constructEvent($payload, $header, $secret, $tolerance);
     }
 
     private function planByPriceId(string $priceId): Plan

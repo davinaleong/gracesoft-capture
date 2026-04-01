@@ -2,6 +2,7 @@
 
 use App\Jobs\SyncFeedbackToHQJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
@@ -16,11 +17,13 @@ test('contact support page can be opened', function () {
 
 test('submitting support form dispatches feedback sync job', function () {
     Queue::fake();
+    Mail::shouldReceive('raw')
+        ->once();
 
     $payload = [
         'name' => 'Alyssa User',
         'email' => 'alyssa@example.com',
-        'subject' => 'Need help with inbox',
+        'subject' => 'technical_issue',
         'message' => 'Could you help me with status transitions?',
     ];
 
@@ -31,7 +34,7 @@ test('submitting support form dispatches feedback sync job', function () {
     Queue::assertPushed(SyncFeedbackToHQJob::class, function (SyncFeedbackToHQJob $job) use ($payload) {
         return data_get($job->feedbackPayload, 'name') === $payload['name']
             && data_get($job->feedbackPayload, 'email') === $payload['email']
-            && data_get($job->feedbackPayload, 'subject') === $payload['subject']
+            && data_get($job->feedbackPayload, 'subject') === 'Technical issue'
             && data_get($job->feedbackPayload, 'message') === $payload['message']
             && data_get($job->feedbackPayload, 'account_id') === null;
     });

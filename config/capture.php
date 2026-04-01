@@ -33,6 +33,7 @@ return [
         'sso_enabled' => (bool) env('CAPTURE_SSO_ENABLED', false),
         'sso_shared_secret' => env('CAPTURE_SSO_SHARED_SECRET'),
         'sso_signature_ttl_seconds' => (int) env('CAPTURE_SSO_SIGNATURE_TTL_SECONDS', 300),
+        'support_contact_email' => env('CAPTURE_SUPPORT_CONTACT_EMAIL', 'support@gracesoft.dev'),
         'default_account_id' => env('CAPTURE_DEFAULT_ACCOUNT_ID', '00000000-0000-0000-0000-000000000001'),
         'consent_policy_version' => env('CAPTURE_CONSENT_POLICY_VERSION', 'v1'),
         'data_retention_days' => (int) env('APP_DATA_RETENTION_DAYS', 365),

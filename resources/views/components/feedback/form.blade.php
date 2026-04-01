@@ -15,7 +15,14 @@
         </x-ui.field>
 
         <x-ui.field for="subject" label="Subject" required class="md:col-span-2">
-            <x-ui.input id="subject" name="subject" :value="old('subject')" required />
+            <x-ui.select id="subject" name="subject" required>
+                <option value="" @selected(old('subject') === '') disabled>Select a support topic</option>
+                <option value="general_inquiry" @selected(old('subject') === 'general_inquiry')>General inquiry</option>
+                <option value="technical_issue" @selected(old('subject') === 'technical_issue')>Technical issue</option>
+                <option value="billing_payment" @selected(old('subject') === 'billing_payment')>Billing or payment</option>
+                <option value="feature_request" @selected(old('subject') === 'feature_request')>Feature request</option>
+                <option value="account_access" @selected(old('subject') === 'account_access')>Account access</option>
+            </x-ui.select>
         </x-ui.field>
 
         <x-ui.field for="message" label="Message" required class="md:col-span-2">
