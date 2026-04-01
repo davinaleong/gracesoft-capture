@@ -5,3 +5,5 @@
 [ ] Privacy page
 [ ] T&C page
 [ ] Admin Panel
+[ ] Documentation page
+[ ] Updates page
