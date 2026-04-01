@@ -10,9 +10,6 @@
             <thead class="bg-gray-50 uppercase text-xs tracking-wide text-gs-black-700">
                 <tr>
                     <th class="p-2">Name</th>
-                    <th class="p-2">Token</th>
-                    <th class="p-2">Account</th>
-                    <th class="p-2">Application</th>
                     <th class="p-2">Active</th>
                     <th class="p-2">Actions</th>
                 </tr>
@@ -21,9 +18,6 @@
                 @forelse ($forms as $form)
                     <tr class="border-b border-gray-200">
                         <td class="p-2">{{ $form->name }}</td>
-                        <td class="p-2">{{ $form->public_token }}</td>
-                        <td class="p-2">{{ $form->account_id }}</td>
-                        <td class="p-2">{{ $form->application_id }}</td>
                         <td class="p-2">
                             <x-ui.badge :variant="$form->is_active ? 'success' : 'neutral'">
                                 {{ $form->is_active ? 'Active' : 'Inactive' }}
@@ -32,6 +26,7 @@
                         <td class="p-2">
                             <div class="flex flex-wrap items-center gap-2">
                                 <x-ui.button tag="a" href="{{ route('manage.forms.edit', $form) }}" variant="secondary" size="sm">Edit</x-ui.button>
+                                <x-ui.button tag="a" href="{{ route('integrations.index', ['account_id' => $form->account_id, 'form_id' => $form->id]) }}" variant="secondary" size="sm">Integrate</x-ui.button>
                                 <form method="post" action="{{ route('manage.forms.toggle-active', $form) }}" class="inline-flex">
                                     @csrf
                                     <x-ui.button type="submit" :variant="$form->is_active ? 'danger' : 'success'" size="sm">
@@ -47,7 +42,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="p-6 text-center text-gs-black-600">
+                        <td colspan="3" class="p-6 text-center text-gs-black-600">
                             <p class="font-semibold text-gs-black-800">No forms created yet.</p>
                             <p class="mt-1 text-sm">Create your first form to start collecting enquiries.</p>
                             <div class="mt-3">

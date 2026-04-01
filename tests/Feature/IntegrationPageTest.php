@@ -43,3 +43,38 @@ test('integration page shows account scoped forms and embed snippets', function 
         ->assertSee(route('forms.show', $inScopeForm->public_token), false)
         ->assertSee('Send Test Enquiry');
 });
+
+test('integration page can focus on a specific form from form actions', function () {
+    config()->set('capture.features.enforce_access_context', true);
+
+    $accountId = 'cccccccc-3333-3333-3333-333333333333';
+
+    $user = User::factory()->create();
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $user->id,
+        'role' => 'viewer',
+        'joined_at' => now(),
+    ]);
+
+    $focusedForm = Form::factory()->create([
+        'name' => 'Focused Form',
+        'account_id' => $accountId,
+    ]);
+
+    Form::factory()->create([
+        'name' => 'Sibling Form',
+        'account_id' => $accountId,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('integrations.index', [
+            'account_id' => $accountId,
+            'form_id' => $focusedForm->id,
+        ]))
+        ->assertOk()
+        ->assertSee('Showing embed code for the selected form.')
+        ->assertSee('Focused Form')
+        ->assertDontSee('Sibling Form');
+});

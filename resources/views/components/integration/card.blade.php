@@ -10,7 +10,6 @@
 <tr class="border-b border-gray-200 align-top">
     <td class="p-2">
         <p class="font-semibold text-gs-black-800">{{ $form->name }}</p>
-        <p class="text-xs text-gs-black-600">{{ $form->public_token }}</p>
     </td>
     <td class="p-2 text-sm text-gs-black-700">{{ $appDomain !== '' ? $appDomain : 'N/A' }}</td>
     <td class="p-2">

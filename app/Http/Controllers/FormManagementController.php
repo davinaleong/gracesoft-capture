@@ -29,7 +29,7 @@ class FormManagementController extends Controller
         return view('forms.create');
     }
 
-    public function store(Request $request, AuditLogger $auditLogger, PlanGate $planGate, HQService $hqService): RedirectResponse
+    public function store(Request $request, AuditLogger $auditLogger, PlanGate $planGate): RedirectResponse
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -43,24 +43,13 @@ class FormManagementController extends Controller
         $applicationId = (string) ($data['application_id'] ?? '');
 
         if ($applicationId === '') {
-            $applicationId = (string) $hqService->createApplication($accountId, $data['name']);
-
-            if ($applicationId === '') {
-                return back()->withErrors([
-                    'application_id' => 'Unable to create application in HQ for this form.',
-                ])->withInput();
-            }
+            // Local-first creation: assign an internal application id when omitted.
+            $applicationId = (string) Str::uuid();
         }
 
         if (! $this->isAdminOverride($request) && ! $planGate->formCreationAllowed($accountId)) {
             return back()->withErrors([
                 'plan' => 'Your current plan has reached the maximum number of forms.',
-            ])->withInput();
-        }
-
-        if (! $hqService->validateApplication($accountId, $applicationId)) {
-            return back()->withErrors([
-                'application_id' => 'The selected application could not be validated with HQ.',
             ])->withInput();
         }
 

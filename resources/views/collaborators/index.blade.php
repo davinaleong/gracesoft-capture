@@ -11,7 +11,7 @@
                 <h2 class="text-lg font-semibold text-gs-black-900">Invite Collaborator</h2>
                 <p class="text-sm text-gs-black-700">
                     @if ($accountId)
-                        Invite by email and choose role access for account {{ $accountId }}.
+                        Invite by email and choose role access for the selected workspace.
                     @else
                         No account membership found for your user yet.
                     @endif
@@ -98,7 +98,7 @@
         <x-ui.card class="space-y-3 p-4">
             <div>
                 <h2 class="text-lg font-semibold text-gs-black-900">Collaborators</h2>
-                <p class="text-sm text-gs-black-700">Account: {{ $accountId ?? 'Not selected' }}</p>
+                <p class="text-sm text-gs-black-700">Workspace collaborators</p>
             </div>
 
             <x-ui.table>

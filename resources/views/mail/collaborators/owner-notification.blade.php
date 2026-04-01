@@ -1,4 +1,4 @@
-<p>Collaborator invitation update for account {{ $accountId }}.</p>
+<p>Collaborator invitation update for your workspace.</p>
 
 <p>
     Invitation for <strong>{{ $invitationEmail }}</strong> (role: {{ $invitationRole }})

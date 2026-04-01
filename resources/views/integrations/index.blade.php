@@ -4,6 +4,9 @@
     <x-ui.card class="mb-4">
         <h1 class="text-xl font-semibold text-gs-black-800">Integration</h1>
         <p class="mt-1 text-sm text-gs-black-600">Embed your form in any website using the iframe snippet below.</p>
+        @if (! is_null($selectedFormId ?? null))
+            <p class="mt-2 text-xs text-gs-purple-700">Showing embed code for the selected form.</p>
+        @endif
     </x-ui.card>
 
     <x-ui.card>

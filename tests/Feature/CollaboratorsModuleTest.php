@@ -113,7 +113,7 @@ test('owner sees owner-only collaborator management banner', function () {
         ->get(route('collaborators.index'))
         ->assertOk()
         ->assertSee('No account membership found for your user yet.')
-        ->assertSee('Not selected');
+            ->assertSee('Workspace collaborators');
     });
 
 test('collaborators page shows invite ui controls', function () {
@@ -267,7 +267,7 @@ test('collaborators page recovers from stale active account context', function (
         ->get(route('collaborators.index'))
         ->assertOk()
         ->assertSee('Invite Collaborator')
-        ->assertSee($accountId);
+        ->assertSee('Invite by email and choose role access for the selected workspace.');
 });
 
 test('non owner sees owner-only restrictions banner', function () {

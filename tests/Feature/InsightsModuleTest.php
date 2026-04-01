@@ -52,10 +52,10 @@ test('insights page renders account scoped metrics', function () {
         ->get(route('insights.index', ['account_id' => $accountId, 'days' => 7]))
         ->assertOk()
         ->assertSee('Insights')
+        ->assertSee('Workspace insights overview')
         ->assertSee('Total enquiries')
         ->assertSee('Conversion funnel')
-        ->assertSee('3')
-        ->assertSee($accountId);
+        ->assertSee('3');
 });
 
 test('insights are blocked for non pro plans', function () {

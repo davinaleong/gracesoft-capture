@@ -5,7 +5,7 @@
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
                 <h1 class="text-xl font-semibold text-gs-black-800">Insights</h1>
-                <p class="text-sm text-gs-black-600">Account: {{ $accountId }}</p>
+                <p class="text-sm text-gs-black-600">Workspace insights overview</p>
             </div>
 
             <form method="get" action="{{ route('insights.index') }}" class="flex items-center gap-2">

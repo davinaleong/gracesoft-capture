@@ -12,10 +12,6 @@
                     <x-ui.input id="name" name="name" :value="old('name')" required />
                 </x-ui.field>
 
-                <x-ui.field for="application_id" label="Application ID">
-                    <x-ui.input id="application_id" name="application_id" :value="old('application_id')" placeholder="Optional: auto-create via HQ when omitted" />
-                </x-ui.field>
-
                 <x-ui.field for="notification_email" label="Notification Email" class="md:col-span-2">
                     <x-ui.input id="notification_email" name="notification_email" type="email" :value="old('notification_email')" />
                 </x-ui.field>

@@ -4,6 +4,7 @@ use App\Models\Form;
 use App\Services\HQService;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
@@ -94,26 +95,25 @@ test('starter plan form limit is enforced when creating forms', function () {
     expect(Form::query()->where('account_id', 'f53abf5e-0f3b-44fa-85f0-4e88967f8ef5')->count())->toBe(1);
 });
 
-test('form creation is blocked when hq application validation fails', function () {
+test('form creation does not depend on hq application validation', function () {
     $service = \Mockery::mock(HQService::class);
-    $service->shouldReceive('fetchSubscriptionPlan')
-        ->once()
-        ->andReturn('growth');
-    $service->shouldReceive('validateApplication')
-        ->once()
-        ->andReturn(false);
+    $service->shouldNotReceive('validateApplication');
+    $service->shouldNotReceive('createApplication');
     app()->instance(HQService::class, $service);
 
-    $this->from(route('manage.forms.create'))
+    $response = $this->from(route('manage.forms.create'))
         ->post(route('manage.forms.store'), [
-            'name' => 'Blocked By HQ Validation',
+            'name' => 'Local First Form',
             'account_id' => 'e7269832-c31b-4afd-af8e-8d58e4f9586b',
-            'application_id' => '0f2fe87e-8c13-494f-9579-5275d6a34bc0',
-        ])
-        ->assertRedirect(route('manage.forms.create'))
-        ->assertSessionHasErrors('application_id');
+        ]);
 
-    $this->assertDatabaseCount('forms', 0);
+    $form = Form::query()->firstOrFail();
+
+    $response
+        ->assertRedirect(route('manage.forms.edit', $form))
+        ->assertSessionHasNoErrors();
+
+    expect(Str::isUuid((string) $form->application_id))->toBeTrue();
 });
 
 test('form update is blocked when hq application validation fails', function () {
@@ -139,21 +139,10 @@ test('form update is blocked when hq application validation fails', function () 
     expect($form->fresh()->name)->toBe('Existing Name');
 });
 
-test('form creation can auto-create application in hq when application id is omitted', function () {
+test('form creation auto-generates local application id when omitted', function () {
     $service = \Mockery::mock(HQService::class);
-    $service->shouldReceive('fetchSubscriptionPlan')
-        ->once()
-        ->andReturn('growth');
-    $service->shouldReceive('createApplication')
-        ->once()
-        ->andReturn('8d36f926-203d-47b6-906c-f85a0a61ca57');
-    $service->shouldReceive('validateApplication')
-        ->once()
-        ->withArgs(function (string $accountId, string $applicationId): bool {
-            return $accountId === 'f31b9a08-8e44-4188-9d04-b7d17a6f319f'
-                && $applicationId === '8d36f926-203d-47b6-906c-f85a0a61ca57';
-        })
-        ->andReturn(true);
+    $service->shouldNotReceive('createApplication');
+    $service->shouldNotReceive('validateApplication');
     app()->instance(HQService::class, $service);
 
     $response = $this->post(route('manage.forms.store'), [
@@ -165,5 +154,5 @@ test('form creation can auto-create application in hq when application id is omi
     $form = Form::query()->firstOrFail();
 
     $response->assertRedirect(route('manage.forms.edit', $form));
-    expect($form->application_id)->toBe('8d36f926-203d-47b6-906c-f85a0a61ca57');
+    expect(Str::isUuid((string) $form->application_id))->toBeTrue();
 });

@@ -83,16 +83,6 @@
 					@endif
 				@endforeach
 
-				@if (config('capture.features.enable_form_file_uploads', true))
-					<x-ui.field for="attachment" label="Attachment (optional)" class="md:col-span-2">
-						<x-ui.input id="attachment" name="attachment" type="file" />
-					</x-ui.field>
-				@endif
-
-				<div class="md:col-span-2">
-					<x-form.consent-notice />
-				</div>
-
 				<div class="md:col-span-2">
 					<x-form.button type="submit">Send Message</x-form.button>
 				</div>

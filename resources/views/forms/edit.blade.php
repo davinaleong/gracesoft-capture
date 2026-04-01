@@ -25,6 +25,7 @@
             <div class="mt-4 flex flex-wrap items-center gap-2">
                 <x-ui.button type="submit">Save Changes</x-ui.button>
                 <x-ui.button tag="a" href="{{ route('manage.forms.index') }}" variant="secondary">Back to Forms</x-ui.button>
+                <x-ui.button tag="a" href="{{ route('integrations.index', ['account_id' => $form->account_id, 'form_id' => $form->id]) }}" variant="secondary">Integrate</x-ui.button>
                 <x-ui.button tag="a" href="{{ route('forms.show', $form->public_token) }}" variant="secondary" target="_blank" rel="noreferrer">
                     <x-icons.eye size="16" />
                     <span>Open Public Form</span>

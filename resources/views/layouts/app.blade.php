@@ -58,7 +58,7 @@
                         </form>
                     @elseif ($user)
                         <a href="{{ route('settings.security.index') }}" class="inline-flex h-9 items-center rounded border border-gs-purple-200 bg-gs-purple-50 px-2 text-xs font-semibold uppercase tracking-wide text-gs-purple-700 hover:bg-gs-purple-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gs-purple-300">
-                            User Session: {{ $user->email }}
+                            Account Settings
                         </a>
                         <form method="post" action="{{ route('logout') }}">
                             @csrf
