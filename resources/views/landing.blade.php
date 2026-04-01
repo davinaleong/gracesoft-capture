@@ -57,6 +57,47 @@
 <body class="bg-white text-gs-black-900 antialiased">
     @php
         $showAdminLoginLinks = (bool) config('capture.features.show_admin_login_links', false);
+        $plans = isset($plans) ? $plans : collect();
+        $stripePrices = isset($stripePrices) && is_array($stripePrices) ? $stripePrices : [];
+        $planMarketing = [
+            'free' => [
+                'headline' => 'Get started, stay organized',
+                'items' => [
+                    '1 personal inbox',
+                    'Up to 100 captured items',
+                    'Light follow-ups',
+                    'Simple, distraction-free capture',
+                ],
+                'best_for' => 'Best for individuals getting their workflow in place',
+            ],
+            'growth' => [
+                'headline' => 'Collaborate and scale your workflow',
+                'items' => [
+                    'Up to 5 collaborators in one inbox',
+                    'Up to 1,000 captured items',
+                    'Up to 10,000 follow-ups',
+                    'Shared workflow across your team',
+                    'Basic support',
+                ],
+                'best_for' => 'Best for small teams managing real work together',
+            ],
+            'pro' => [
+                'headline' => 'Operate with clarity and insight',
+                'items' => [
+                    'Up to 20 collaborators in one inbox',
+                    'Unlimited capture and follow-ups',
+                    'Priority support',
+                    'Metrics dashboard (understand where time goes)',
+                    'Attach notes to any item or reply for full context',
+                ],
+                'best_for' => 'Best for teams who want visibility, accountability, and optimization',
+            ],
+        ];
+        $planPriceLabels = [
+            'free' => '$0',
+            'growth' => '$9',
+            'pro' => '$29',
+        ];
     @endphp
 
     <div class="relative overflow-hidden">
@@ -170,6 +211,75 @@
                     </article>
                 </div>
             </section>
+
+            @if ($plans->isNotEmpty())
+                <section class="mx-auto w-full max-w-6xl px-4 py-14 md:px-6">
+                    <div class="mb-6">
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gs-purple-700">Pricing plans</p>
+                        <h2 class="mt-2 text-3xl font-semibold text-gs-black-950">Choose the plan that fits your team</h2>
+                        <p class="mt-2 text-sm text-gs-black-700">Plans are connected to your existing billing setup. Paid plans start checkout instantly for signed-in users.</p>
+                    </div>
+
+                    <div class="grid gap-4 md:grid-cols-3">
+                        @foreach ($plans as $plan)
+                            @php
+                                $slug = (string) $plan->slug;
+                                $isPro = $slug === 'pro';
+                                $isFree = $slug === 'free';
+                                $priceLabel = $planPriceLabels[$slug] ?? 'Paid';
+                                $marketing = $planMarketing[$slug] ?? [
+                                    'headline' => 'Flexible plan for customer enquiry operations.',
+                                    'items' => [],
+                                    'best_for' => 'Best for teams running customer workflows.',
+                                ];
+                                $resolvedStripePrice = $stripePrices[$plan->id] ?? null;
+                                $displayPrimary = is_array($resolvedStripePrice) ? (string) ($resolvedStripePrice['primary'] ?? $priceLabel) : $priceLabel;
+                                $displaySecondary = is_array($resolvedStripePrice)
+                                    ? (string) ($resolvedStripePrice['secondary'] ?? ($isFree ? '/month' : 'checkout'))
+                                    : ($isFree ? '/month' : 'checkout');
+                            @endphp
+
+                            <article class="rounded-2xl border {{ $isPro ? 'border-gs-purple-300 shadow-[0_10px_32px_rgba(37,99,235,0.15)]' : 'border-gs-black-100' }} bg-white p-5">
+                                @if ($isPro)
+                                    <span class="inline-flex rounded-full bg-gs-purple-50 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gs-purple-700">Most powerful</span>
+                                @endif
+
+                                <h3 class="mt-2 text-xl font-semibold text-gs-black-950">{{ $plan->name }}</h3>
+                                <p class="mt-1 text-sm font-medium text-gs-black-800">{{ $marketing['headline'] }}</p>
+
+                                <div class="mt-4 flex items-end gap-2">
+                                    <p class="text-3xl font-semibold text-gs-black-950">{{ $displayPrimary }}</p>
+                                    <p class="pb-1 text-sm text-gs-black-600">{{ $displaySecondary }}</p>
+                                </div>
+
+                                <ul class="mt-4 space-y-2 text-sm text-gs-black-700">
+                                    @foreach ($marketing['items'] as $item)
+                                        <li>{{ $item }}</li>
+                                    @endforeach
+                                </ul>
+
+                                <p class="mt-4 rounded border border-gs-purple-200 bg-gs-purple-50 px-3 py-2 text-xs font-medium text-gs-purple-700">
+                                    {{ $marketing['best_for'] }}
+                                </p>
+
+                                <div class="mt-5">
+                                    @if ($isFree)
+                                        <x-ui.button tag="a" href="{{ route('register') }}" variant="secondary" class="w-full justify-center">Start Free</x-ui.button>
+                                    @elseif (auth('web')->check())
+                                        <form method="post" action="{{ route('billing.checkout') }}">
+                                            @csrf
+                                            <input type="hidden" name="plan" value="{{ $slug }}">
+                                            <x-ui.button type="submit" class="w-full justify-center">Upgrade to {{ $plan->name }}</x-ui.button>
+                                        </form>
+                                    @else
+                                        <x-ui.button tag="a" href="{{ route('login') }}" variant="secondary" class="w-full justify-center">Sign in to choose {{ $plan->name }}</x-ui.button>
+                                    @endif
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
 
             <section class="mx-auto w-full max-w-6xl px-4 py-14 md:px-6">
                 <div class="rounded-2xl border border-gs-purple-200 bg-[linear-gradient(135deg,#2563eb_0%,#1e40af_100%)] p-6 text-white md:flex md:items-center md:justify-between md:gap-8 md:p-9">

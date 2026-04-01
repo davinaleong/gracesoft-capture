@@ -20,11 +20,15 @@ use App\Http\Controllers\UserEmailVerificationController;
 use App\Http\Controllers\UserPasswordResetController;
 use App\Http\Controllers\UserSecuritySettingsController;
 use App\Http\Controllers\UserSessionController;
+use App\Models\Plan;
+use App\Services\StripeBillingService;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/', function (StripeBillingService $stripeBillingService) {
     if (Auth::guard('admin')->check()) {
         return redirect()->route('admin.compliance.index');
     }
@@ -33,7 +37,67 @@ Route::get('/', function () {
         return redirect()->route('manage.forms.index');
     }
 
-    return view('landing');
+    $plans = Plan::query()
+        ->whereIn('slug', ['free', 'growth', 'pro'])
+        ->orderByRaw("CASE slug WHEN 'free' THEN 1 WHEN 'growth' THEN 2 WHEN 'pro' THEN 3 ELSE 99 END")
+        ->get();
+
+    $stripePrices = [];
+
+    foreach ($plans as $plan) {
+        $priceId = trim((string) $plan->stripe_price_id);
+
+        if ($priceId === '') {
+            continue;
+        }
+
+        try {
+            $price = Cache::remember('landing-price:' . $priceId, now()->addMinutes(10), function () use ($stripeBillingService, $priceId): array {
+                return $stripeBillingService->getRecurringPriceById($priceId);
+            });
+
+            $unitAmount = data_get($price, 'unit_amount');
+            $currency = strtoupper((string) data_get($price, 'currency', 'USD'));
+            $interval = (string) data_get($price, 'recurring.interval', 'month');
+            $intervalCount = (int) data_get($price, 'recurring.interval_count', 1);
+
+            if (is_int($unitAmount) || is_float($unitAmount) || (is_string($unitAmount) && is_numeric($unitAmount))) {
+                $amount = ((int) $unitAmount) / 100;
+                $amountLabel = number_format($amount, fmod($amount, 1.0) === 0.0 ? 0 : 2);
+
+                $suffix = '/mo';
+
+                if ($interval === 'year') {
+                    $suffix = '/yr';
+                } elseif ($interval === 'week') {
+                    $suffix = '/wk';
+                } elseif ($interval === 'day') {
+                    $suffix = '/day';
+                }
+
+                if ($intervalCount > 1) {
+                    $suffix = '/'. $intervalCount . ' ' . $interval;
+                }
+
+                $stripePrices[$plan->id] = [
+                    'primary' => '$' . $amountLabel,
+                    'secondary' => $suffix,
+                    'currency' => $currency,
+                ];
+            }
+        } catch (\Throwable $exception) {
+            Log::warning('Unable to resolve Stripe price for landing page.', [
+                'plan_slug' => $plan->slug,
+                'price_id' => $priceId,
+                'message' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    return view('landing', [
+        'plans' => $plans,
+        'stripePrices' => $stripePrices,
+    ]);
 });
 
 Route::get('/components', function () {
@@ -55,6 +119,21 @@ Route::post('/sso/login', [SsoController::class, 'login'])->name('sso.login');
 Route::post('/billing/webhooks/stripe', [StripeWebhookController::class, 'handle'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('billing.webhooks.stripe');
+
+Route::get('/billing/success', function () {
+    return view('billing.success');
+})->name('billing.success');
+
+Route::get('/billing/cancel', function (\Illuminate\Http\Request $request) {
+    $candidatePlan = $request->query('plan');
+    $plan = is_string($candidatePlan) && in_array($candidatePlan, ['growth', 'pro'], true)
+        ? $candidatePlan
+        : null;
+
+    return view('billing.cancel', [
+        'plan' => $plan,
+    ]);
+})->name('billing.cancel');
 
 Route::prefix('billing')->middleware('auth:web')->name('billing.')->group(function () {
     Route::post('/checkout', [BillingController::class, 'checkout'])->name('checkout');

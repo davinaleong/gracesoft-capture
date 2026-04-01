@@ -129,6 +129,38 @@ class StripeBillingService
         return $url;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function getRecurringPriceById(string $priceId): array
+    {
+        $priceId = trim($priceId);
+
+        if ($priceId === '') {
+            throw new RuntimeException('Stripe price id is required.');
+        }
+
+        $response = $this->request()->get('/v1/prices/' . $priceId, [
+            'expand[]' => 'product',
+        ]);
+
+        if (! $response->successful()) {
+            throw new RuntimeException('Unable to fetch Stripe price details.');
+        }
+
+        $price = $response->json();
+
+        if (! is_array($price) || (bool) data_get($price, 'active', false) !== true) {
+            throw new RuntimeException('Stripe price is not active.');
+        }
+
+        if ((string) data_get($price, 'type', '') !== 'recurring') {
+            throw new RuntimeException('Stripe price is not recurring.');
+        }
+
+        return $price;
+    }
+
     private function request(): PendingRequest
     {
         $secret = (string) config('services.stripe.secret', '');

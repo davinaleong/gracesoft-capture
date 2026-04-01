@@ -40,8 +40,8 @@ return [
         'secret' => env('STRIPE_SECRET'),
         'api_base_url' => env('STRIPE_API_BASE_URL', 'https://api.stripe.com'),
         'catalog_allowed_slugs' => array_values(array_filter(array_map('trim', explode(',', (string) env('STRIPE_CATALOG_ALLOWED_SLUGS', 'growth,pro'))))),
-        'checkout_success_url' => env('STRIPE_CHECKOUT_SUCCESS_URL', env('APP_URL') . '/manage/forms'),
-        'checkout_cancel_url' => env('STRIPE_CHECKOUT_CANCEL_URL', env('APP_URL') . '/manage/forms'),
+        'checkout_success_url' => env('STRIPE_CHECKOUT_SUCCESS_URL', env('APP_URL') . '/billing/success'),
+        'checkout_cancel_url' => env('STRIPE_CHECKOUT_CANCEL_URL', env('APP_URL') . '/billing/cancel'),
         'portal_return_url' => env('STRIPE_BILLING_PORTAL_RETURN_URL', env('APP_URL') . '/manage/forms'),
         'plan_map' => [
             'growth' => [
