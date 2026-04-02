@@ -1,9 +1,13 @@
-@extends('layouts.app')
+@extends('layouts.auth')
 
 @section('content')
     <x-ui.card class="space-y-4">
         <h1 class="text-2xl font-bold">Contact Support</h1>
         <p class="text-gs-black-700">Send your issue or question and we will forward it to HQ support.</p>
+
+        <p class="text-sm text-gs-black-600">
+            New to the product? <a href="{{ route('help.index') }}" class="font-semibold text-gs-purple-700 hover:text-gs-purple-800">Read the office help guide</a>.
+        </p>
 
         <x-feedback.button target="support-feedback-modal" label="Open Support Form" />
 
@@ -14,5 +18,11 @@
         <noscript>
             <x-feedback.form />
         </noscript>
+
+        <div class="border-t border-gs-black-100 pt-3 text-xs text-gs-black-600">
+            <a href="{{ route('legal.privacy') }}" class="underline decoration-gs-black-300 underline-offset-2 hover:text-gs-black-800">Privacy Policy</a>
+            <span class="mx-2">|</span>
+            <a href="{{ route('legal.terms') }}" class="underline decoration-gs-black-300 underline-offset-2 hover:text-gs-black-800">Terms and Conditions</a>
+        </div>
     </x-ui.card>
 @endsection

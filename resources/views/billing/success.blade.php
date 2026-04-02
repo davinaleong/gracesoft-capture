@@ -12,8 +12,13 @@
         </p>
 
         <div class="flex flex-wrap items-center gap-2">
-            <x-ui.button tag="a" href="{{ route('manage.forms.index') }}">Go to Forms</x-ui.button>
-            <x-ui.button tag="a" href="{{ route('integrations.index') }}" variant="secondary">Open Integrations</x-ui.button>
+            @if (auth('web')->check())
+                <x-ui.button tag="a" href="{{ route('manage.forms.index') }}">Go to Forms</x-ui.button>
+                <x-ui.button tag="a" href="{{ route('integrations.index') }}" variant="secondary">Open Integrations</x-ui.button>
+            @else
+                <x-ui.button tag="a" href="{{ route('login') }}">Log in to continue</x-ui.button>
+                <x-ui.button tag="a" href="{{ route('register') }}" variant="secondary">Create your account</x-ui.button>
+            @endif
         </div>
     </x-ui.card>
 @endsection

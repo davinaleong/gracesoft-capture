@@ -299,6 +299,18 @@
                     </div>
                 </div>
             </section>
+
+            <section class="border-t border-gs-black-100 bg-white">
+                <div class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-6 text-sm text-gs-black-700 md:flex-row md:items-center md:justify-between md:px-6">
+                    <p class="text-xs uppercase tracking-[0.12em] text-gs-black-500">GraceSoft Capture</p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="{{ route('help.index') }}" class="font-medium text-gs-purple-700 hover:text-gs-purple-800">Help Guide</a>
+                        <a href="{{ route('support.create') }}" class="hover:text-gs-black-900">Contact Support</a>
+                        <a href="{{ route('legal.privacy') }}" class="hover:text-gs-black-900">Privacy Policy</a>
+                        <a href="{{ route('legal.terms') }}" class="hover:text-gs-black-900">Terms &amp; Conditions</a>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 </body>

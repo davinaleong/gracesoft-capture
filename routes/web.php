@@ -133,6 +133,10 @@ Route::post('/form/{token}/submit', [PublicFormController::class, 'submit'])
 Route::get('/support', [FeedbackController::class, 'create'])->name('support.create');
 Route::post('/support', [FeedbackController::class, 'store'])->name('support.store');
 
+Route::view('/help', 'help.index')->name('help.index');
+Route::view('/privacy-policy', 'legal.privacy')->name('legal.privacy');
+Route::view('/terms-and-conditions', 'legal.terms')->name('legal.terms');
+
 Route::post('/sso/login', [SsoController::class, 'login'])->name('sso.login');
 
 Route::post('/billing/webhooks/stripe', [StripeWebhookController::class, 'handle'])
