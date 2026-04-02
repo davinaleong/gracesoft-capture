@@ -142,7 +142,6 @@
                     <div class="landing-reveal landing-reveal-delay-2 mt-7 flex flex-wrap items-center gap-3">
                         <x-ui.button tag="a" href="{{ route('register') }}" size="lg">Create Workspace</x-ui.button>
                         <x-ui.button tag="a" href="{{ route('support.create') }}" variant="secondary" size="lg">See Support Form</x-ui.button>
-                        <x-ui.button tag="a" href="{{ route('demo.free.show') }}" variant="neutral" size="lg">Try Free Plan Demo</x-ui.button>
                     </div>
 
                     <div class="mt-8 grid grid-cols-3 gap-3">
@@ -305,7 +304,6 @@
                 <div class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-6 text-sm text-gs-black-700 md:flex-row md:items-center md:justify-between md:px-6">
                     <p class="text-xs uppercase tracking-[0.12em] text-gs-black-500">GraceSoft Capture</p>
                     <div class="flex flex-wrap items-center gap-3">
-                        <a href="{{ route('help.index') }}" class="font-medium text-gs-purple-700 hover:text-gs-purple-800">Help Guide</a>
                         <a href="{{ route('support.create') }}" class="hover:text-gs-black-900">Contact Support</a>
                         <a href="{{ route('legal.privacy') }}" class="hover:text-gs-black-900">Privacy Policy</a>
                         <a href="{{ route('legal.terms') }}" class="hover:text-gs-black-900">Terms &amp; Conditions</a>

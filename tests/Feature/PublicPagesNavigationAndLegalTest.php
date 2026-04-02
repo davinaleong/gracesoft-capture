@@ -31,15 +31,6 @@ test('support page for guests does not expose guarded app navigation links', fun
         ->assertDontSee(route('collaborators.index'), false);
 });
 
-test('help guide page is public and plan-aware', function () {
-    $this->get(route('help.index'))
-        ->assertOk()
-        ->assertSee('Help Guide for Office Teams')
-        ->assertSee('Free')
-        ->assertSee('Growth')
-        ->assertSee('Pro');
-});
-
 test('privacy policy page is public', function () {
     $this->get(route('legal.privacy'))
         ->assertOk()

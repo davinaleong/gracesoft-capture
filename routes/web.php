@@ -12,7 +12,6 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\InsightsController;
-use App\Http\Controllers\DemoCaptureController;
 use App\Http\Controllers\PublicFormController;
 use App\Http\Controllers\SsoController;
 use App\Http\Controllers\BillingController;
@@ -134,12 +133,11 @@ Route::post('/form/{token}/submit', [PublicFormController::class, 'submit'])
 Route::get('/support', [FeedbackController::class, 'create'])->name('support.create');
 Route::post('/support', [FeedbackController::class, 'store'])->name('support.store');
 
-Route::get('/demo/free-plan', [DemoCaptureController::class, 'show'])->name('demo.free.show');
-Route::post('/demo/free-plan/submit', [DemoCaptureController::class, 'submit'])
-    ->middleware('throttle:form-submissions')
-    ->name('demo.free.submit');
+Route::prefix('panel/support')->middleware(['auth.any', 'access.context'])->name('panel.support.')->group(function () {
+    Route::get('/', [FeedbackController::class, 'createPanel'])->name('create');
+    Route::post('/', [FeedbackController::class, 'storePanel'])->name('store');
+});
 
-Route::view('/help', 'help.index')->name('help.index');
 Route::view('/privacy-policy', 'legal.privacy')->name('legal.privacy');
 Route::view('/terms-and-conditions', 'legal.terms')->name('legal.terms');
 

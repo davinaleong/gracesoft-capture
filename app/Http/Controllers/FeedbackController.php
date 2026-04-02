@@ -15,7 +15,22 @@ class FeedbackController extends Controller
         return view('support.contact');
     }
 
+    public function createPanel(): View
+    {
+        return view('support.panel');
+    }
+
     public function store(Request $request): RedirectResponse
+    {
+        return $this->submitSupportRequest($request, null, 'support.create');
+    }
+
+    public function storePanel(Request $request): RedirectResponse
+    {
+        return $this->submitSupportRequest($request, $this->resolvedAccountId($request), 'panel.support.create');
+    }
+
+    private function submitSupportRequest(Request $request, ?string $accountId, string $redirectRoute): RedirectResponse
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -53,13 +68,13 @@ class FeedbackController extends Controller
             'email' => $data['email'],
             'subject' => $subjectLabel,
             'message' => $data['message'],
-            'account_id' => null,
+            'account_id' => is_string($accountId) && $accountId !== '' ? $accountId : null,
             'app_name' => config('hq.credentials.app_name'),
             'occurred_at' => now()->toIso8601String(),
         ]);
 
         return redirect()
-            ->route('support.create')
+            ->route($redirectRoute)
             ->with('status', 'Support request submitted successfully.');
     }
 }

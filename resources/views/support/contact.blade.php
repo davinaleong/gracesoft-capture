@@ -6,7 +6,7 @@
         <p class="text-gs-black-700">Send your issue or question and we will forward it to HQ support.</p>
 
         <p class="text-sm text-gs-black-600">
-            New to the product? <a href="{{ route('help.index') }}" class="font-semibold text-gs-purple-700 hover:text-gs-purple-800">Read the office help guide</a>.
+            New to the product? Sign in and follow the guided walkthrough cards in Forms, Integrations, and Inbox.
         </p>
 
         <x-feedback.button target="support-feedback-modal" label="Open Support Form" />

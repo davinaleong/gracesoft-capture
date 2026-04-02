@@ -15,6 +15,56 @@
         $user = auth('web')->user();
         $admin = auth('admin')->user();
         $showAdminLoginLinks = (bool) config('capture.features.show_admin_login_links', false);
+        $enforceAccessContext = (bool) config('capture.features.enforce_access_context', false);
+        $pageAccountId = $billingAccountId ?? $accountId ?? null;
+        $activeAccountId = request()->attributes->get('access.account_id')
+            ?? session('active_account_id')
+            ?? $pageAccountId
+            ?? request()->query('account_id');
+        $activeAccountId = is_string($activeAccountId) ? trim($activeAccountId) : '';
+
+        if ($activeAccountId === '' && $user) {
+            $ownerAccountId = (string) \App\Models\AccountMembership::query()
+                ->where('user_id', $user->getAuthIdentifier())
+                ->where('role', 'owner')
+                ->whereNull('removed_at')
+                ->value('account_id');
+
+            if ($ownerAccountId !== '') {
+                $activeAccountId = $ownerAccountId;
+            } else {
+                $memberAccountId = (string) \App\Models\AccountMembership::query()
+                    ->where('user_id', $user->getAuthIdentifier())
+                    ->whereNull('removed_at')
+                    ->value('account_id');
+
+                if ($memberAccountId !== '') {
+                    $activeAccountId = $memberAccountId;
+                }
+            }
+        }
+
+        $routeName = (string) optional(request()->route())->getName();
+        $currentTourStep = match (true) {
+            str_starts_with($routeName, 'manage.forms.') => 'forms',
+            str_starts_with($routeName, 'integrations.') => 'integrations',
+            str_starts_with($routeName, 'inbox.') => 'inbox',
+            str_starts_with($routeName, 'insights.') => 'insights',
+            default => 'forms',
+        };
+        $tourAccountId = null;
+
+        if (! $enforceAccessContext) {
+            // In non-enforced mode, dashboards show workspace-wide data, so tour progress must match that same scope.
+            $tourAccountId = '';
+        } elseif ($activeAccountId !== '') {
+            $tourAccountId = $activeAccountId;
+        }
+
+        $sharedTour = $user
+            ? app(\App\Support\GuidedTour::class)->build($tourAccountId, $currentTourStep)
+            : null;
+        $showSetupSidebar = is_array($sharedTour) && is_array($sharedTour['nextStep'] ?? null);
     @endphp
 
     <main class="container mx-auto p-4 md:p-6 space-y-4">
@@ -31,7 +81,7 @@
                         <x-ui.button tag="a" href="{{ route('inbox.index') }}" variant="secondary" size="sm">Inbox</x-ui.button>
                         <x-ui.button tag="a" href="{{ route('integrations.index') }}" variant="secondary" size="sm">Integrations</x-ui.button>
                         <x-ui.button tag="a" href="{{ route('collaborators.index') }}" variant="secondary" size="sm">Collaborators</x-ui.button>
-                        <x-ui.button tag="a" href="{{ route('support.create') }}" variant="secondary" size="sm">Contact Support</x-ui.button>
+                        <x-ui.button tag="a" href="{{ route('panel.support.create') }}" variant="secondary" size="sm">Contact Support</x-ui.button>
                     </nav>
                 </div>
 
@@ -42,7 +92,7 @@
                             <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('inbox.index') }}">Inbox</a>
                             <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('integrations.index') }}">Integrations</a>
                             <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('collaborators.index') }}">Collaborators</a>
-                            <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('support.create') }}">Contact Support</a>
+                            <a class="rounded px-2 py-1 text-sm text-gs-black-800 hover:bg-gs-black-50" href="{{ route('panel.support.create') }}">Contact Support</a>
                         </div>
                     </x-ui.dropdown>
                 </div>
@@ -82,7 +132,17 @@
             <x-ui.alert variant="error">{{ $errors->first() }}</x-ui.alert>
         @endif
 
-        @yield('content')
+        <div class="{{ $showSetupSidebar ? 'grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]' : '' }}">
+            <div>
+                @yield('content')
+            </div>
+
+            @if ($showSetupSidebar)
+                <aside class="lg:sticky lg:top-6">
+                    <x-onboarding.guided-tour :tour="$sharedTour" title="Setup progress" />
+                </aside>
+            @endif
+        </div>
     </main>
 </body>
 </html>

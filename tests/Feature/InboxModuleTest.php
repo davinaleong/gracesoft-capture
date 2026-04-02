@@ -59,6 +59,14 @@ test('inbox list page can filter by search query', function () {
         ->assertDontSee('Bob Different');
 });
 
+    test('inbox empty state shows guided setup tour', function () {
+        $this->get(route('inbox.index'))
+        ->assertOk()
+        ->assertSee('Setup progress')
+        ->assertSee('Create your first form')
+        ->assertSee('Publish the embed snippet');
+    });
+
 test('inbox list shows account context badge when account is selected', function () {
     $form = Form::factory()->create([
         'account_id' => 'e9d203ef-1000-4902-bb37-646e65bf1ff1',

@@ -26,10 +26,7 @@
                     <tr>
                         <td colspan="4" class="p-6 text-center text-gs-black-600">
                             <p class="font-semibold text-gs-black-800">No forms available for integration yet.</p>
-                            <p class="mt-1 text-sm">Create a form first, then copy the iframe snippet from this page to embed it on your site.</p>
-                            <div class="mt-3">
-                                <x-ui.button tag="a" href="{{ route('manage.forms.create') }}" size="sm" class="px-4">Create Form</x-ui.button>
-                            </div>
+                            <p class="mt-1 text-sm">Complete setup from the sidebar, then return here to publish your embed snippet.</p>
                         </td>
                     </tr>
                 @endforelse

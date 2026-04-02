@@ -8,6 +8,15 @@ use Illuminate\Support\Facades\Cache;
 
 class PlanGate
 {
+    public function planForAccount(?string $accountId): string
+    {
+        if (! is_string($accountId) || trim($accountId) === '') {
+            return (string) config('capture.features.default_plan', 'growth');
+        }
+
+        return $this->resolveAccountPlan(trim($accountId));
+    }
+
     public function notesEnabled(string $accountId): bool
     {
         if ((bool) config('capture.features.notes_force_enabled', false)) {

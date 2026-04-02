@@ -40,7 +40,6 @@
             @yield('content')
 
             <div class="flex flex-wrap items-center gap-3 border-t border-gs-black-100 pt-3 text-xs text-gs-black-600">
-                <a href="{{ route('help.index') }}" class="underline decoration-gs-black-300 underline-offset-2 hover:text-gs-black-800">Help Guide</a>
                 <a href="{{ route('legal.privacy') }}" class="underline decoration-gs-black-300 underline-offset-2 hover:text-gs-black-800">Privacy Policy</a>
                 <a href="{{ route('legal.terms') }}" class="underline decoration-gs-black-300 underline-offset-2 hover:text-gs-black-800">Terms and Conditions</a>
             </div>

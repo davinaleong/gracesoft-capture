@@ -24,6 +24,103 @@ test('forms index displays created forms', function () {
         ->assertSee('Website Contact');
 });
 
+test('setup sidebar advances to integration after first form exists for active account', function () {
+    config()->set('capture.features.enforce_access_context', true);
+
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $account = Account::factory()->create([
+        'owner_user_id' => $user->id,
+    ]);
+
+    AccountMembership::query()->create([
+        'account_id' => $account->id,
+        'user_id' => $user->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    Form::factory()->create([
+        'account_id' => $account->id,
+        'name' => 'First Form',
+        'is_active' => true,
+    ]);
+
+    $this->get(route('manage.forms.index', ['account_id' => $account->id]))
+        ->assertOk()
+        ->assertSee('Setup progress')
+        ->assertSee('Completed')
+        ->assertSee('Publish the embed snippet')
+        ->assertSee('Open Integrations');
+});
+
+test('setup sidebar stays synced when no explicit account query is provided', function () {
+    config()->set('capture.features.enforce_access_context', false);
+
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $account = Account::factory()->create([
+        'owner_user_id' => $user->id,
+    ]);
+
+    AccountMembership::query()->create([
+        'account_id' => $account->id,
+        'user_id' => $user->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    Form::factory()->create([
+        'account_id' => $account->id,
+        'name' => 'Synced Form',
+        'is_active' => true,
+    ]);
+
+    $this->get(route('manage.forms.index'))
+        ->assertOk()
+        ->assertSee('Setup progress')
+        ->assertSee('Completed')
+        ->assertSee('Publish the embed snippet')
+        ->assertSee('Open Integrations');
+});
+
+test('setup sidebar uses global scope in non-enforced mode', function () {
+    config()->set('capture.features.enforce_access_context', false);
+
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    AccountMembership::query()->create([
+        'account_id' => '11111111-1111-1111-1111-111111111111',
+        'user_id' => $user->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    // Form belongs to a different account than the user's membership context.
+    Form::factory()->create([
+        'account_id' => '22222222-2222-2222-2222-222222222222',
+        'is_active' => true,
+    ]);
+
+    $this->get(route('manage.forms.index'))
+        ->assertOk()
+        ->assertSee('Setup progress')
+        ->assertSee('Completed')
+        ->assertSee('Publish the embed snippet')
+        ->assertSee('Open Integrations');
+});
+
+    test('forms index empty state shows guided setup tour', function () {
+        $this->get(route('manage.forms.index'))
+        ->assertOk()
+        ->assertSee('Setup progress')
+        ->assertSee('Create your first form')
+        ->assertSee('Review trends in Insights');
+    });
+
 test('dashboard shows plan switching controls for workspace owners', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
@@ -56,7 +153,7 @@ test('dashboard shows plan switching controls for workspace owners', function ()
         ->assertSee('Subscription')
         ->assertSee('Current plan:')
         ->assertSee('Growth')
-        ->assertSee('Switch to Pro');
+        ->assertSee('Upgrade to Pro');
 });
 
 test('dashboard hides plan switching controls for non owners', function () {

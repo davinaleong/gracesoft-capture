@@ -31,6 +31,7 @@ class IntegrationController extends Controller
 
         return view('integrations.index', [
             'forms' => $query->paginate(15)->withQueryString(),
+            'accountId' => $resolvedAccountId,
             'appDomain' => (string) parse_url((string) config('app.url', ''), PHP_URL_HOST),
             'selectedFormId' => Str::isUuid($selectedFormId) ? $selectedFormId : null,
         ]);
