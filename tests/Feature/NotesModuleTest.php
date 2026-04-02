@@ -5,6 +5,7 @@ use App\Models\Form;
 use App\Models\Note;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
@@ -57,7 +58,29 @@ test('note can be added from inbox detail when notes are enabled', function () {
 
     $this->get(route('inbox.show', $enquiry))
         ->assertOk()
-        ->assertSee('Follow-up requested by customer via call.');
+        ->assertSee('Follow-up requested by customer via call.')
+        ->assertSee('Created by:')
+        ->assertDontSee($payload['user_id']);
+});
+
+test('note can be added without user id field input when notes are enabled', function () {
+    config()->set('capture.features.notes_force_enabled', true);
+
+    $form = Form::factory()->create();
+
+    $enquiry = Enquiry::factory()->create([
+        'form_id' => $form->id,
+        'account_id' => $form->account_id,
+        'application_id' => $form->application_id,
+    ]);
+
+    $this->post(route('inbox.notes.store', $enquiry), [
+        'content' => 'Internal note without manual HQ user id entry.',
+    ])->assertRedirect(route('inbox.show', $enquiry));
+
+    $note = Note::query()->latest('id')->firstOrFail();
+
+    expect(Str::isUuid((string) $note->user_id))->toBeTrue();
 });
 
 test('note metadata can be stored and rendered on inbox detail', function () {

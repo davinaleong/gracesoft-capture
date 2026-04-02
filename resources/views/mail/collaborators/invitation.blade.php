@@ -1,5 +1,28 @@
-<p>You have been invited to collaborate on a GraceSoft Capture account.</p>
-<p><strong>Role:</strong> {{ $invitation->role }}</p>
-<p><strong>Invitation expires:</strong> {{ optional($invitation->expires_at)->toDayDateTimeString() }}</p>
-<p><a href="{{ $acceptUrl }}">Accept invitation</a></p>
-<p>If you did not expect this invite, you can safely ignore this email.</p>
+<x-mail::message>
+@php
+	$resolvedRoleLabel = isset($roleLabel)
+		? (string) $roleLabel
+		: ucfirst((string) ($invitation->role ?? 'Member'));
+
+	$resolvedExpiryLabel = isset($expiresAtLabel)
+		? (string) $expiresAtLabel
+		: (optional($invitation->expires_at)->toDayDateTimeString() ?: 'N/A');
+@endphp
+
+# Hello!
+
+You have been invited to collaborate on a GraceSoft Capture account.
+
+**Role:** {{ $resolvedRoleLabel }}
+
+**Invitation expires:** {{ $resolvedExpiryLabel }}
+
+<x-mail::button :url="$acceptUrl">
+Accept Invitation
+</x-mail::button>
+
+If you did not expect this invite, you can safely ignore this email.
+
+Regards,<br>
+{{ config('app.name') }}
+</x-mail::message>

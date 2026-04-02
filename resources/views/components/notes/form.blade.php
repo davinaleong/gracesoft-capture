@@ -3,11 +3,9 @@
 <form method="post" action="{{ route('inbox.notes.store', $enquiry) }}" class="space-y-4">
     @csrf
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <x-ui.field for="user_id" label="User ID (HQ)" required>
-            <x-ui.input id="user_id" name="user_id" :value="old('user_id')" required />
-        </x-ui.field>
+    <input type="hidden" id="user_id" name="user_id" value="{{ old('user_id') }}">
 
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <x-ui.field for="visibility" label="Visibility">
             <x-ui.select id="visibility" name="visibility">
                 <option value="internal" @selected(old('visibility', 'internal') === 'internal')>Internal</option>

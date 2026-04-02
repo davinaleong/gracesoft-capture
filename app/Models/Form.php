@@ -57,4 +57,9 @@ class Form extends Model
     {
         return $this->hasMany(Enquiry::class);
     }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 }

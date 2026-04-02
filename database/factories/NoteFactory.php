@@ -21,6 +21,7 @@ class NoteFactory extends Factory
         return [
             'enquiry_id' => Enquiry::factory(),
             'user_id' => fake()->uuid(),
+            'creator_name' => fake()->name(),
             'content' => fake()->paragraph(),
             'visibility' => 'internal',
             'is_pinned' => false,

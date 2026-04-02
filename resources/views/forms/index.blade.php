@@ -107,7 +107,7 @@
                         <td class="p-2">
                             <div class="flex flex-wrap items-center gap-2">
                                 <x-ui.button tag="a" href="{{ route('manage.forms.edit', $form) }}" variant="secondary" size="sm">Edit</x-ui.button>
-                                <x-ui.button tag="a" href="{{ route('integrations.index', ['account_id' => $form->account_id, 'form_id' => $form->id]) }}" variant="secondary" size="sm">Integrate</x-ui.button>
+                                <x-ui.button tag="a" href="{{ route('integrations.index', ['account_id' => $form->account_id, 'form_id' => $form->uuid]) }}" variant="secondary" size="sm">Integrate</x-ui.button>
                                 <form method="post" action="{{ route('manage.forms.toggle-active', $form) }}" class="inline-flex">
                                     @csrf
                                     <x-ui.button type="submit" :variant="$form->is_active ? 'danger' : 'success'" size="sm">

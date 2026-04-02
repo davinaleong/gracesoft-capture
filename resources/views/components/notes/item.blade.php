@@ -15,7 +15,7 @@
         <p class="text-xs text-gs-black-600">{{ $note->created_at?->format('Y-m-d H:i') }}</p>
     </div>
 
-    <p class="text-sm text-gs-black-700"><strong>User:</strong> {{ $note->user_id }}</p>
+    <p class="text-sm text-gs-black-700"><strong>Created by:</strong> {{ $note->creator_name ?: 'System' }}</p>
     <p class="text-sm text-gs-black-900 whitespace-pre-line">{{ $note->content }}</p>
 
     @if (! empty($note->tags))

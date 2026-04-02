@@ -28,7 +28,11 @@ class CollaboratorInvitationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mail.collaborators.invitation',
+            markdown: 'mail.collaborators.invitation',
+            with: [
+                'roleLabel' => ucfirst((string) $this->invitation->role),
+                'expiresAtLabel' => optional($this->invitation->expires_at)->toDayDateTimeString(),
+            ],
         );
     }
 }

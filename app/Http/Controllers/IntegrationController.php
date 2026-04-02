@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Form;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class IntegrationController extends Controller
@@ -12,7 +13,7 @@ class IntegrationController extends Controller
     {
         $query = Form::query()->latest();
         $resolvedAccountId = $this->resolvedAccountId($request);
-        $selectedFormId = $request->integer('form_id');
+        $selectedFormId = trim((string) $request->query('form_id', ''));
 
         if (! $this->isAdminOverride($request) && $resolvedAccountId !== null) {
             $query->where('account_id', $resolvedAccountId);
@@ -24,14 +25,14 @@ class IntegrationController extends Controller
             $this->authorizeAnyRole($request, ['owner', 'member', 'viewer'], $resolvedAccountId);
         }
 
-        if ($selectedFormId > 0) {
-            $query->where('id', $selectedFormId);
+        if (Str::isUuid($selectedFormId)) {
+            $query->where('uuid', $selectedFormId);
         }
 
         return view('integrations.index', [
             'forms' => $query->paginate(15)->withQueryString(),
             'appDomain' => (string) parse_url((string) config('app.url', ''), PHP_URL_HOST),
-            'selectedFormId' => $selectedFormId > 0 ? $selectedFormId : null,
+            'selectedFormId' => Str::isUuid($selectedFormId) ? $selectedFormId : null,
         ]);
     }
 }

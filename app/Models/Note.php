@@ -17,6 +17,7 @@ class Note extends Model
     protected $fillable = [
         'enquiry_id',
         'user_id',
+        'creator_name',
         'content',
         'visibility',
         'is_pinned',

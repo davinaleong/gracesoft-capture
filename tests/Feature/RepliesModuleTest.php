@@ -5,7 +5,9 @@ use App\Models\Enquiry;
 use App\Models\Form;
 use App\Models\Reply;
 use App\Models\User;
+use App\Mail\EnquiryReplyNotificationMail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 
 uses(RefreshDatabase::class);
 
@@ -46,6 +48,50 @@ test('owner can add reply to enquiry when access context is enforced', function 
     expect($reply->content)->toBe('We will contact you shortly.');
     expect($reply->sender_type)->toBe('user');
     expect($reply->is_internal)->toBeTrue();
+});
+
+test('external reply sends notification email and marks enquiry contacted', function () {
+    Mail::fake();
+
+    $owner = User::factory()->create();
+    $accountId = '9b2854ea-4d22-4394-99e7-867b6b8da1d5';
+
+    AccountMembership::query()->create([
+        'account_id' => $accountId,
+        'user_id' => $owner->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    $form = Form::factory()->create([
+        'account_id' => $accountId,
+        'application_id' => 'f14a5fbf-c2ef-4f7f-9f2a-78c70e3bf5e2',
+    ]);
+
+    $enquiry = Enquiry::factory()->create([
+        'form_id' => $form->id,
+        'account_id' => $accountId,
+        'application_id' => $form->application_id,
+        'email' => 'customer@example.com',
+        'contacted_at' => null,
+        'status' => 'new',
+    ]);
+
+    $this->actingAs($owner)
+        ->post(route('inbox.replies.store', ['enquiry' => $enquiry, 'account_id' => $accountId]), [
+            'content' => 'Thanks for reaching out. We have updated your request.',
+        ])
+        ->assertRedirect(route('inbox.show', $enquiry));
+
+    $enquiry->refresh();
+
+    expect($enquiry->contacted_at)->not->toBeNull();
+    expect($enquiry->status)->toBe('contacted');
+
+    Mail::assertSent(EnquiryReplyNotificationMail::class, function (EnquiryReplyNotificationMail $mail) use ($enquiry): bool {
+        return $mail->hasTo('customer@example.com')
+            && $mail->enquiry->is($enquiry);
+    });
 });
 
 test('viewer cannot add reply to enquiry when access context is enforced', function () {

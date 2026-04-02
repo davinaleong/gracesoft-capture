@@ -154,3 +154,45 @@ test('invalid transition from new directly to closed is rejected', function () {
 
     expect($enquiry->fresh()->status)->toBe('new');
 });
+
+test('timeline shows latest reply after reply submission', function () {
+    $form = Form::factory()->create();
+
+    $enquiry = Enquiry::factory()->create([
+        'form_id' => $form->id,
+        'account_id' => $form->account_id,
+        'application_id' => $form->application_id,
+        'status' => 'new',
+        'contacted_at' => null,
+    ]);
+
+    $this->post(route('inbox.replies.store', $enquiry), [
+        'content' => 'Reply that should appear in timeline updates.',
+    ])->assertRedirect(route('inbox.show', $enquiry));
+
+    $this->get(route('inbox.show', $enquiry))
+        ->assertOk()
+        ->assertSee('Latest reply')
+        ->assertDontSee('No replies yet');
+});
+
+test('timeline shows latest note after note creation', function () {
+    config()->set('capture.features.notes_force_enabled', true);
+
+    $form = Form::factory()->create();
+
+    $enquiry = Enquiry::factory()->create([
+        'form_id' => $form->id,
+        'account_id' => $form->account_id,
+        'application_id' => $form->application_id,
+    ]);
+
+    $this->post(route('inbox.notes.store', $enquiry), [
+        'content' => 'Timeline should include this note event.',
+    ])->assertRedirect(route('inbox.show', $enquiry));
+
+    $this->get(route('inbox.show', $enquiry))
+        ->assertOk()
+        ->assertSee('Latest note')
+        ->assertDontSee('No notes yet');
+});

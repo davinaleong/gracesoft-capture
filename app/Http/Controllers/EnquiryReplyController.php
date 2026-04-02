@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EnquiryReplyNotificationMail;
 use App\Models\Enquiry;
 use App\Models\Reply;
 use App\Support\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class EnquiryReplyController extends Controller
 {
@@ -37,7 +39,7 @@ class EnquiryReplyController extends Controller
             $metadata['user_id'] = $user->getAuthIdentifier();
         }
 
-        Reply::query()->create([
+        $reply = Reply::query()->create([
             'enquiry_id' => $enquiry->id,
             'account_id' => $enquiry->account_id,
             'sender_type' => $senderType,
@@ -47,6 +49,22 @@ class EnquiryReplyController extends Controller
             'is_internal' => (bool) ($data['is_internal'] ?? false),
             'metadata' => $metadata,
         ]);
+
+        if ($enquiry->contacted_at === null) {
+            $statusUpdates = [
+                'contacted_at' => now(),
+            ];
+
+            if ($enquiry->status === 'new') {
+                $statusUpdates['status'] = 'contacted';
+            }
+
+            $enquiry->update($statusUpdates);
+        }
+
+        if (! $reply->is_internal && filter_var((string) $enquiry->email, FILTER_VALIDATE_EMAIL)) {
+            Mail::to((string) $enquiry->email)->send(new EnquiryReplyNotificationMail($enquiry, $reply));
+        }
 
         $auditLogger->log(
             $request,
