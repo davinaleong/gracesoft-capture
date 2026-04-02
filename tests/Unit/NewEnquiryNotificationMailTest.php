@@ -25,7 +25,9 @@ test('new enquiry mail renders minimized sensitive fields', function () {
     $mail = new NewEnquiryNotificationMail($enquiry);
     $html = $mail->render();
 
-    expect($mail->envelope()->subject)->toBe('New enquiry received');
+    expect($mail->envelope()->subject)->toBe('New form submission received');
+    expect($html)->toContain('A new submission has been captured in GraceSoft Capture.');
+    expect($html)->toContain('Open Inbox');
     expect($html)->toContain('A***');
     expect($html)->toContain('a***@example.com');
     expect($html)->toContain('Sensitive Subject Value');

@@ -13,7 +13,7 @@ class NewEnquiryNotificationMail extends Mailable
 {
     use Queueable;
 
-    public $theme = 'support-alert';
+    public $theme = 'default';
 
     public function __construct(public Enquiry $enquiry)
     {
@@ -22,7 +22,7 @@ class NewEnquiryNotificationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New enquiry received',
+            subject: 'New form submission received',
         );
     }
 
@@ -31,10 +31,14 @@ class NewEnquiryNotificationMail extends Mailable
         return new Content(
             markdown: 'mail.enquiries.new',
             with: [
+                'formName' => trim((string) optional($this->enquiry->form)->name) !== ''
+                    ? (string) $this->enquiry->form->name
+                    : 'Unnamed form',
                 'maskedName' => $this->maskedName(),
                 'maskedEmail' => $this->maskedEmail(),
                 'subjectPreview' => Str::limit((string) $this->enquiry->subject, 80),
                 'messagePreview' => Str::limit((string) $this->enquiry->message, 240),
+                'inboxUrl' => route('inbox.index'),
             ],
         );
     }
