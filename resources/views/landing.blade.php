@@ -142,6 +142,7 @@
                     <div class="landing-reveal landing-reveal-delay-2 mt-7 flex flex-wrap items-center gap-3">
                         <x-ui.button tag="a" href="{{ route('register') }}" size="lg">Create Workspace</x-ui.button>
                         <x-ui.button tag="a" href="{{ route('support.create') }}" variant="secondary" size="lg">See Support Form</x-ui.button>
+                        <x-ui.button tag="a" href="{{ route('demo.free.show') }}" variant="neutral" size="lg">Try Free Plan Demo</x-ui.button>
                     </div>
 
                     <div class="mt-8 grid grid-cols-3 gap-3">

@@ -28,6 +28,7 @@ return [
         'enable_form_custom_fields' => (bool) env('CAPTURE_ENABLE_FORM_CUSTOM_FIELDS', true),
         'enable_form_file_uploads' => (bool) env('CAPTURE_ENABLE_FORM_FILE_UPLOADS', true),
         'enable_form_submission_webhooks' => (bool) env('CAPTURE_ENABLE_FORM_SUBMISSION_WEBHOOKS', true),
+        'demo_submission_ttl_minutes' => (int) env('CAPTURE_DEMO_SUBMISSION_TTL_MINUTES', 120),
         'secret_rotation_interval_days' => (int) env('CAPTURE_SECRET_ROTATION_INTERVAL_DAYS', 90),
         'last_secret_rotation_at' => env('CAPTURE_LAST_SECRET_ROTATION_AT'),
         'sso_enabled' => (bool) env('CAPTURE_SSO_ENABLED', false),
