@@ -5,6 +5,12 @@
         <h1 class="mb-2 text-xl font-semibold">Create User Account</h1>
         <p class="mb-4 text-sm text-gs-black-700">Register your user identity to access form management and inbox tools.</p>
 
+        @if (is_string($upgradePlan ?? null) && $upgradePlan !== '')
+            <div class="mb-4 rounded border border-gs-purple-200 bg-gs-purple-50 px-3 py-2 text-sm text-gs-purple-800">
+                Continue with {{ ucfirst($upgradePlan) }} plan after account setup.
+            </div>
+        @endif
+
         <form method="post" action="{{ route('register.store') }}" class="space-y-4">
             @csrf
 

@@ -20,9 +20,13 @@ use App\Http\Controllers\UserEmailVerificationController;
 use App\Http\Controllers\UserPasswordResetController;
 use App\Http\Controllers\UserSecuritySettingsController;
 use App\Http\Controllers\UserSessionController;
+use App\Models\Account;
+use App\Models\AccountMembership;
 use App\Models\Plan;
+use App\Models\Subscription;
 use App\Services\StripeBillingService;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -96,6 +100,25 @@ Route::get('/', function (StripeBillingService $stripeBillingService) {
     ]);
 });
 
+Route::get('/upgrade/{plan}', function (\Illuminate\Http\Request $request, string $plan) {
+    abort_unless(in_array($plan, ['growth', 'pro'], true), 404);
+
+    if (Auth::guard('web')->check()) {
+        return redirect()
+            ->route('manage.forms.index', ['upgrade' => $plan])
+            ->with('status', 'Select your ' . ucfirst($plan) . ' upgrade in the dashboard.');
+    }
+
+    $request->session()->put('billing_upgrade_plan', $plan);
+
+    return redirect()->route('register', ['plan' => $plan]);
+})->name('billing.start');
+
+// Backward-compatible fallback for any stale/root-posted checkout forms.
+Route::post('/', [BillingController::class, 'checkout'])
+    ->middleware('auth:web')
+    ->name('billing.checkout.fallback');
+
 Route::get('/components', function () {
     return view('components');
 });
@@ -127,6 +150,95 @@ Route::get('/billing/success', function (\Illuminate\Http\Request $request, Stri
                 $paymentStatus = (string) data_get($session, 'payment_status', '');
 
                 if ($status === 'complete' && in_array($paymentStatus, ['paid', 'no_payment_required'], true)) {
+                    $subscriptionId = trim((string) data_get($session, 'subscription', ''));
+                    $customerId = trim((string) data_get($session, 'customer', ''));
+                    $planSlug = strtolower(trim((string) data_get($session, 'metadata.plan_slug', '')));
+                    $resolvedPlan = in_array($planSlug, ['free', 'growth', 'pro'], true)
+                        ? Plan::query()->where('slug', $planSlug)->first()
+                        : null;
+                    $fallbackFreePlan = Plan::query()->where('slug', 'free')->first();
+                    $targetPlan = $resolvedPlan ?? $fallbackFreePlan;
+
+                    $metadataAccountUuid = data_get($session, 'metadata.account_uuid')
+                        ?? data_get($session, 'metadata.account_id')
+                        ?? data_get($session, 'client_reference_id');
+
+                    $candidateAccountId = is_string($metadataAccountUuid) && Str::isUuid(trim($metadataAccountUuid))
+                        ? trim($metadataAccountUuid)
+                        : null;
+
+                    $sessionAccountId = (string) $request->session()->get('active_account_id', '');
+                    if ($candidateAccountId === null && $sessionAccountId !== '' && Str::isUuid($sessionAccountId)) {
+                        $candidateAccountId = $sessionAccountId;
+                    }
+
+                    $account = null;
+
+                    if (is_string($candidateAccountId) && $candidateAccountId !== '') {
+                        $account = Account::query()->find($candidateAccountId);
+                    }
+
+                    if (! $account && $customerId !== '') {
+                        $account = Account::query()->where('stripe_customer_id', $customerId)->first();
+                    }
+
+                    if (! $account) {
+                        $userId = (int) Auth::guard('web')->id();
+                        $ownerAccountId = (string) AccountMembership::query()
+                            ->where('user_id', $userId)
+                            ->where('role', 'owner')
+                            ->whereNull('removed_at')
+                            ->value('account_id');
+
+                        if ($ownerAccountId !== '' && Str::isUuid($ownerAccountId)) {
+                            $account = Account::query()->find($ownerAccountId);
+                        }
+                    }
+
+                    if ($account) {
+                        if ($customerId !== '' && $account->stripe_customer_id !== $customerId) {
+                            $account->forceFill(['stripe_customer_id' => $customerId])->save();
+                        }
+
+                        if ($subscriptionId !== '') {
+                            $subscription = Subscription::query()
+                                ->where('account_id', $account->id)
+                                ->where('stripe_subscription_id', $subscriptionId)
+                                ->latest('updated_at')
+                                ->first();
+
+                            if (! $subscription) {
+                                $subscription = Subscription::query()
+                                    ->where('account_id', $account->id)
+                                    ->whereIn('status', ['active', 'trialing', 'past_due'])
+                                    ->latest('updated_at')
+                                    ->first();
+                            }
+
+                            if ($subscription) {
+                                $updatePayload = [
+                                    'stripe_subscription_id' => $subscriptionId,
+                                    'status' => 'active',
+                                ];
+
+                                if ($targetPlan) {
+                                    $updatePayload['plan_id'] = $targetPlan->id;
+                                }
+
+                                $subscription->update($updatePayload);
+                            } else {
+                                Subscription::query()->create([
+                                    'id' => (string) Str::uuid(),
+                                    'account_id' => $account->id,
+                                    'plan_id' => $targetPlan?->id,
+                                    'stripe_subscription_id' => $subscriptionId,
+                                    'status' => 'active',
+                                    'current_period_end' => null,
+                                ]);
+                            }
+                        }
+                    }
+
                     return redirect()->route('manage.forms.index')
                         ->with('status', 'Payment successful. Your billing update is active.');
                 }
@@ -157,6 +269,7 @@ Route::get('/billing/cancel', function (\Illuminate\Http\Request $request) {
 })->name('billing.cancel');
 
 Route::prefix('billing')->middleware('auth:web')->name('billing.')->group(function () {
+    Route::get('/plans/{plan}', [BillingController::class, 'showPlan'])->name('plan.show');
     Route::post('/checkout', [BillingController::class, 'checkout'])->name('checkout');
     Route::post('/portal', [BillingController::class, 'portal'])->name('portal');
 });

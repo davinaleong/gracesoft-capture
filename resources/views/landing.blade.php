@@ -271,13 +271,13 @@
                                     @if ($isFree)
                                         <x-ui.button tag="a" href="{{ route('register') }}" variant="secondary" class="w-full justify-center">Start Free</x-ui.button>
                                     @elseif (auth('web')->check())
-                                        <form method="post" action="{{ route('billing.checkout') }}">
-                                            @csrf
-                                            <input type="hidden" name="plan" value="{{ $slug }}">
-                                            <x-ui.button type="submit" class="w-full justify-center">Upgrade to {{ $plan->name }}</x-ui.button>
-                                        </form>
+                                        <x-ui.button tag="a" href="{{ route('manage.forms.index', ['upgrade' => $slug]) }}" class="w-full justify-center">
+                                            Open dashboard to upgrade
+                                        </x-ui.button>
                                     @else
-                                        <x-ui.button tag="a" href="{{ route('login') }}" variant="secondary" class="w-full justify-center">Sign in to choose {{ $plan->name }}</x-ui.button>
+                                        <x-ui.button tag="a" href="{{ route('billing.start', ['plan' => $slug]) }}" variant="secondary" class="w-full justify-center">
+                                            Create account to choose {{ $plan->name }}
+                                        </x-ui.button>
                                     @endif
                                 </div>
                             </article>

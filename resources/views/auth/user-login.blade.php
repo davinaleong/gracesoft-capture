@@ -5,6 +5,12 @@
         <h1 class="mb-2 text-xl font-semibold">User Sign In</h1>
         <p class="mb-4 text-sm text-gs-black-700">Sign in to access your forms, inbox, and collaborators.</p>
 
+        @if (is_string($upgradePlan ?? null) && $upgradePlan !== '')
+            <div class="mb-4 rounded border border-gs-purple-200 bg-gs-purple-50 px-3 py-2 text-sm text-gs-purple-800">
+                Sign in to continue with {{ ucfirst($upgradePlan) }} plan in your dashboard.
+            </div>
+        @endif
+
         <form method="post" action="{{ route('login.store') }}" class="space-y-4">
             @csrf
 

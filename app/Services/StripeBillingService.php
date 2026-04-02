@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Account;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -60,6 +61,7 @@ class StripeBillingService
         $response = $this->request()->post('/v1/customers', [
             'name' => $account->name,
             'metadata[account_id]' => $account->id,
+            'metadata[account_uuid]' => $account->id,
         ]);
 
         if (! $response->successful()) {
@@ -95,13 +97,23 @@ class StripeBillingService
                 'line_items[0][quantity]' => 1,
                 'allow_promotion_codes' => 'true',
                 'metadata[account_id]' => $account->id,
+                'metadata[account_uuid]' => $account->id,
                 'metadata[plan_slug]' => $planSlug ?? '',
                 'subscription_data[metadata][account_id]' => $account->id,
+                'subscription_data[metadata][account_uuid]' => $account->id,
                 'subscription_data[metadata][plan_slug]' => $planSlug ?? '',
             ]);
 
         if (! $response->successful()) {
-            throw new RuntimeException('Unable to create Stripe checkout session.');
+            $stripeMessage = (string) $response->json('error.message', '');
+            $fallbackMessage = Str::limit(trim((string) $response->body()), 280);
+            $details = $stripeMessage !== '' ? $stripeMessage : ($fallbackMessage !== '' ? $fallbackMessage : 'No response body.');
+
+            throw new RuntimeException(sprintf(
+                'Unable to create Stripe checkout session. Stripe API [%d]: %s',
+                $response->status(),
+                $details
+            ));
         }
 
         $url = (string) $response->json('url', '');
@@ -214,7 +226,10 @@ class StripeBillingService
 
     private function buildSuccessUrl(?string $planSlug): string
     {
-        $baseUrl = (string) config('services.stripe.checkout_success_url');
+        $baseUrl = $this->resolveCheckoutReturnUrl(
+            (string) config('services.stripe.checkout_success_url', ''),
+            '/billing/success'
+        );
 
         return $this->appendQuery($baseUrl, array_filter([
             'session_id' => '{CHECKOUT_SESSION_ID}',
@@ -224,7 +239,10 @@ class StripeBillingService
 
     private function buildCancelUrl(?string $planSlug): string
     {
-        $baseUrl = (string) config('services.stripe.checkout_cancel_url');
+        $baseUrl = $this->resolveCheckoutReturnUrl(
+            (string) config('services.stripe.checkout_cancel_url', ''),
+            '/billing/cancel'
+        );
 
         if (! is_string($planSlug) || $planSlug === '') {
             return $baseUrl;
@@ -233,6 +251,56 @@ class StripeBillingService
         return $this->appendQuery($baseUrl, [
             'plan' => $planSlug,
         ]);
+    }
+
+    private function resolveCheckoutReturnUrl(string $configuredUrl, string $defaultPath): string
+    {
+        $configuredUrl = trim($configuredUrl);
+        $request = request();
+
+        if (! $request instanceof Request) {
+            return $configuredUrl !== '' ? $configuredUrl : (string) config('app.url', '') . $defaultPath;
+        }
+
+        $origin = $request->getSchemeAndHttpHost();
+
+        if ($configuredUrl === '') {
+            return $origin . $defaultPath;
+        }
+
+        $parts = parse_url($configuredUrl);
+
+        if (! is_array($parts)) {
+            return $origin . $defaultPath;
+        }
+
+        $configuredHost = strtolower((string) ($parts['host'] ?? ''));
+        $configuredScheme = strtolower((string) ($parts['scheme'] ?? ''));
+        $currentHost = strtolower($request->getHost());
+        $currentScheme = strtolower($request->getScheme());
+
+        $hostMismatch = $configuredHost !== '' && ! hash_equals($configuredHost, $currentHost);
+        $schemeMismatch = $configuredScheme !== '' && ! hash_equals($configuredScheme, $currentScheme);
+
+        if (! $hostMismatch && ! $schemeMismatch) {
+            return $configuredUrl;
+        }
+
+        $path = isset($parts['path']) && is_string($parts['path']) && $parts['path'] !== ''
+            ? $parts['path']
+            : $defaultPath;
+
+        $normalized = $origin . $path;
+
+        if (isset($parts['query']) && is_string($parts['query']) && $parts['query'] !== '') {
+            $normalized .= '?' . $parts['query'];
+        }
+
+        if (isset($parts['fragment']) && is_string($parts['fragment']) && $parts['fragment'] !== '') {
+            $normalized .= '#' . $parts['fragment'];
+        }
+
+        return $normalized;
     }
 
     /**

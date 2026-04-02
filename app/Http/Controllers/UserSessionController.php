@@ -11,9 +11,11 @@ use Illuminate\View\View;
 
 class UserSessionController extends Controller
 {
-    public function register(): View
+    public function register(Request $request): View
     {
-        return view('auth.user-register');
+        return view('auth.user-register', [
+            'upgradePlan' => $this->rememberUpgradePlanIntent($request),
+        ]);
     }
 
     public function storeRegistration(Request $request, AccountProvisioningService $provisioningService): RedirectResponse
@@ -42,12 +44,22 @@ class UserSessionController extends Controller
         $request->session()->put('auth.guard_context', 'web');
         $request->session()->put('active_account_id', $account->id);
 
+        $upgradePlan = $this->pullUpgradePlanIntent($request);
+
+        if ($upgradePlan !== null) {
+            return redirect()
+                ->route('manage.forms.index', ['upgrade' => $upgradePlan])
+                ->with('status', 'Account created. Continue with your ' . ucfirst($upgradePlan) . ' upgrade.');
+        }
+
         return redirect()->route('verification.notice')->with('status', 'Account created. Please verify your email address.');
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('auth.user-login');
+        return view('auth.user-login', [
+            'upgradePlan' => $this->rememberUpgradePlanIntent($request),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -72,6 +84,14 @@ class UserSessionController extends Controller
         $request->session()->regenerate();
         $request->session()->put('auth.guard_context', 'web');
 
+        $upgradePlan = $this->pullUpgradePlanIntent($request);
+
+        if ($upgradePlan !== null) {
+            return redirect()
+                ->route('manage.forms.index', ['upgrade' => $upgradePlan])
+                ->with('status', 'Continue with your ' . ucfirst($upgradePlan) . ' upgrade from the dashboard.');
+        }
+
         return redirect()->intended(route('manage.forms.index'));
     }
 
@@ -83,5 +103,34 @@ class UserSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login')->with('status', 'User session signed out.');
+    }
+
+    private function rememberUpgradePlanIntent(Request $request): ?string
+    {
+        $queryPlan = $this->normalizeUpgradePlan($request->query('plan'));
+
+        if ($queryPlan !== null) {
+            $request->session()->put('billing_upgrade_plan', $queryPlan);
+
+            return $queryPlan;
+        }
+
+        return $this->normalizeUpgradePlan($request->session()->get('billing_upgrade_plan'));
+    }
+
+    private function pullUpgradePlanIntent(Request $request): ?string
+    {
+        return $this->normalizeUpgradePlan($request->session()->pull('billing_upgrade_plan'));
+    }
+
+    private function normalizeUpgradePlan(mixed $candidate): ?string
+    {
+        if (! is_string($candidate)) {
+            return null;
+        }
+
+        $plan = strtolower(trim($candidate));
+
+        return in_array($plan, ['growth', 'pro'], true) ? $plan : null;
     }
 }

@@ -7,3 +7,4 @@
 [ ] Admin Panel
 [ ] Documentation page
 [ ] Updates page
+[ ] Refactor ID and UUID

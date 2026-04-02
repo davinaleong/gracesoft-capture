@@ -44,6 +44,11 @@ class FormManagementController extends Controller
             ->orderByRaw("CASE slug WHEN 'growth' THEN 1 WHEN 'pro' THEN 2 ELSE 99 END")
             ->get();
 
+        $upgradePlanCandidate = strtolower(trim((string) $request->query('upgrade', '')));
+        $highlightedUpgradePlan = in_array($upgradePlanCandidate, ['growth', 'pro'], true)
+            ? $upgradePlanCandidate
+            : null;
+
         return view('forms.index', [
             'forms' => $query->paginate(15)->withQueryString(),
             'billingAccountId' => $billingAccountId,
@@ -51,6 +56,7 @@ class FormManagementController extends Controller
             'canManageBilling' => $this->isAdminOverride($request) || $billingRole === 'owner',
             'currentSubscription' => $currentSubscription,
             'paidPlans' => $paidPlans,
+            'highlightedUpgradePlan' => $highlightedUpgradePlan,
         ]);
     }
 

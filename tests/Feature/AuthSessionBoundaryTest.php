@@ -19,7 +19,22 @@ test('root route is accessible to authenticated users for landing checkout flow'
         ->get('/')
     ->assertOk()
     ->assertSee('Pricing plans')
-    ->assertSee('Upgrade to Growth');
+    ->assertSee('Open dashboard to upgrade');
+});
+
+test('upgrade start route redirects guests to registration with selected plan', function () {
+    $this->get(route('billing.start', ['plan' => 'growth']))
+        ->assertRedirect(route('register', ['plan' => 'growth']));
+
+    expect(session('billing_upgrade_plan'))->toBe('growth');
+});
+
+test('upgrade start route redirects authenticated users to dashboard upgrade state', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user, 'web')
+        ->get(route('billing.start', ['plan' => 'pro']))
+        ->assertRedirect(route('manage.forms.index', ['upgrade' => 'pro']));
 });
 
 test('root route redirects authenticated admins to compliance dashboard', function () {
@@ -47,6 +62,19 @@ test('user can register and starts authenticated session', function () {
     ]);
 });
 
+test('user registration with upgrade intent redirects to dashboard upgrade state', function () {
+    $this->withSession(['billing_upgrade_plan' => 'growth'])
+        ->post(route('register.store'), [
+            'name' => 'Upgrade User',
+            'email' => 'upgrade.user@example.com',
+            'password' => 'strong-pass-123',
+            'password_confirmation' => 'strong-pass-123',
+        ])
+        ->assertRedirect(route('manage.forms.index', ['upgrade' => 'growth']));
+
+    $this->assertAuthenticated('web');
+});
+
 test('user can log in from user login page', function () {
     $user = User::factory()->create([
         'password' => 'password',
@@ -59,6 +87,21 @@ test('user can log in from user login page', function () {
 
     $this->assertAuthenticated('web');
     $this->assertGuest('admin');
+});
+
+test('user login with upgrade intent redirects to dashboard upgrade state', function () {
+    $user = User::factory()->create([
+        'password' => 'password',
+    ]);
+
+    $this->withSession(['billing_upgrade_plan' => 'pro'])
+        ->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ])
+        ->assertRedirect(route('manage.forms.index', ['upgrade' => 'pro']));
+
+    $this->assertAuthenticated('web');
 });
 
 test('administrator can log in from admin login page', function () {

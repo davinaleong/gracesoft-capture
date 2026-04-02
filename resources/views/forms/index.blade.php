@@ -4,10 +4,18 @@
     @php
         $currentPlanSlug = optional(optional($currentSubscription ?? null)->plan)->slug;
         $currentPlanName = optional(optional($currentSubscription ?? null)->plan)->name;
+        $highlightedUpgradePlan = is_string($highlightedUpgradePlan ?? null) ? $highlightedUpgradePlan : null;
+        $recommendedUpgradeSlug = $highlightedUpgradePlan
+            ?? (is_string($currentPlanSlug) && $currentPlanSlug === 'growth' ? 'pro' : 'growth');
+        $recommendedPlan = collect($paidPlans ?? [])->firstWhere('slug', $recommendedUpgradeSlug);
+        $planPriceLabels = [
+            'growth' => '$9 / month',
+            'pro' => '$29 / month',
+        ];
     @endphp
 
     @if (is_string($billingAccountId ?? null) && $billingAccountId !== '')
-        <x-ui.card class="mb-4 space-y-3">
+        <x-ui.card id="upgrade-path-card" class="mb-4 space-y-3" tabindex="-1">
             <div class="flex flex-wrap items-start justify-between gap-2">
                 <div>
                     <h2 class="text-lg font-semibold text-gs-black-900">Subscription</h2>
@@ -27,32 +35,44 @@
             </div>
 
             @if ($canManageBilling ?? false)
-                <div class="grid gap-3 md:grid-cols-2">
-                    @foreach (($paidPlans ?? collect()) as $plan)
-                        @php
-                            $isCurrent = is_string($currentPlanSlug) && $currentPlanSlug === $plan->slug;
-                        @endphp
-                        <div class="rounded border {{ $isCurrent ? 'border-gs-purple-300 bg-gs-purple-50' : 'border-gs-black-200 bg-white' }} p-3">
-                            <div class="flex items-center justify-between gap-2">
-                                <div>
-                                    <p class="font-semibold text-gs-black-900">{{ $plan->name }}</p>
-                                    <p class="text-xs text-gs-black-700">Switch plan and continue checkout in Stripe.</p>
-                                </div>
-                                @if ($isCurrent)
-                                    <x-ui.badge variant="primary">Current</x-ui.badge>
-                                @endif
-                            </div>
+                <div class="rounded border border-gs-black-200 bg-gs-black-50 p-4">
+                    <p class="text-sm font-medium text-gs-black-900">Upgrade path</p>
+                    <p class="mt-1 text-sm text-gs-black-700">Choose one plan and continue in Stripe checkout. Plan changes apply to this workspace immediately after payment.</p>
 
-                            <form method="post" action="{{ route('billing.checkout') }}" class="mt-3">
-                                @csrf
-                                <input type="hidden" name="plan" value="{{ $plan->slug }}">
-                                <input type="hidden" name="account_id" value="{{ $billingAccountId }}">
-                                <x-ui.button type="submit" class="w-full justify-center" :variant="$isCurrent ? 'secondary' : 'primary'">
-                                    {{ $isCurrent ? 'Renew or Manage ' . $plan->name : 'Switch to ' . $plan->name }}
-                                </x-ui.button>
-                            </form>
-                        </div>
-                    @endforeach
+                    @if ($recommendedPlan)
+                        @php
+                            $isRecommendedCurrent = is_string($currentPlanSlug) && $currentPlanSlug === $recommendedPlan->slug;
+                            $recommendedPrice = $planPriceLabels[$recommendedPlan->slug] ?? 'Price shown on next step';
+                        @endphp
+
+                        <x-ui.button
+                            tag="a"
+                            href="{{ route('billing.plan.show', ['plan' => $recommendedPlan->slug, 'account_id' => $billingAccountId]) }}"
+                            class="mt-3 w-full justify-center"
+                            :variant="$isRecommendedCurrent ? 'secondary' : 'primary'"
+                        >
+                            {{ $isRecommendedCurrent ? 'Manage ' . $recommendedPlan->name . ' (' . $recommendedPrice . ')' : 'Upgrade to ' . $recommendedPlan->name . ' (' . $recommendedPrice . ')' }}
+                        </x-ui.button>
+                    @endif
+
+                    <div class="mt-3 grid gap-2 md:grid-cols-2">
+                        @foreach (($paidPlans ?? collect()) as $plan)
+                            @php
+                                $isCurrent = is_string($currentPlanSlug) && $currentPlanSlug === $plan->slug;
+                                $priceLabel = $planPriceLabels[$plan->slug] ?? 'Price shown on next step';
+                            @endphp
+
+                            <x-ui.button
+                                tag="a"
+                                href="{{ route('billing.plan.show', ['plan' => $plan->slug, 'account_id' => $billingAccountId]) }}"
+                                class="w-full justify-center"
+                                variant="secondary"
+                                size="sm"
+                            >
+                                {{ $isCurrent ? $plan->name . ' (Current - ' . $priceLabel . ')' : 'Choose ' . $plan->name . ' (' . $priceLabel . ')' }}
+                            </x-ui.button>
+                        @endforeach
+                    </div>
                 </div>
             @else
                 <p class="rounded border border-gs-black-200 bg-gs-black-50 px-3 py-2 text-sm text-gs-black-700">
@@ -119,4 +139,19 @@
             {{ $forms->links() }}
         </div>
     </x-ui.card>
+
+    @if ($highlightedUpgradePlan)
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var upgradeCard = document.getElementById('upgrade-path-card');
+
+                if (!upgradeCard) {
+                    return;
+                }
+
+                upgradeCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                upgradeCard.focus({ preventScroll: true });
+            });
+        </script>
+    @endif
 @endsection

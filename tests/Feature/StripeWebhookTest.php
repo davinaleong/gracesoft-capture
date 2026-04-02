@@ -156,6 +156,50 @@ test('stripe webhook processes duplicate event only once', function () {
     expect(Subscription::query()->where('stripe_subscription_id', 'sub_dup_123')->firstOrFail()->status)->toBe('past_due');
 });
 
+test('checkout session completed webhook maps account_uuid metadata to subscription id', function () {
+    $growthPlan = Plan::query()->where('slug', 'growth')->firstOrFail();
+
+    $account = Account::factory()->create([
+        'stripe_customer_id' => null,
+    ]);
+
+    $subscription = Subscription::factory()->create([
+        'id' => (string) Str::uuid(),
+        'account_id' => $account->id,
+        'plan_id' => $growthPlan->id,
+        'stripe_subscription_id' => null,
+        'status' => 'active',
+    ]);
+
+    $payload = [
+        'id' => 'evt_checkout_completed_123',
+        'object' => 'event',
+        'type' => 'checkout.session.completed',
+        'data' => [
+            'object' => [
+                'id' => 'cs_test_123',
+                'customer' => 'cus_from_checkout_123',
+                'subscription' => 'sub_from_checkout_123',
+                'client_reference_id' => $account->id,
+                'metadata' => [
+                    'account_uuid' => $account->id,
+                    'plan_slug' => 'growth',
+                ],
+            ],
+        ],
+    ];
+
+    $this->postJson(route('billing.webhooks.stripe'), $payload, [
+        'Stripe-Signature' => stripeSignature($payload, 'whsec_test_secret'),
+    ])->assertOk();
+
+    $subscription->refresh();
+    $account->refresh();
+
+    expect($subscription->stripe_subscription_id)->toBe('sub_from_checkout_123');
+    expect($account->stripe_customer_id)->toBe('cus_from_checkout_123');
+});
+
 test('stripe price webhook syncs plan price and product mapping', function () {
     $growth = Plan::query()->where('slug', 'growth')->firstOrFail();
 

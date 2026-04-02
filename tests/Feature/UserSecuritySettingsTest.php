@@ -1,6 +1,9 @@
 <?php
 
 use App\Models\AccountMembership;
+use App\Models\Account;
+use App\Models\Plan;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +17,7 @@ test('authenticated user can open security settings page', function () {
         ->get(route('settings.security.index'))
         ->assertOk()
         ->assertSee('Account Security')
+    ->assertSee($user->email)
         ->assertSee('Two-Factor Authentication');
 });
 
@@ -88,4 +92,40 @@ test('user session email links to security settings page', function () {
         ->get(route('collaborators.index', ['account_id' => $accountId]))
         ->assertOk()
         ->assertSee(route('settings.security.index'));
+});
+
+test('security settings page shows subscription info for active workspace', function () {
+    $user = User::factory()->create();
+    $account = Account::factory()->create(['owner_user_id' => $user->id]);
+    $plan = Plan::query()->updateOrCreate([
+        'slug' => 'growth',
+    ], [
+        'name' => 'Growth',
+        'stripe_price_id' => null,
+        'stripe_product_id' => null,
+        'max_users' => 5,
+        'max_items' => 500,
+        'max_replies' => 2000,
+    ]);
+
+    AccountMembership::query()->create([
+        'account_id' => $account->id,
+        'user_id' => $user->id,
+        'role' => 'owner',
+        'joined_at' => now(),
+    ]);
+
+    Subscription::factory()->create([
+        'account_id' => $account->id,
+        'plan_id' => $plan->id,
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($user, 'web')
+        ->withSession(['active_account_id' => $account->id])
+        ->get(route('settings.security.index'))
+        ->assertOk()
+        ->assertSee('Subscription')
+        ->assertSee('Growth')
+        ->assertSee('active');
 });

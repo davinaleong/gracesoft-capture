@@ -62,6 +62,7 @@ class StripeWebhookController extends Controller
             $type = (string) Arr::get($payload, 'type', '');
 
             match ($type) {
+                'checkout.session.completed' => $this->handleCheckoutSessionCompleted($payload),
                 'invoice.paid' => $this->handleInvoicePaid($payload),
                 'customer.subscription.updated', 'customer.subscription.deleted' => $this->handleSubscriptionUpdated($payload),
                 'product.created', 'product.updated' => $this->stripeCatalogSyncService->syncProduct((array) Arr::get($payload, 'data.object', [])),
@@ -78,11 +79,83 @@ class StripeWebhookController extends Controller
         });
     }
 
+    private function handleCheckoutSessionCompleted(array $event): void
+    {
+        $object = (array) Arr::get($event, 'data.object', []);
+        $customerId = (string) Arr::get($object, 'customer', '');
+        $subscriptionId = (string) Arr::get($object, 'subscription', '');
+        $accountUuid = $this->normalizeAccountUuid(
+            Arr::get($object, 'metadata.account_uuid')
+                ?? Arr::get($object, 'client_reference_id')
+        );
+        $planSlug = strtolower(trim((string) Arr::get($object, 'metadata.plan_slug', '')));
+
+        if ($customerId === '' && $subscriptionId === '') {
+            return;
+        }
+
+        $plan = $this->planBySlug($planSlug);
+
+        DB::transaction(function () use ($customerId, $subscriptionId, $accountUuid, $plan): void {
+            $account = $this->resolveAccount($customerId, $accountUuid);
+
+            if (! $account) {
+                return;
+            }
+
+            if ($customerId !== '' && $account->stripe_customer_id !== $customerId) {
+                $account->forceFill(['stripe_customer_id' => $customerId])->save();
+            }
+
+            if ($subscriptionId === '') {
+                return;
+            }
+
+            $subscription = Subscription::query()
+                ->where('account_id', $account->id)
+                ->where('stripe_subscription_id', $subscriptionId)
+                ->latest('updated_at')
+                ->first();
+
+            if (! $subscription) {
+                $subscription = Subscription::query()
+                    ->where('account_id', $account->id)
+                    ->whereIn('status', ['active', 'trialing', 'past_due'])
+                    ->orderByDesc('updated_at')
+                    ->first();
+            }
+
+            if (! $subscription) {
+                Subscription::query()->create([
+                    'id' => (string) Str::uuid(),
+                    'account_id' => $account->id,
+                    'plan_id' => $plan->id,
+                    'stripe_subscription_id' => $subscriptionId,
+                    'status' => 'active',
+                    'current_period_end' => null,
+                ]);
+
+                return;
+            }
+
+            $subscription->update([
+                'plan_id' => $plan->id,
+                'stripe_subscription_id' => $subscriptionId,
+                'status' => 'active',
+            ]);
+        });
+    }
+
     private function handleInvoicePaid(array $event): void
     {
         $object = (array) Arr::get($event, 'data.object', []);
         $subscriptionId = (string) Arr::get($object, 'subscription', '');
         $customerId = (string) Arr::get($object, 'customer', '');
+        $accountUuid = $this->normalizeAccountUuid(
+            Arr::get($object, 'metadata.account_uuid')
+                ?? Arr::get($object, 'parent.subscription_details.metadata.account_uuid')
+                ?? Arr::get($object, 'lines.data.0.metadata.account_uuid')
+        );
         $periodEnd = Arr::get($object, 'lines.data.0.period.end');
         $priceId = (string) Arr::get($object, 'lines.data.0.price.id', '');
 
@@ -92,11 +165,15 @@ class StripeWebhookController extends Controller
 
         $plan = $this->planByPriceId($priceId);
 
-        DB::transaction(function () use ($customerId, $subscriptionId, $periodEnd, $plan): void {
-            $account = Account::query()->where('stripe_customer_id', $customerId)->first();
+        DB::transaction(function () use ($customerId, $accountUuid, $subscriptionId, $periodEnd, $plan): void {
+            $account = $this->resolveAccount($customerId, $accountUuid);
 
             if (! $account) {
                 return;
+            }
+
+            if ($customerId !== '' && $account->stripe_customer_id !== $customerId) {
+                $account->forceFill(['stripe_customer_id' => $customerId])->save();
             }
 
             $subscription = Subscription::query()
@@ -131,6 +208,7 @@ class StripeWebhookController extends Controller
         $object = (array) Arr::get($event, 'data.object', []);
         $subscriptionId = (string) Arr::get($object, 'id', '');
         $customerId = (string) Arr::get($object, 'customer', '');
+        $accountUuid = $this->normalizeAccountUuid(Arr::get($object, 'metadata.account_uuid'));
         $status = (string) Arr::get($object, 'status', 'active');
         $periodEnd = Arr::get($object, 'current_period_end');
         $priceId = (string) Arr::get($object, 'items.data.0.price.id', '');
@@ -141,11 +219,15 @@ class StripeWebhookController extends Controller
 
         $plan = $this->planByPriceId($priceId);
 
-        DB::transaction(function () use ($subscriptionId, $customerId, $status, $periodEnd, $plan): void {
-            $account = Account::query()->where('stripe_customer_id', $customerId)->first();
+        DB::transaction(function () use ($subscriptionId, $customerId, $accountUuid, $status, $periodEnd, $plan): void {
+            $account = $this->resolveAccount($customerId, $accountUuid);
 
             if (! $account) {
                 return;
+            }
+
+            if ($customerId !== '' && $account->stripe_customer_id !== $customerId) {
+                $account->forceFill(['stripe_customer_id' => $customerId])->save();
             }
 
             $subscription = Subscription::query()
@@ -197,5 +279,46 @@ class StripeWebhookController extends Controller
         }
 
         return Plan::query()->where('slug', 'free')->firstOrFail();
+    }
+
+    private function planBySlug(string $slug): Plan
+    {
+        if ($slug !== '') {
+            $plan = Plan::query()->where('slug', $slug)->first();
+
+            if ($plan) {
+                return $plan;
+            }
+        }
+
+        return Plan::query()->where('slug', 'free')->firstOrFail();
+    }
+
+    private function resolveAccount(string $customerId, ?string $accountUuid): ?Account
+    {
+        if (is_string($accountUuid) && $accountUuid !== '') {
+            $byUuid = Account::query()->find($accountUuid);
+
+            if ($byUuid) {
+                return $byUuid;
+            }
+        }
+
+        if ($customerId === '') {
+            return null;
+        }
+
+        return Account::query()->where('stripe_customer_id', $customerId)->first();
+    }
+
+    private function normalizeAccountUuid(mixed $candidate): ?string
+    {
+        if (! is_string($candidate)) {
+            return null;
+        }
+
+        $value = trim($candidate);
+
+        return Str::isUuid($value) ? $value : null;
     }
 }

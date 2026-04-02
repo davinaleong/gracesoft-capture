@@ -159,6 +159,12 @@ class StripeCatalogSyncService
 
     private function resolveSlug(array $price, array $product): string
     {
+        $metadataTier = $this->resolveTierFromMetadata($price, $product);
+
+        if ($metadataTier !== '') {
+            return $metadataTier;
+        }
+
         $candidates = [
             Arr::get($price, 'metadata.capture_plan_slug'),
             Arr::get($price, 'metadata.plan_slug'),
@@ -182,6 +188,35 @@ class StripeCatalogSyncService
             }
 
             if (in_array($slug, $this->allowedSlugs(), true)) {
+                return $slug;
+            }
+        }
+
+        return '';
+    }
+
+    private function resolveTierFromMetadata(array $price, array $product): string
+    {
+        $priceApp = Str::of((string) Arr::get($price, 'metadata.app', ''))->trim()->lower()->__toString();
+        $productApp = Str::of((string) Arr::get($product, 'metadata.app', ''))->trim()->lower()->__toString();
+
+        if ($priceApp !== 'capture' && $productApp !== 'capture') {
+            return '';
+        }
+
+        $tierCandidates = [
+            Arr::get($price, 'metadata.tier'),
+            Arr::get($product, 'metadata.tier'),
+        ];
+
+        foreach ($tierCandidates as $candidate) {
+            if (! is_string($candidate)) {
+                continue;
+            }
+
+            $slug = Str::of($candidate)->trim()->lower()->replace(' ', '-')->__toString();
+
+            if ($slug !== '' && in_array($slug, $this->allowedSlugs(), true)) {
                 return $slug;
             }
         }

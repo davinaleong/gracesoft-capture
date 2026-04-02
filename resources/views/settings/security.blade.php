@@ -8,6 +8,17 @@
                 <p class="text-sm text-gs-black-700">Manage your password and two-factor authentication settings.</p>
             </div>
 
+            <x-ui.field for="account_email" label="Email">
+                <x-ui.input
+                    id="account_email"
+                    name="account_email"
+                    type="email"
+                    :value="(string) $user->email"
+                    readonly
+                    aria-readonly="true"
+                />
+            </x-ui.field>
+
             <form method="post" action="{{ route('settings.security.password.update') }}" class="space-y-3">
                 @csrf
                 @method('put')
@@ -52,6 +63,38 @@
                     <x-ui.button type="submit" variant="success">Enable 2FA</x-ui.button>
                 @endif
             </form>
+        </x-ui.card>
+
+        <x-ui.card class="space-y-3 p-4 lg:col-span-2">
+            <div>
+                <h2 class="text-lg font-semibold text-gs-black-900">Subscription</h2>
+                <p class="text-sm text-gs-black-700">Current billing plan and renewal context for this workspace.</p>
+            </div>
+
+            @php
+                $planName = (string) (optional(optional($currentSubscription ?? null)->plan)->name ?? 'Free');
+                $subscriptionStatus = (string) (($currentSubscription->status ?? '') ?: 'none');
+                $periodEnd = optional($currentSubscription ?? null)->current_period_end;
+            @endphp
+
+            <div class="grid gap-3 md:grid-cols-3">
+                <div class="rounded border border-gs-black-200 bg-gs-black-50 px-3 py-2">
+                    <p class="text-xs uppercase tracking-wide text-gs-black-600">Plan</p>
+                    <p class="text-sm font-semibold text-gs-black-900">{{ $planName }}</p>
+                </div>
+                <div class="rounded border border-gs-black-200 bg-gs-black-50 px-3 py-2">
+                    <p class="text-xs uppercase tracking-wide text-gs-black-600">Status</p>
+                    <p class="text-sm font-semibold text-gs-black-900">{{ $subscriptionStatus }}</p>
+                </div>
+                <div class="rounded border border-gs-black-200 bg-gs-black-50 px-3 py-2">
+                    <p class="text-xs uppercase tracking-wide text-gs-black-600">Current period ends</p>
+                    <p class="text-sm font-semibold text-gs-black-900">{{ $periodEnd ? $periodEnd->format('Y-m-d H:i') : 'N/A' }}</p>
+                </div>
+            </div>
+
+            @if (is_string($billingAccountId ?? null) && $billingAccountId !== '')
+                <p class="text-xs text-gs-black-600">Workspace: {{ $billingAccountId }}</p>
+            @endif
         </x-ui.card>
     </div>
 @endsection
