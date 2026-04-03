@@ -5,7 +5,7 @@
         $seoTitle = $title ?? 'GraceSoft Capture';
         $seoDescription = $metaDescription ?? 'Access your GraceSoft Capture account securely.';
         $seoCanonical = $canonicalUrl ?? url()->current();
-        $seoImage = $metaImage ?? asset('logo.svg');
+        $seoImage = $metaImage ?? asset('og.png');
         $seoRobots = $metaRobots ?? 'noindex,nofollow';
     @endphp
     <meta charset="UTF-8">

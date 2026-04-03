@@ -5,7 +5,7 @@
         $seoTitle = $title ?? 'Form';
         $seoDescription = $metaDescription ?? 'Secure form collection powered by GraceSoft Capture.';
         $seoCanonical = $canonicalUrl ?? url()->current();
-        $seoImage = $metaImage ?? asset('logo.svg');
+        $seoImage = $metaImage ?? asset('og.png');
         $seoRobots = $metaRobots ?? 'noindex,nofollow';
     @endphp
     <meta charset="UTF-8">
