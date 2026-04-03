@@ -1,13 +1,36 @@
 <!doctype html>
 <html lang="en">
 <head>
+    @php
+        $seoTitle = $title ?? 'GraceSoft Capture';
+        $seoDescription = $metaDescription ?? 'GraceSoft Capture helps teams collect forms, replies, and customer feedback securely.';
+        $seoCanonical = $canonicalUrl ?? url()->current();
+        $seoImage = $metaImage ?? asset('logo.svg');
+        $seoRobots = $metaRobots ?? 'index,follow';
+    @endphp
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ $seoDescription }}">
+    <meta name="robots" content="{{ $seoRobots }}">
+    <link rel="canonical" href="{{ $seoCanonical }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $seoTitle }}">
+    <meta property="og:description" content="{{ $seoDescription }}">
+    <meta property="og:url" content="{{ $seoCanonical }}">
+    <meta property="og:image" content="{{ $seoImage }}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoTitle }}">
+    <meta name="twitter:description" content="{{ $seoDescription }}">
+    <meta name="twitter:image" content="{{ $seoImage }}">
+
     <link rel="icon" type="image/svg+xml" href="{{ asset('logo.svg') }}">
-    <title>{{ $title ?? 'GraceSoft Capture' }}</title>
+    <title>{{ $seoTitle }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    @stack('meta')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gs-black-50 text-gs-black-900">
