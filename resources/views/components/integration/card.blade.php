@@ -4,7 +4,7 @@
 ])
 
 @php
-    $embedCode = '<iframe src="' . route('forms.show', $form->public_token) . '" width="100%" height="500"></iframe>';
+    $embedCode = '<iframe src="' . route('forms.show', ['token' => $form->public_token, 'surface' => 'none']) . '" width="100%" height="600" style="display:block;width:100%;max-width:100%;border:0;background:transparent;"></iframe>';
 @endphp
 
 <tr class="border-b border-gray-200 align-top">

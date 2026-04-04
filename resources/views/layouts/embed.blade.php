@@ -33,13 +33,17 @@
     @stack('meta')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        .theme-default { border-top: 4px solid #111827; }
-        .theme-sunrise { border-top: 4px solid #ea580c; background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%); }
-        .theme-forest { border-top: 4px solid #166534; background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%); }
+        .theme-default { border-top: 0; }
+        .theme-sunrise { border-top: 0; background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%); }
+        .theme-forest { border-top: 0; background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%); }
     </style>
 </head>
-<body class="bg-gs-black-50 text-gs-black-900 min-h-screen py-8 px-4">
-    <main class="mx-auto w-full max-w-3xl">
+@php
+    $resolvedEmbedSurface = $embedSurface ?? 'card';
+    $isTransparentSurface = $resolvedEmbedSurface === 'none';
+@endphp
+<body class="{{ $isTransparentSurface ? 'bg-transparent text-gs-black-900 min-h-0 p-0' : 'bg-gs-black-50 text-gs-black-900 min-h-screen py-8 px-4' }}">
+    <main class="{{ $isTransparentSurface ? 'w-full' : 'mx-auto w-full max-w-3xl' }}">
         @yield('content')
     </main>
 </body>

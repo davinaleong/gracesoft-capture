@@ -1,7 +1,12 @@
 @extends('layouts.embed', ['title' => $form->name])
 
 @section('content')
-	<x-form.wrapper :title="$form->name" description="Fill out the form below and we will get back to you soon." :class="$themeClass">
+	<x-form.wrapper
+		:title="$form->name"
+		description="Fill out the form below and we will get back to you soon."
+		:surface="$embedSurface ?? 'card'"
+		:class="($embedSurface ?? 'card') === 'none' ? '' : $themeClass"
+	>
 		@if (session('status'))
 			<x-form.success-state :message="session('status')" />
 		@endif

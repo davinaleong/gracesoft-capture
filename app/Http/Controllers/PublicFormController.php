@@ -28,6 +28,7 @@ class PublicFormController extends Controller
             'form' => $form,
             'customFields' => $this->resolvedCustomFields($form),
             'themeClass' => $this->resolvedThemeClass($form),
+            'embedSurface' => $this->resolvedEmbedSurface(request()),
         ]);
     }
 
@@ -315,5 +316,12 @@ class PublicFormController extends Controller
             'forest' => 'theme-forest',
             default => 'theme-default',
         };
+    }
+
+    private function resolvedEmbedSurface(Request $request): string
+    {
+        $surface = Str::lower(trim((string) $request->query('surface', 'card')));
+
+        return in_array($surface, ['none', 'transparent'], true) ? 'none' : 'card';
     }
 }
