@@ -13,10 +13,6 @@
                     <x-ui.input id="name" name="name" :value="old('name', $form->name)" required />
                 </x-ui.field>
 
-                <x-ui.field for="application_id" label="Application ID" required>
-                    <x-ui.input id="application_id" name="application_id" :value="old('application_id', $form->application_id)" required />
-                </x-ui.field>
-
                 <x-ui.field for="notification_email" label="Notification Email" class="md:col-span-2">
                     <x-ui.input id="notification_email" name="notification_email" type="email" :value="old('notification_email', data_get($form->settings, 'notification_email'))" />
                 </x-ui.field>

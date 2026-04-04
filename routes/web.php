@@ -15,6 +15,7 @@ use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\PublicFormController;
 use App\Http\Controllers\SsoController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\UserEmailVerificationController;
 use App\Http\Controllers\UserPasswordResetController;
@@ -140,6 +141,8 @@ Route::prefix('panel/support')->middleware(['auth.any', 'access.context'])->name
 
 Route::view('/privacy-policy', 'legal.privacy')->name('legal.privacy');
 Route::view('/terms-and-conditions', 'legal.terms')->name('legal.terms');
+Route::get('/updates', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/updates/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 Route::post('/sso/login', [SsoController::class, 'login'])->name('sso.login');
 

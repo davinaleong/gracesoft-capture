@@ -147,13 +147,15 @@ class FormManagementController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'account_id' => ['nullable', 'uuid'],
-            'application_id' => ['required', 'uuid'],
+            'application_id' => ['nullable', 'uuid'],
             'notification_email' => ['nullable', 'email', 'max:255'],
         ]);
 
         $accountId = $this->resolveOperationalAccountId($request, $data['account_id'] ?? $form->account_id);
 
-        if (! $hqService->validateApplication($accountId, $data['application_id'])) {
+        $applicationId = (string) ($data['application_id'] ?? $form->application_id);
+
+        if ($applicationId !== (string) $form->application_id && ! $hqService->validateApplication($accountId, $applicationId)) {
             return back()->withErrors([
                 'application_id' => 'The selected application could not be validated with HQ.',
             ])->withInput();
@@ -165,7 +167,7 @@ class FormManagementController extends Controller
         $form->update([
             'name' => $data['name'],
             'account_id' => $accountId,
-            'application_id' => $data['application_id'],
+            'application_id' => $applicationId,
             'settings' => $settings,
         ]);
 

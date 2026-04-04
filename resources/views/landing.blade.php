@@ -113,6 +113,7 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
+                    <x-ui.button tag="a" href="{{ route('blog.index') }}" variant="neutral" size="sm">Product Updates</x-ui.button>
                     @if ($webUser)
                         <x-ui.button tag="a" href="{{ route('manage.forms.index') }}" variant="secondary" size="sm">Go to Dashboard</x-ui.button>
                     @else

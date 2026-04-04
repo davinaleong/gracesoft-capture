@@ -44,6 +44,7 @@
                 <img src="{{ asset('wm.svg') }}" alt="GraceSoft" style="width: 150px; height: auto;">
                 <div class="flex flex-wrap items-center gap-2">
                     <x-ui.button tag="a" href="{{ url('/') }}" size="sm" variant="neutral">Back to Landing</x-ui.button>
+                    <x-ui.button tag="a" href="{{ route('blog.index') }}" size="sm" variant="neutral">Updates</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('login') }}" size="sm" variant="secondary">User Login</x-ui.button>
                     <x-ui.button tag="a" href="{{ route('register') }}" size="sm" variant="secondary">Register</x-ui.button>
                     @if ($showAdminLoginLinks)
