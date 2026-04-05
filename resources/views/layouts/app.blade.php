@@ -96,7 +96,7 @@
                 <div class="flex items-center gap-3">
                     <a href="{{ route('manage.forms.index') }}" class="inline-flex items-center gap-2 rounded px-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gs-purple-300">
                         <img src="{{ asset('wm.svg') }}" alt="GraceSoft Capture" class="h-4 w-auto" />
-                        <img src="{{ asset('beta.svg') }}" alt="Beta" class="h-3 w-auto" />
+                        {{-- <img src="{{ asset('beta.svg') }}" alt="Beta" class="h-3 w-auto" /> --}}
                     </a>
 
                     <nav class="hidden items-center gap-2 md:flex md:gap-3">

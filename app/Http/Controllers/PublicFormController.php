@@ -22,13 +22,23 @@ class PublicFormController extends Controller
             ->where('is_active', true)
             ->firstOrFail();
 
-        $this->assertDomainAllowed(request(), $form);
+        $request = request();
+
+        $this->assertDomainAllowed($request, $form);
+
+        $statusMessage = session('status');
+
+        if (! is_string($statusMessage) || trim($statusMessage) === '') {
+            $isSubmitted = filter_var($request->query('submitted', false), FILTER_VALIDATE_BOOLEAN);
+            $statusMessage = $isSubmitted ? 'Thanks, your message has been sent.' : null;
+        }
 
         return response()->view('form', [
             'form' => $form,
             'customFields' => $this->resolvedCustomFields($form),
             'themeClass' => $this->resolvedThemeClass($form),
-            'embedSurface' => $this->resolvedEmbedSurface(request()),
+            'embedSurface' => $this->resolvedEmbedSurface($request),
+            'statusMessage' => $statusMessage,
         ]);
     }
 
@@ -150,8 +160,14 @@ class PublicFormController extends Controller
             }
         }
 
+        $surface = $this->resolvedEmbedSurface($request);
+
         return redirect()
-            ->route('forms.show', $form->public_token)
+            ->route('forms.show', [
+                'token' => $form->public_token,
+                'surface' => $surface,
+                'submitted' => '1',
+            ])
             ->with('status', 'Thanks, your message has been sent.');
     }
 

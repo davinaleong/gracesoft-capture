@@ -7,15 +7,15 @@
 		:surface="$embedSurface ?? 'card'"
 		:class="($embedSurface ?? 'card') === 'none' ? '' : $themeClass"
 	>
-		@if (session('status'))
-			<x-form.success-state :message="session('status')" />
+		@if (! empty($statusMessage))
+			<x-form.success-state :message="$statusMessage" />
 		@endif
 
 		@if ($errors->any())
 			<x-form.error-state />
 		@endif
 
-		<form action="{{ route('forms.submit', $form->public_token) }}" method="post" novalidate enctype="multipart/form-data">
+		<form action="{{ route('forms.submit', ['token' => $form->public_token, 'surface' => ($embedSurface ?? 'card')]) }}" method="post" novalidate enctype="multipart/form-data">
 			@csrf
 
 			<div class="sr-only" aria-hidden="true">
